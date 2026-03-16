@@ -1,0 +1,67 @@
+\chapter{Overview}
+\section{Giới thiệu MySQL}
+
+MySQL là một hệ quản trị cơ sở dữ liệu quan hệ (RDBMS - Relational Database Management System) mã nguồn mở phổ biến nhất trên thế giới. Được phát triển bởi MySQL AB vào năm 1995 và hiện thuộc sở hữu của Oracle Corporation, MySQL đã trở thành lựa chọn hàng đầu cho các ứng dụng web và doanh nghiệp trên toàn cầu.
+
+\textbf{Đặc điểm nổi bật của MySQL:}
+\begin{itemize}
+    \item \textbf{Mô hình dữ liệu quan hệ:} MySQL sử dụng mô hình dữ liệu quan hệ với các bảng (tables), hàng (rows), và cột (columns). Dữ liệu được tổ chức theo cấu trúc chặt chẽ với schema được định nghĩa trước.
+    \item \textbf{Ngôn ngữ SQL:} Hỗ trợ đầy đủ ngôn ngữ truy vấn có cấu trúc SQL (Structured Query Language), cho phép thực hiện các thao tác CRUD (Create, Read, Update, Delete) và các truy vấn phức tạp.
+    \item \textbf{Hỗ trợ ACID:} Đảm bảo tính Atomicity (nguyên tử), Consistency (nhất quán), Isolation (cô lập), và Durability (bền vững) cho các giao dịch.
+    \item \textbf{Hỗ trợ nhiều Storage Engine:} Bao gồm InnoDB (mặc định), MyISAM, Memory, và nhiều engine khác, mỗi loại tối ưu cho các use case khác nhau.
+    \item \textbf{Khả năng mở rộng:} Hỗ trợ replication (master-slave, master-master), clustering, và partitioning để mở rộng quy mô hệ thống.
+\end{itemize}
+
+\section{Giới thiệu Redis}
+
+Redis (Remote Dictionary Server) là một hệ thống lưu trữ dữ liệu dạng key-value trong bộ nhớ (in-memory), mã nguồn mở, được phát triển bởi Salvatore Sanfilippo vào năm 2009. Redis được thiết kế để đạt hiệu suất cực cao với khả năng xử lý hàng triệu thao tác mỗi giây.
+
+\textbf{Đặc điểm nổi bật của Redis:}
+\begin{itemize}
+    \item \textbf{Lưu trữ trong bộ nhớ (In-Memory):} Redis lưu trữ toàn bộ dữ liệu trong RAM, cho phép truy cập với độ trễ cực thấp (microseconds).
+    \item \textbf{Cấu trúc dữ liệu đa dạng:} Hỗ trợ nhiều kiểu dữ liệu như Strings, Hashes, Lists, Sets, Sorted Sets, Bitmaps, HyperLogLogs, và Streams.
+    \item \textbf{Persistence (Bền vững):} Hỗ trợ RDB (Redis Database Backup) snapshots và AOF (Append Only File) để đảm bảo dữ liệu không bị mất khi hệ thống khởi động lại.
+    \item \textbf{Pub/Sub Messaging:} Cung cấp cơ chế publish/subscribe cho việc giao tiếp giữa các ứng dụng theo thời gian thực.
+    \item \textbf{Transactions và Lua Scripting:} Hỗ trợ giao dịch với lệnh MULTI/EXEC và khả năng thực thi script Lua phía server.
+    \item \textbf{High Availability:} Redis Sentinel cung cấp khả năng giám sát, thông báo, và tự động failover. Redis Cluster hỗ trợ sharding dữ liệu tự động.
+\end{itemize}
+
+\section{Mục tiêu của đề tài}
+
+Đề tài này được thực hiện với các mục tiêu chính sau:
+
+\begin{enumerate}
+    \item \textbf{Nghiên cứu và so sánh hai hệ quản trị cơ sở dữ liệu:} Phân tích chuyên sâu về kiến trúc, tính năng, và nguyên lý hoạt động của MySQL (đại diện cho RDBMS truyền thống) và Redis (đại diện cho NoSQL in-memory database).
+    
+    \item \textbf{So sánh hiệu năng:} Đánh giá và so sánh hiệu suất của hai hệ thống trên các tiêu chí:
+    \begin{itemize}
+        \item Tốc độ đọc/ghi dữ liệu
+        \item Khả năng xử lý đồng thời (concurrency)
+        \item Độ trễ (latency) và throughput
+        \item Sử dụng tài nguyên hệ thống (CPU, RAM, Disk I/O)
+    \end{itemize}
+    
+    \item \textbf{Phân tích cơ chế kiểm soát đồng thời:} Nghiên cứu và so sánh các cơ chế:
+    \begin{itemize}
+        \item Các mức độ isolation trong MySQL (READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE)
+        \item Cơ chế xử lý đồng thời single-threaded của Redis
+        \item Lock mechanisms và MVCC (Multi-Version Concurrency Control)
+    \end{itemize}
+    
+    
+    \item \textbf{Xây dựng bộ test benchmark:} Thiết kế và triển khai các test case để đo lường và so sánh hiệu năng thực tế của hai hệ thống trong các tình huống khác nhau.
+    
+    \item \textbf{Đề xuất use case phù hợp:} Dựa trên kết quả nghiên cứu, đưa ra các khuyến nghị về việc lựa chọn MySQL hoặc Redis cho các bài toán cụ thể trong thực tế.
+\end{enumerate}
+
+\section{Phạm vi nghiên cứu}
+
+Trong khuôn khổ đề tài này, nhóm tập trung nghiên cứu các khía cạnh sau:
+
+\begin{itemize}
+    \item \textbf{MySQL:} Sử dụng phiên bản MySQL 8.0 với storage engine InnoDB (mặc định).
+    \item \textbf{Redis:} Sử dụng phiên bản Redis 7.x với cả hai chế độ persistence (RDB và AOF).
+    \item \textbf{Môi trường thử nghiệm:} Các thử nghiệm được thực hiện trên cùng một cấu hình phần cứng để đảm bảo tính công bằng khi so sánh.
+    \item \textbf{Bộ dữ liệu:} Sử dụng bộ dữ liệu BikeStores và Sales Transaction để thực hiện các thử nghiệm.
+\end{itemize}
+

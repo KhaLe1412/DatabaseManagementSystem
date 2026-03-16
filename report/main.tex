@@ -1,0 +1,149 @@
+\documentclass[12pt, a4paper, oneside]{report}
+\usepackage{graphicx}
+\usepackage[utf8]{vietnam}
+\usepackage{adjustbox} % nhớ khai báo ở phần đầu tài liệu
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{longtable} 
+\usepackage[
+    inner = 2.5cm,
+    outer = 1.5cm,
+    bottom=2cm,
+    top=2.5cm
+]{geometry}
+\usepackage{setspace}
+\setstretch{1.5}
+\renewcommand{\baselinestretch}{1}
+\usepackage{mlmodern}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr, lastpage}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{etoolbox}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage[Conny]{fncychap}
+\usepackage{listings}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tablefootnote}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage[table]{xcolor}
+\usepackage{longtable}
+
+\makeatletter
+\patchcmd{\@makechapterhead}{\vspace*{50\p@}}{\vspace*{-5\p@}}{}{}
+\makeatother
+%Options: Sonny, Lenny, Glenn, Conny, Rejne, Bjarne, Bjornstrup
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{\includegraphics[width=7cm]{bk_name_en.png}}
+\cfoot{Page \thepage\ of \pageref{LastPage}}
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+% \usepackage{xcolor}
+% \usepackage{mdframed}
+\titleformat{\subsubsection}[runin] % runin keeps it on the same line
+{\bfseries} % Format: bold text
+{} % No prefix, you can include numbering here if needed
+{0em} % Space between label and title text
+{} % Code before title
+\setcounter{secnumdepth}{3}
+
+\begin{document}
+{
+\thispagestyle{empty} 
+\centering
+    \vspace*{1cm}
+    
+    \Large
+    \textbf{ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH TRƯỜNG ĐẠI HỌC BÁCH KHOA}
+    
+    \vspace{0.5cm}
+    \Large
+    \textbf{Khoa Khoa học và Kỹ thuật Máy tính }
+    
+    \vspace{0.5cm}
+    
+    \includegraphics[width=0.5\textwidth]{01_logobachkhoasang.png}\\
+    \large
+    \textbf{BÀI TẬP LỚN}
+    \\
+    \textbf{HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU}
+    \vspace{0.5cm}
+    \vspace{0.5cm}
+    
+    \textbf{ĐỀ TÀI: SO SÁNH 2 DBMS REDIS VÀ MYSQL, TRIỂN KHAI HỆ THỐNG HỖ TRỢ TUTOR CHO SINH VIÊN BÁCH KHOA}
+    \vspace{0.5cm}
+    \vspace{1cm}
+    \large
+    \textbf{Nhóm: 9}
+    \\
+    \textbf{GVHD: Cô Lê Thị Bảo Thu}
+    \vspace{0.5cm}
+    \begin{table}[H]
+    \vspace{0.5cm}
+    \centering
+    \begin{tabular}{c|c|c}
+        \textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} \\
+        \hline
+        1 & Lê Triều Kha & 2311388 \\ 
+        2 & Trương Thanh Nhân & 2312453 \\
+        3 & Nguyễn Hữu Thời & 2313341 \\
+        4 & Huỳnh Hữu Nhật & 2312469 \\
+        5 & Hà Thành Trung & 2233137 \\
+        \hline
+        
+    \end{tabular}
+    \end{table}
+    
+    \vfill
+    
+    \normalsize
+    Thành phố Hồ Chí Minh, tháng 9 năm 2025
+    
+}
+
+\chapter*{Bảng phân việc}
+\begin{table}[H]
+    \centering
+    % Thiết lập độ rộng bảng bằng độ rộng văn bản
+    % |c|l|X|c| : MSSV căn giữa, Tên căn trái, Công việc tự động xuống dòng, % căn giữa
+    \begin{tabularx}{\textwidth}{|c|l|X|c|}
+        \hline
+        \textbf{MSSV} & \textbf{Họ tên} & \centering\arraybackslash\textbf{Công việc} & \textbf{HT} \\
+        \hline
+        2311388 & Lê Triều Kha & Thực hiện phần so sánh concurrency. & 100\% \\
+        \hline
+        2312453 & Trương Thanh Nhân & Thực hiện phần so sánh indexing. & 100\% \\
+        \hline
+        2312469 & Huỳnh Hữu Nhật & Thực hiện phần data storage, management. & 100\% \\
+        \hline
+        2313341 & Nguyễn Hữu Thời & Thực hiện phần so sánh transaction. & 100\% \\
+        \hline
+        2233137 & Hà Thành Trung & Thực hiện phần query processing. & 100\% \\
+        \hline
+    \end{tabularx}
+    \caption{Bảng phân việc nhóm}
+    \label{tab:bang-phan-viec}
+\end{table}
+
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+\tableofcontents
+\newpage
+
+\input{chapter/overview.tex}
+
+
+\section*{Reference Link}
+\begin{enumerate}
+    \item Reference Link to Github: \url{https://github.com/KhaLe1412/SoftwareEngineering.git}
+    \item Reference Link to Figma: \url{https://www.figma.com/make/00kQiiqXgiGapfIcdJLwvS/Tutor-Student-Management-System?t=Ci9fSiMSlLRKqwql-20&fullscreen=1}
+\end{enumerate}
+
+
+\end{document}
