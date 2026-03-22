@@ -1,2 +1,425 @@
 \section{Data Storage and Management}
-something
+
+\subsection{Mục tiêu}
+Mục tiêu của phần này là phân tích sự khác biệt cốt lõi trong kiến trúc lưu trữ vật lý, cách quản lý không gian và cơ chế độ bền dữ liệu giữa \textbf{MySQL} (Relational DBMS) và \textbf{Redis} (In-memory NoSQL). Báo cáo sẽ đi từ cấu trúc lưu trữ cơ bản đến các kỹ thuật tối ưu hóa chuyên sâu (như Eviction, Internal Encodings, Fragmentation), đồng thời thực hiện Benchmark để so sánh mức tiêu thụ tài nguyên lưu trữ (Storage Footprint) thông qua tập dữ liệu \textit{BikeStores} và \textit{Sales Transactions}.
+
+\subsection{Cơ chế lưu trữ vật lý (Physical Storage)}
+
+\subsubsection{Lưu trữ trong MySQL (Disk-Based Storage)}
+
+Trong MySQL, với \textit{Storage Engine} mặc định là \textbf{InnoDB}, dữ liệu được thiết kế để lưu trữ vĩnh viễn trên ổ đĩa vật lý (HDD/SSD).
+
+\vspace{1em}
+
+\noindent\textbf{Cấu trúc Tablespace và Pages:} 
+Toàn bộ dữ liệu bảng và chỉ mục được lưu trong các tệp \texttt{.ibd}. Không gian này được chia nhỏ thành các trang dữ liệu (\textit{Pages}) có kích thước cố định (mặc định 16KB). 
+
+\vspace{0.5em}
+
+\noindent\textbf{Bộ nhớ đệm (Buffer Pool):} 
+Để giảm thiểu độ trễ vật lý (\textit{Disk I/O}), InnoDB nạp các \textit{Pages} thường xuyên truy cập từ đĩa lên một vùng RAM gọi là \textit{Buffer Pool}. Khi có truy vấn, hệ thống ưu tiên đọc từ bộ nhớ đệm trước, nếu không tìm thấy mới thực hiện lệnh đọc đĩa.
+
+\subsubsection{Lưu trữ trong Redis (In-Memory Storage)}
+
+Trái ngược với MySQL, Redis hoạt động hoàn toàn trên bộ nhớ chính (\textit{RAM}) thông qua một \textit{Global Hash Table}.
+
+\vspace{1em}
+
+\noindent\textbf{Truy xuất siêu tốc và Giới hạn dung lượng:} 
+Vì không có khái niệm \textit{Page} hay \textit{Disk I/O}, mỗi \textit{Key} trong Redis trỏ trực tiếp đến địa chỉ ô nhớ chứa \textit{Value}. Tốc độ đọc/ghi đạt mức micro-giây. Tuy nhiên, giới hạn lưu trữ phụ thuộc hoàn toàn vào dung lượng RAM hiện có của hệ thống máy chủ, khiến chi phí mở rộng lớn hơn nhiều so với việc mua ổ cứng lưu trữ.
+
+
+\subsection{Quản lý bộ nhớ và Tối ưu hóa chuyên sâu}
+
+\subsubsection{Quản lý giới hạn không gian (Eviction Policies)}
+Khi phân vùng lưu trữ bị đầy, hai hệ thống có cách xử lý hoàn toàn khác biệt:
+
+\begin{itemize}
+    \item \textbf{MySQL:} Sẽ báo lỗi \textit{"Disk Full"} và từ chối các lệnh \texttt{INSERT}/\texttt{UPDATE} mới. Quản trị viên phải can thiệp thủ công (thêm dung lượng đĩa hoặc xóa dữ liệu).
+    \item \textbf{Redis:} Cho phép thiết lập cấu hình \texttt{maxmemory}. Khi RAM đầy, Redis tự động kích hoạt các chiến lược đào thải (\textit{Eviction}) như \textbf{LRU} (Xóa Key lâu không dùng), \textbf{LFU} (Xóa Key ít dùng nhất), hoặc dựa trên \textbf{TTL} (Thời gian sống của Key). Cơ chế này giúp Redis tự duy trì hoạt động như một hệ thống \textit{Cache} hoàn hảo.
+\end{itemize}
+
+\subsubsection{Tối ưu hóa cấu trúc nội bộ (Internal Memory Encodings)}
+Nhìn từ bên ngoài, lưu trữ \textit{Hash} hay \textit{Set} trong Redis tốn khá nhiều metadata (con trỏ bộ nhớ). Tuy nhiên, Redis tự động áp dụng các thuật toán nén tinh vi:
+
+\textit{Cơ chế Ziplist/Listpack:} Với các cấu trúc \textit{Hash} có số lượng trường (\textit{fields}) ít và chuỗi ngắn (như bản ghi sản phẩm trong \texttt{production.products}), Redis không khởi tạo \textit{Hash Table} thực sự. Nó mã hóa toàn bộ dữ liệu thành một khối byte liên tục (\textit{Ziplist}), loại bỏ hoàn toàn các con trỏ dư thừa để tiết kiệm tối đa dung lượng RAM.
+
+\subsubsection{Phân mảnh lưu trữ (Storage Fragmentation)}
+Sau quá trình \texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE} liên tục, cả hai hệ thống đều sinh ra các khoảng trống vật lý vô ích.
+
+\begin{itemize}
+    \item \textbf{MySQL:} Xảy ra phân mảnh đĩa (Disk Fragmentation) do hiện tượng \textit{Page Split}. Quản trị viên cần định kỳ chạy lệnh \texttt{OPTIMIZE TABLE} để dồn đĩa.
+    \item \textbf{Redis:} Xảy ra phân mảnh RAM do trình cấp phát bộ nhớ của OS (\texttt{jemalloc}) không thể tận dụng các mảnh RAM lẻ tẻ. Redis cung cấp tính năng \textit{Active Defragmentation} giúp tự động dồn RAM ngầm dưới nền mà không làm gián đoạn hệ thống.
+\end{itemize}
+
+
+\subsection{Cơ chế độ bền dữ liệu (Data Persistence)}
+
+\subsubsection{MySQL: Đảm bảo ACID với Write-Ahead Logging}
+Mọi thao tác thay đổi dữ liệu không được ghi trực tiếp xuống file \texttt{.ibd} ngay lập tức mà được ghi tuần tự vào \textbf{Redo Log} trên đĩa. Cơ chế này đảm bảo tính bền vững (Durability) tuyệt đối, giúp MySQL có thể khôi phục lại dữ liệu bị mất trên \textit{Buffer Pool} nếu máy chủ đột ngột sập nguồn.
+
+\subsubsection{Redis: Tùy chọn RDB và AOF}
+Do dữ liệu lưu trên RAM sẽ biến mất khi mất điện, Redis cung cấp hai giải pháp để sao lưu xuống đĩa cứng:
+\begin{itemize}
+    \item \textbf{RDB (Redis Database Snapshot):} Định kỳ nén toàn bộ RAM thành một file nhị phân (\texttt{dump.rdb}). Khởi động lại nhanh, nhưng có thể mất dữ liệu ở giữa 2 lần snapshot.
+    \item \textbf{AOF (Append Only File):} Ghi lại toàn bộ các lệnh thay đổi dữ liệu (\texttt{SET}, \texttt{HSET}) vào file log. An toàn hơn RDB nhưng làm file log phình to và thời gian phục hồi chậm hơn.
+\end{itemize}
+
+
+\subsection{Benchmark}
+\subsubsection{Test Case 1: Đánh giá không gian lưu trữ (Storage Footprint)}
+
+\leavevmode\par
+\vspace{0.5em}
+
+\noindent Mô tả kịch bản kiểm thử: Đánh giá và so sánh mức độ tiêu thụ không gian lưu trữ (trên đĩa vật lý và trên bộ nhớ RAM) khi hệ thống quản lý cùng một tập dữ liệu.
+
+\begin{itemize}
+    \item \textbf{Dữ liệu sử dụng:} Toàn bộ cơ sở dữ liệu mẫu \textit{BikeStores} (bao gồm 9 bảng phân bổ trong schema \texttt{production} và \texttt{sales}).
+    \item \textbf{Yêu cầu:} Trích xuất tổng dung lượng lưu trữ (bao gồm Data và Index đối với MySQL) và dung lượng bộ nhớ cấp phát thực tế (đối với Redis) để đối chiếu.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{1. Thực thi và đo lường trên MySQL (Disk Storage)}
+
+\textit{Phương pháp:} Sử dụng bảng hệ thống \texttt{information\_schema.TABLES} để tính tổng dung lượng vật lý bao gồm cả phần dữ liệu thô (\texttt{data\_length}) và phần chỉ mục (\texttt{index\_length}) của hai lược đồ \texttt{production} và \texttt{sales}.
+
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+SELECT table_schema AS 'Database', 
+       ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'Size (MB)'
+FROM information_schema.TABLES 
+WHERE table_schema IN ('production', 'sales')
+GROUP BY table_schema;
+\end{lstlisting}
+
+\textit{Kết quả đo lường:} Hệ thống trả về 0.19 MB cho lược đồ \texttt{production} và 0.91 MB cho lược đồ \texttt{sales}. Tổng cộng, MySQL tiêu tốn \textbf{1.10 MB} dung lượng lưu trữ trên đĩa cứng.
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/mysql_storage.png}
+    \caption{Dung lượng lưu trữ trên đĩa cứng của tập dữ liệu BikeStores trong MySQL}
+    \label{fig:mysql_storage}
+\end{figure}
+
+\vspace{1em}
+
+\noindent\textbf{2. Thực thi và đo lường trên Redis (In-memory Storage)}
+
+Do Redis hoạt động theo mô hình \textit{Key-Value} và không có cấu trúc bảng định nghĩa trước (\textit{Schema-less}), mỗi bản ghi dữ liệu (như sản phẩm, khách hàng, đơn hàng) cùng với các tập hợp chỉ mục phụ (\textit{Sets}) để duy trì mối quan hệ đều phải được lưu trữ dưới dạng các Key độc lập trên bộ nhớ.
+
+\vspace{0.5em}
+
+\noindent\textit{Câu lệnh truy xuất:}
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+DBSIZE
+INFO memory
+\end{lstlisting}
+
+\noindent\textit{Phương pháp đo lường:}
+
+Nhóm sử dụng lệnh \texttt{DBSIZE} để đếm tổng số lượng Key hiện có, nhằm xác nhận toàn bộ tập dữ liệu mẫu (\textit{BikeStores}) đã được nạp thành công vào hệ thống. Tiếp đó, lệnh \texttt{INFO memory} được thực thi. Thông qua chỉ số \texttt{used\_memory\_human}, nhóm trích xuất được dung lượng RAM vật lý thực tế mà Redis đang cấp phát.
+
+\vspace{0.5em}
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_memo1.png}
+    \caption{Dung lượng RAM tiêu thụ của tập dữ liệu trong Redis}
+    \label{fig:redis_storage}
+\end{figure}
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_memo2.png}
+    \caption{Dung lượng RAM tiêu thụ của tập dữ liệu trong Redis (tiếp)}
+    \label{fig:placeholder}
+\end{figure}
+
+\textbf{Dung lượng lưu trữ thực tế:} Tiêu hao khoảng \textbf{2.00 MB} bộ nhớ RAM để quản lý tổng cộng \textbf{12,165 Keys}.
+
+Mặc dù tập dữ liệu mẫu có quy mô nhỏ, việc tiêu tốn 2.00 MB cho khoảng 12 nghìn bản ghi cho thấy Redis có mức hao tốn không gian lưu trữ cao hơn so với định dạng nén nhị phân trên đĩa cứng của MySQL. Nguyên nhân cốt lõi xuất phát từ kiến trúc lưu trữ:
+
+\begin{itemize}
+    \item \textbf{Chi phí siêu dữ liệu (Metadata Overhead):} Mỗi Key trong số 12,165 Keys đều yêu cầu không gian cấp phát riêng cho các con trỏ bộ nhớ (\textit{Pointers}) và các siêu dữ liệu để quản lý vòng đời của Key đó.
+    \item \textbf{Lặp lại tên trường (Field Duplication):} Khác với MySQL chỉ lưu tên cột 1 lần duy nhất ở Header của bảng, Redis buộc phải lưu lặp đi lặp lại các chuỗi ký tự tên trường (ví dụ: \texttt{product\_id}, \texttt{list\_price}, \texttt{quantity}) bên trong hàng ngàn cấu trúc \textit{Hash} riêng biệt.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{Kết luận Test Case 1}
+
+Với cùng một tập dữ liệu \textit{BikeStores}, MySQL chỉ tiêu thụ \textbf{1.10 MB} không gian đĩa vật lý, trong khi Redis cần đến \textbf{2.00 MB} bộ nhớ RAM (gần gấp đôi). Sự chênh lệch này minh chứng rõ nét cho khả năng tối ưu hóa lưu trữ của kiến trúc quan hệ (\textit{Relational Database}) so với kiến trúc \textit{Key-Value}:
+
+\begin{enumerate}
+    \item \textbf{Cấu trúc Key lặp lại:} Redis lưu trữ các tên cột (\textit{fields} như \texttt{list\_price}, \texttt{quantity}) lặp đi lặp lại trong mọi \textit{Hash}. MySQL chỉ định nghĩa ở \textit{Header} của cấu trúc bảng.
+    \item \textbf{Định dạng chuỗi:} Redis có xu hướng lưu trữ giá trị dưới dạng chuỗi (String), tiêu tốn nhiều byte hơn so với kiểu số nguyên nhị phân của cơ sở dữ liệu quan hệ.
+    \item \textbf{Chỉ mục phụ thủ công:} Việc tạo ra hàng loạt các \textit{Set} để duy trì quan hệ (\texttt{brand\_id}, \texttt{category\_id}) tiêu tốn thêm lượng lớn bộ nhớ cho con trỏ (pointers).
+    \item \textbf{Tối ưu hóa Schema:} MySQL định nghĩa cấu trúc bảng (\textit{Schema}) một lần duy nhất ở phần \textit{Header}, giúp dữ liệu thực tế bên dưới chỉ chứa các giá trị. Trong khi đó, tính chất \textit{Schema-less} khiến Redis phải lặp lại tên trường (\texttt{product\_id}, \texttt{quantity},...) hàng vạn lần.
+    \item \textbf{Mã hóa nhị phân:} Các kiểu dữ liệu dạng số trong MySQL (\texttt{INT}, \texttt{SMALLINT}, \texttt{DECIMAL}) được lưu dưới dạng nhị phân với kích thước cố định, nhỏ gọn hơn nhiều so với việc lưu toàn bộ dữ liệu dưới dạng chuỗi (\textit{String}) như cách cấu trúc \textit{Hash} của Redis thực hiện.
+\end{enumerate}
+
+\subsubsection{Test Case 2: Tốc độ nạp dữ liệu hàng loạt (Bulk Insert Performance)}
+
+\leavevmode\par
+\vspace{0.5em}
+
+\noindent Mô tả kịch bản kiểm thử: Đánh giá hiệu năng và thời gian thực thi của hệ quản trị khi phải tiếp nhận và phân bổ một khối lượng dữ liệu khổng lồ vào hệ thống trong thời gian ngắn.
+
+\begin{itemize}
+    \item \textbf{Dữ liệu sử dụng:} Bộ dữ liệu \textit{Sales Transactions} bao gồm hơn 500,000 bản ghi giao dịch (tương ứng với file \texttt{.csv} cho MySQL và file \texttt{.txt} cho Redis).
+    \item \textbf{Yêu cầu:} Đo lường tổng thời gian để nạp hoàn tất toàn bộ nửa triệu dòng dữ liệu vào cơ sở dữ liệu.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{1. Thực thi và đo lường trên MySQL (Disk Storage)}
+
+\textit{Phương pháp:} Sử dụng lệnh \texttt{LOAD DATA INFILE} của MySQL để đọc và chèn trực tiếp dữ liệu từ file \texttt{Sales Transaction v.4a.csv} vào bảng \texttt{sales\_benchmark.transactions}. Đây là phương pháp nạp dữ liệu nhanh nhất được hỗ trợ bởi hệ quản trị cơ sở dữ liệu quan hệ này.
+
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+LOAD DATA INFILE '.../Sales Transaction v.4a.csv'
+INTO TABLE sales_benchmark.transactions
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(transaction_no, @var_date, product_no, @dummy, price, quantity, customer_no, country)
+SET transaction_date = STR_TO_DATE(@var_date, '%m/%d/%Y');
+\end{lstlisting}
+
+\textit{Kết quả đo lường:} Quá trình chèn hơn 500,000 dòng hoàn tất trong khoảng 1 phút 5.32 giây. 
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/mysql_test2.png}
+    \caption{Thời gian thực thi lệnh nạp hơn 500,000 bản ghi vào MySQL}
+    \label{fig:mysql_bulk}
+\end{figure}
+\vspace{1em}
+
+\noindent\textbf{2. Thực thi và đo lường trên Redis (In-memory Storage)}
+
+Việc nạp nửa triệu dòng thông qua các lệnh gọi client-server thông thường sẽ bị nghẽn cổ chai ở băng thông mạng (\textit{Network Round-trip Time}). Do đó, Redis cung cấp chế độ nạp siêu tốc \textit{Mass Insertion}.
+
+\vspace{0.5em}
+
+\noindent\textit{Câu lệnh truy xuất:}
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+redis-cli --pipe < "sales_transactions_redis.txt"
+\end{lstlisting}
+
+\noindent\textit{Phương pháp đo lường:}
+Nhóm thực thi lệnh ống (\texttt{pipe}) trong Terminal để đẩy trực tiếp file văn bản chứa hàng trăm ngàn lệnh \texttt{HSET} (tạo Hash) và \texttt{SADD} (tạo Set) vào máy chủ Redis. Redis sẽ tự động tối ưu hóa bộ đệm và trả về tổng thời gian thực thi khi hoàn tất.
+
+\vspace{0.5em}
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_test2.png}
+    \caption{Thời gian thực thi lệnh Mass Insertion trên Redis}
+    \label{fig:redis_bulk}
+\end{figure}
+
+\textbf{Thời gian thực thi thực tế:} Hệ thống Redis xử lý hàng trăm nghìn lệnh \texttt{HSET} và hoàn tất quá trình nạp trong 33.29 giây. Redis nhanh gấp 2 lần MySQL trong điều kiện thực tế trên máy cá nhân. Lưu ý rằng Redis vừa nạp vừa phải thực hiện "đào thải" dữ liệu liên tục vì giới hạn RAM 2MB cực thấp, trong khi MySQL chỉ việc ghi thuần túy xuống đĩa. Nếu RAM Redis đủ lớn, tốc độ sẽ nhanh hơn gấp nhiều lần.
+
+\vspace{0.5em}
+
+\noindent\textbf{Kết luận Test Case 2}
+
+Với cùng một tập dữ liệu quy mô lớn, Redis chứng minh tốc độ ghi (\textit{Write}) vượt trội hoàn toàn so với MySQL, gấp 2 lần tốc độ so với MySQL. Nguyên nhân của sự chênh lệch hiệu năng này bao gồm:
+
+\begin{enumerate}
+    \item \textbf{Cơ chế ghi nhật ký (Redo Log):} Để đảm bảo tính an toàn ACID, MySQL bắt buộc phải ghi tuần tự mọi thao tác chèn xuống \textit{Redo Log} trên ổ đĩa vật lý trước khi lưu vào bảng. Quá trình \textit{Disk I/O} này là nguyên nhân chính làm chậm hệ thống. Trong khi đó, Redis thao tác ghi đè trực tiếp trên RAM.
+    \item \textbf{Cập nhật cấu trúc (Page Split):} Khi có dữ liệu mới, MySQL liên tục phải chia tách các trang dữ liệu (\textit{Page Split}) và tái cân bằng lại cây \textit{B-Tree} của Khóa chính. Redis sử dụng \textit{Global Hash Table} không cần phân cấp cây nên không chịu chi phí này.
+    \item \textbf{Cơ chế khóa (Locking):} Việc chèn số lượng lớn vào cơ sở dữ liệu quan hệ đòi hỏi cơ chế quản lý giao dịch (\textit{Transaction}) phức tạp. Redis hoạt động theo luồng đơn (\textit{Single-threaded}) đối với các lệnh ghi, giúp loại bỏ hoàn toàn độ trễ do cạnh tranh tài nguyên (Lock contention).
+\end{enumerate}
+
+\subsubsection{Test Case 3: Phản ứng khi đạt giới hạn lưu trữ (Storage Overload and Eviction)}
+
+\leavevmode\par
+\vspace{0.5em}
+
+\noindent Mô tả kịch bản kiểm thử: Đánh giá triết lý xử lý của hai hệ thống khi dữ liệu nạp vào vượt quá ngưỡng tài nguyên được cấp phát định mức. Đây là bài kiểm tra quan trọng để xác định tính ổn định (\textit{Stability}) và tính sẵn sàng (\textit{Availability}) của cơ sở dữ liệu.
+
+\begin{itemize}
+\item \textbf{Dữ liệu sử dụng:} Tập dữ liệu giao dịch bán hàng khổng lồ (\textit{Sales Transactions}) với hơn 536,000 bản ghi.
+\item \textbf{Kịch bản ép tải:} Giới hạn dung lượng bộ nhớ RAM của Redis xuống mức cực đoan (\textbf{2.00 MB}) và nạp chồng dữ liệu để kích hoạt cơ chế tự bảo vệ.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{1. Thực thi và quan sát trên MySQL (Disk-Strict Policy)}
+
+\noindent\textbf{1. Thực thi và đo lường trên MySQL (Strict Memory Policy)}
+
+\textit{Phương pháp:} Nhóm thiết lập hạn mức bộ nhớ RAM tối đa cho các bảng tạm và bảng nhớ là \textbf{2MB}. Sau đó, thực hiện chuyển đổi cấu trúc lưu trữ của tập dữ liệu \textit{Sales Transactions} từ Disk-based (InnoDB) sang In-memory (MEMORY Engine).
+
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+    SET max_heap_table_size = 1024 * 1024 * 2;
+    ALTER TABLE transactions ENGINE = MEMORY;
+\end{lstlisting}
+
+\textit{Kết quả quan sát:}
+Hệ thống lập tức ngắt tiến trình chuyển đổi và trả về lỗi hệ thống nghiêm trọng:
+\begin{quote}
+    \texttt{ERROR 1114 (HY000): The table '\#sql-...' is full}
+\end{quote}
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/mysql_test3.png}
+    \caption{Thông báo lỗi của MySQL khi vượt quá giới hạn lưu trữ cho phép}
+    \label{fig:mysql_full}
+\end{figure}
+
+\textit{Phân tích hành vi:}
+MySQL thể hiện tính nhất quán (\textit{Consistency}) cao độ. Khi tài nguyên RAM không đủ để chứa toàn bộ tập dữ liệu, hệ thống thà từ chối thực hiện tác vụ còn hơn làm mất mát dữ liệu hoặc chỉ lưu trữ một phần. Điều này chứng minh MySQL không có cơ chế tự động đào thải (\textit{Eviction}) như Redis. Toàn bộ dữ liệu ban đầu vẫn được bảo toàn trong Engine InnoDB cũ, đảm bảo tính an toàn nhưng hy sinh tính sẵn sàng của dịch vụ mới.
+
+\vspace{1em}
+
+\noindent\textbf{2. Thực thi và đo lường trên Redis (In-memory Eviction)}
+
+Khác với MySQL, Redis được thiết kế với tư duy ưu tiên hiệu năng và sự liên tục. Khi bộ nhớ RAM đạt ngưỡng \texttt{maxmemory}, Redis triển khai các thuật toán đào thải dữ liệu (\textit{Eviction Policies}) để giải phóng không gian cho dữ liệu mới.
+
+\vspace{0.5em}
+
+\noindent\textit{Câu lệnh thiết lập kịch bản:}
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+CONFIG SET maxmemory 2mb
+CONFIG SET maxmemory-policy allkeys-lru
+INFO stats
+\end{lstlisting}
+
+\noindent\textit{Phương pháp đo lường:}
+Nhóm thiết lập chính sách \texttt{allkeys-lru} (loại bỏ các khóa ít được truy cập nhất gần đây). Sau khi nạp hơn 536,000 bản ghi vào không gian hạn hẹp 2MB, nhóm sử dụng lệnh \texttt{INFO stats} để trích xuất chỉ số \texttt{evicted\_keys}.
+
+\vspace{0.5em}
+
+\begin{figure} [H]
+\centering
+    \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_test3.png}
+    \caption{Thống kê số lượng bản ghi bị đào thải tự động trên Redis}
+    \label{fig:redis_eviction}
+\end{figure}
+
+\textbf{Kết quả đào thải thực tế:} Hệ thống ghi nhận đã tự động xóa bỏ tổng cộng \textbf{531,782 Keys}.
+
+Việc Redis chấp nhận "hi sinh" hơn 531 nghìn bản ghi cũ để giữ cho hệ thống không bị treo chứng minh sự khác biệt cốt lõi trong kiến trúc \textit{In-memory}:
+
+\begin{itemize}
+\item \textbf{Tính sẵn sàng cao (High Availability):} Redis duy trì khả năng tiếp nhận dữ liệu mới ngay cả khi tài nguyên đã cạn kiệt, phù hợp cho các hệ thống \textit{Caching} hoặc \textit{Real-time Stream}.
+\item \textbf{Cơ chế dọn dẹp chủ động:} Thay vì đợi hệ điều hành can thiệp, Redis tự quản lý vòng đời dữ liệu dựa trên tần suất sử dụng, giúp tối ưu hóa hiệu quả sử dụng RAM.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{Kết luận Test Case 3}
+
+Sự đối lập giữa MySQL và Redis trong bài thử nghiệm này làm nổi bật hai triết lý quản trị cơ sở dữ liệu khác nhau:
+
+\begin{enumerate}
+\item \textbf{MySQL:} Phù hợp cho các dữ liệu quan trọng về tài chính, thông tin người dùng, nơi một bản ghi bị mất cũng gây hậu quả nghiêm trọng.
+\item \textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới \textbf{531,782}, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu.
+\item \textbf{Tự động hóa quản lý:} Redis cho thấy khả năng tự điều tiết thông minh thông qua cấu hình chính sách (\textit{Policy}), trong khi MySQL đòi hỏi sự can thiệp thủ công từ quản trị viên (DBA) để mở rộng dung lượng đĩa khi gặp lỗi Full.
+\end{enumerate}
+
+\subsubsection{Test Case 4: Đánh giá thời gian phục hồi dữ liệu (Recovery Time Objective - RTO)}
+
+\leavevmode\par
+\vspace{0.5em}
+
+\noindent Mô tả kịch bản kiểm thử: Xác định khoảng thời gian cần thiết để hệ thống sẵn sàng phục vụ trở lại sau khi xảy ra sự cố dừng đột ngột hoặc thực hiện khởi động lại (\textit{Cold Boot}). Đây là chỉ số then chốt để đánh giá tính sẵn sàng (\textit{Availability}) của cơ sở dữ liệu.
+
+\begin{itemize}
+\item \textbf{Cơ chế kiểm tra:} Thực hiện lệnh khởi động lại dịch vụ và đo lường độ trễ từ lúc tiến trình bắt đầu nạp dữ liệu đến khi cho phép thực hiện truy vấn đầu tiên.
+\item \textbf{Yêu cầu:} Trích xuất thời gian hoàn tất quá trình nạp tệp tin lưu trữ bền vững (\textit{Data Persistence}) đối với Redis và khả năng sẵn sàng của cấu trúc đĩa đối với MySQL.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{1. Thực thi và đo lường trên MySQL (Disk-Persistence Ready)}
+
+\textit{Phương pháp:} Do kiến trúc của MySQL là \textit{Disk-based}, mọi thay đổi dữ liệu đã được cam kết (\textit{Committed}) đều được ghi trực tiếp xuống các tệp tin \texttt{.ibd} trên đĩa cứng.
+
+\vspace{0.5em}
+\noindent\textit{Đặc điểm phục hồi:}
+Khi dịch vụ MySQL Server khởi động, hệ thống chỉ cần kiểm tra tính toàn vẹn của tệp tin nhật ký giao dịch (\textit{Redo Log}) để thực hiện tiến trình \textit{Crash Recovery} nếu cần thiết.
+
+\begin{itemize}
+\item \textbf{Thời gian phục hồi:} Hơn \textbf{1 giây}, cụ thể là 1.16 giây, đồng nghĩa với việc MySQL sẵn sàng tức thì với việc phục hồi dữ liệu.
+\item \textbf{Cơ chế:} MySQL không cần nạp toàn bộ dữ liệu lên RAM mà chỉ nạp các trang dữ liệu (\textit{Data Pages}) cần thiết vào \textit{Buffer Pool} khi có truy vấn thực tế phát sinh.
+\end{itemize}
+
+\begin{figure} [H]
+\centering
+\includegraphics[width=0.75\linewidth]{figures//Nhật/mysql_test4.png}
+\caption{Trạng thái sẵn sàng của MySQL ngay sau khi khởi động dịch vụ}
+\label{fig:mysql_recovery}
+\end{figure}
+
+\vspace{1em}
+
+\noindent\textbf{2. Thực thi và đo lường trên Redis (Snapshot Loading)}
+
+Khác với MySQL, Redis là hệ quản trị \textit{In-memory}, do đó khi khởi động lại, hệ thống bắt buộc phải nạp lại dữ liệu từ tệp tin lưu trữ bền vững trên đĩa cứng vào bộ nhớ vật lý để sẵn sàng phục vụ.
+
+\vspace{0.5em}
+
+\noindent\textit{Câu lệnh kiểm tra thông số:}
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\small, breaklines=true, frame=single]
+redis-cli INFO persistence
+\end{lstlisting}
+
+\noindent\textit{Phương pháp đo lường:}
+Nhóm sử dụng cơ chế \textbf{RDB (Redis Database Backup)} để tạo ảnh chụp tức thời của tập dữ liệu. Thông qua chỉ số \texttt{rdb\_last\_bgsave\_time\_sec}, nhóm xác định được thời gian thực tế để Redis xử lý tệp tin snapshot.
+
+\vspace{0.5em}
+
+\begin{figure} [H]
+\centering
+\includegraphics[width=0.75\linewidth]{figures//Nhật/redis_test4.png}
+\caption{Thông số ghi nhận thời gian xử lý tệp tin RDB của Redis}
+\label{fig:redis_recovery}
+\end{figure}
+
+\textbf{Thời gian phục hồi thực tế:} Hệ thống ghi nhận \texttt{rdb\_last\_bgsave\_time\_sec} là \textbf{1 giây}.
+
+Dù là hệ thống chạy trên RAM, Redis vẫn đảm bảo khả năng khôi phục cực nhanh nhờ định dạng nhị phân tối ưu:
+\begin{itemize}
+\item \textbf{Tối ưu hóa nạp nén (Binary Loading):} Tệp tin RDB lưu trữ dữ liệu dưới dạng nhị phân nhỏ gọn, giúp tối thiểu hóa thời gian \textit{I/O} khi đọc từ đĩa cứng vào RAM.
+\item \textbf{Tính sẵn sàng sau sự cố:} Thời gian 1 giây cho thấy Redis hoàn toàn có thể đáp ứng các yêu cầu khắt khe về thời gian phục hồi sau thảm họa (\textit{Disaster Recovery}).
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{Kết luận Test Case 4}
+
+Cả hai hệ thống đều cho thấy khả năng phục hồi ấn tượng (đều xấp xỉ \textbf{1 giây}):
+\begin{enumerate}
+\item \textbf{MySQL:} Có lợi thế về tính sẵn sàng tức thì trên đĩa, phù hợp cho việc bảo toàn dữ liệu vĩnh viễn.
+\item \textbf{Redis:} Dù mất 1 giây để nạp lại RAM, nhưng ngay sau đó hệ thống sẽ đạt tốc độ truy xuất cực đại mà không cần qua giai đoạn "làm nóng" (\textit{Warm-up}) như MySQL.
+\end{enumerate}
+
+\subsection{Kết luận}
+
+\leavevmode\par
+\vspace{0.5em}
+
+Mặc dù cả hai hệ thống đều quản lý cùng một tập dữ liệu, sự khác biệt trong kiến trúc lưu trữ cốt lõi (\textit{Storage Engine}) dẫn đến những kết quả đối lập về hiệu quả sử dụng không gian. MySQL, với cơ chế \textit{B+ Tree Indexing} trên nền tảng InnoDB, thể hiện khả năng tối ưu hóa dung lượng vượt trội nhờ vào cấu trúc lược đồ cố định (\textit{Fixed Schema}). Việc chỉ định nghĩa tên trường (\textit{Field Name}) một lần duy nhất tại phần đầu của bảng (\textit{Table Header}) giúp MySQL triệt tiêu hoàn toàn sự dư thừa dữ liệu, đưa kích thước lưu trữ về mức tối thiểu trên đĩa cứng.
+
+Ngược lại, Redis vận hành theo mô hình \textit{Schema-less} và lưu trữ hoàn toàn trên RAM, dẫn đến một mức chi phí tài nguyên (\textit{Overhead}) đáng kể. Do bản chất của cấu trúc \textit{Hash} và \textit{Key-Value}, mỗi bản ghi trong Redis buộc phải mang theo các siêu dữ liệu (\textit{Metadata}) riêng biệt để quản lý vòng đời và con trỏ bộ nhớ. Đặc biệt, việc lặp lại các chuỗi ký tự tên trường (như \texttt{product\_id}, \texttt{quantity}) hàng triệu lần trong bộ nhớ vật lý là nguyên nhân chính khiến dung lượng của Redis thường cao gấp đôi so với định dạng nén nhị phân của MySQL.
+
+Tuy nhiên, sự đánh đổi về không gian này mang lại lợi ích trực tiếp về tốc độ truy xuất. Trong khi MySQL phải tốn chi phí giải mã (\textit{Parsing}) và thực hiện các thao tác vào/ra đĩa (\textit{Disk I/O}) tốn kém, Redis tận dụng cấu trúc dữ liệu thô trực tiếp trên RAM để đạt được độ trễ cực thấp. Sự kết hợp giữa cơ chế nén RDB (\textit{Redis Database Backup}) và các thuật toán đào thải (\textit{Eviction Policies}) như LRU giúp Redis không chỉ là một kho chứa dữ liệu, mà còn là một bộ điều tiết bộ nhớ thông minh, đảm bảo hệ thống luôn vận hành ở trạng thái hiệu năng cao nhất bất chấp giới hạn về tài nguyên vật lý.
+
+Bảng tổng kết ưu và nhược điểm của hai hệ thống về khía cạnh lưu trữ và quản lý dữ liệu:
+\begin{table}[H]
+\centering
+\caption{So sánh ưu nhược điểm MySQL và Redis về Data Storage and Management}
+
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+ & \textbf{MySQL (Disk-based)} & \textbf{Redis (In-memory)} \\ \hline
+\textbf{Ưu điểm} & Tối ưu dung lượng nhờ cấu trúc bảng (\textit{Schema}); Bảo toàn dữ liệu tuyệt đối khi đầy bộ nhớ; Lưu trữ bền vững trên đĩa cứng. & Tốc độ ghi cực cao (33.29s cho 500k bản ghi); Tự động điều tiết bộ nhớ qua cơ chế \textit{Eviction}; Phục hồi RAM nhanh (1s qua RDB). \\ \hline
+\textbf{Nhược điểm} & Tốc độ ghi bị giới hạn bởi \textit{Disk I/O} (65.32s); Dịch vụ bị gián đoạn khi tài nguyên đầy (\textit{Table is full}); Phụ thuộc vào tốc độ cơ học của đĩa. & Tiêu tốn RAM (Gấp đôi MySQL); Nguy cơ mất dữ liệu cũ khi bộ nhớ đạt ngưỡng giới hạn (\textit{Evicted 531k keys}); Chi phí phần cứng (RAM) cao. \\ \hline
+\end{tabular}
+\end{table}
