@@ -1,0 +1,43 @@
+\xpg@aux {}{vietnamese}
+\contentsline {chapter}{\numberline {1}Overview}{4}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Giới thiệu MySQL}{4}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Giới thiệu Redis}{4}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Mục tiêu của đề tài}{5}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Phạm vi nghiên cứu}{5}{section.1.4}%
+\contentsline {chapter}{\numberline {2}So sánh 2 DBMS trên các phương diện}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Data Storage and Management}{6}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Mục tiêu}{6}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Cơ chế lưu trữ vật lý (Physical Storage)}{6}{subsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.2.1}Lưu trữ trong MySQL (Disk-Based Storage)}{6}{subsubsection.2.1.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.2.2}Lưu trữ trong Redis (In-Memory Storage)}{6}{subsubsection.2.1.2.2}%
+\contentsline {subsection}{\numberline {2.1.3}Quản lý bộ nhớ và Tối ưu hóa chuyên sâu}{7}{subsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.3.1}Quản lý giới hạn không gian (Eviction Policies)}{7}{subsubsection.2.1.3.1}%
+\contentsline {subsubsection}{\numberline {2.1.3.2}Tối ưu hóa cấu trúc nội bộ (Internal Memory Encodings)}{7}{subsubsection.2.1.3.2}%
+\contentsline {subsubsection}{\numberline {2.1.3.3}Phân mảnh lưu trữ (Storage Fragmentation)}{7}{subsubsection.2.1.3.3}%
+\contentsline {subsection}{\numberline {2.1.4}Cơ chế độ bền dữ liệu (Data Persistence)}{7}{subsection.2.1.4}%
+\contentsline {subsubsection}{\numberline {2.1.4.1}MySQL: Đảm bảo ACID với Write-Ahead Logging}{7}{subsubsection.2.1.4.1}%
+\contentsline {subsubsection}{\numberline {2.1.4.2}Redis: Tùy chọn RDB và AOF}{7}{subsubsection.2.1.4.2}%
+\contentsline {subsection}{\numberline {2.1.5}Benchmark}{8}{subsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.5.1}Test Case 1: Đánh giá không gian lưu trữ (Storage Footprint)}{8}{subsubsection.2.1.5.1}%
+\contentsline {subsubsection}{\numberline {2.1.5.2}Test Case 2: Tốc độ nạp dữ liệu hàng loạt (Bulk Insert Performance)}{10}{subsubsection.2.1.5.2}%
+\contentsline {subsubsection}{\numberline {2.1.5.3}Test Case 3: Phản ứng khi đạt giới hạn lưu trữ (Storage Overload and Eviction)}{12}{subsubsection.2.1.5.3}%
+\contentsline {subsubsection}{\numberline {2.1.5.4}Test Case 4: Đánh giá thời gian phục hồi dữ liệu (Recovery Time Objective - RTO)}{13}{subsubsection.2.1.5.4}%
+\contentsline {subsection}{\numberline {2.1.6}Kết luận}{15}{subsection.2.1.6}%
+\contentsline {section}{\numberline {2.2}Indexing}{17}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Query Processing}{18}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Transaction}{19}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Concurrency}{20}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Khái niệm Concurrency Control}{20}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Kiến trúc 2 DBMS}{20}{subsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.2.1}MySQL}{20}{subsubsection.2.5.2.1}%
+\contentsline {subsubsection}{\numberline {2.5.2.2}Redis}{21}{subsubsection.2.5.2.2}%
+\contentsline {subsection}{\numberline {2.5.3}Thực nghiệm}{21}{subsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.1}Môi trường kiểm thử}{21}{subsubsection.2.5.3.1}%
+\contentsline {subsubsection}{\numberline {2.5.3.2}Test đọc đồng thời}{21}{subsubsection.2.5.3.2}%
+\contentsline {subsubsection}{\numberline {2.5.3.3}Test ghi đồng thời}{22}{subsubsection.2.5.3.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.4}Test đọc ghi hỗn hợp}{23}{subsubsection.2.5.3.4}%
+\contentsline {subsection}{\numberline {2.5.4}Cơ chế lock trong MySQL}{23}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}Cơ chế MVCC của MySQL}{27}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}Deadlock trong MySQL}{28}{subsection.2.5.6}%
+\contentsline {subsection}{\numberline {2.5.7}Tính nguyên tử của Redis}{29}{subsection.2.5.7}%
+\contentsline {subsection}{\numberline {2.5.8}Kết luận}{29}{subsection.2.5.8}%

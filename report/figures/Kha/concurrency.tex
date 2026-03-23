@@ -23,7 +23,8 @@ Mục tiêu & Đảm bảo ACID & Đảm bảo Performance \\ \hline
 \end{tabular}
 \end{table}
 
-\subsubsection{MySQL}
+\subsubsection{MySQL}\\
+
 Mỗi connection được gán với 1 thread riêng, có thể đọc / ghi đồng thời trên cùng dữ liệu. Do đó, MySQL cần các cơ chế lock để kiểm soát truy cập:
 \begin{itemize}
     \item \textbf{Shared Lock}: Cho phép nhiều transaction cùng đọc.
@@ -38,11 +39,13 @@ Mỗi connection được gán với 1 thread riêng, có thể đọc / ghi đ�
     \label{fig:mvcc}
 \end{figure}
 
-\subsubsection{Redis}
-Redis hoạt động Single-threaded, các transaction được xử lý tuần tự, không gặp race-condition, không phải dùng các cơ chế lock phức tạp và không bị deadlock.
+\subsubsection{Redis}\\
+
+Redis hoạt động Single-threaded, mọi lệnh của Redis (INCR, HINCRBY, v.v.), các transaction (MULTI / EXEC), Lua Script đều nguyên tử và được thực thi tuần tự. Điều này đảm bảo rằng không có 2 lệnh nào chạy đồng thời, do đó các transaction được xử lý tuần tự, không gặp race-condition, không phải dùng các cơ chế lock phức tạp.
 
 \subsection{Thực nghiệm}
-\subsubsection{Môi trường kiểm thử}
+\subsubsection{Môi trường kiểm thử}\\
+
 Các thông số môi trường thử nghiệm:
 
 \begin{table}[H]
@@ -96,12 +99,13 @@ def redis_worker_pooled(thread_id):
     \label{fig:readtest}
 \end{figure}
 
-\textbf{Nhận xét:} 
+
+\textbf{Nhận xét:} \\
 \begin{itemize}
     \item MySQL tăng trưởng theo số luồng tốt vì tận dụng multi-threading tốt. 
     \item Đến tầm 10 threads, hiệu năng MySQL bắt đầu đi ngang và giảm nhẹ do context switching và tác dụng ngược của MVCC. 
     \item Redis đạt đỉnh từ 2--5 threads và không thể tăng thêm do đơn luồng. 
-    \item Khi ít thread, Redis nhanh hơn, nhưng khi nhiều thread, MySQL vượt trội hoàn toàn.
+    \item Khi ít thread, Redis nhanh hơn, nhưng khi nhiều thread, MySQL có xu hướng vượt trội hơn.
 \end{itemize}
 
 \subsubsection{Test ghi đồng thời}
@@ -114,22 +118,27 @@ def redis_worker_pooled(thread_id):
     \label{fig:writetest}
 \end{figure}
 
-\textbf{Nhận xét:}
+
+\textbf{Nhận xét:}\\
 \begin{itemize}
     \item Tốc độ ghi của MySQL chậm hơn Redis nhiều lần bất kể số lượng thread.
     \item \textbf{Nguyên nhân:} MySQL cần duy trì tính ACID, ghi xuống đĩa và lock dữ liệu gây bottleneck. Redis hoạt động trên RAM và không tốn chi phí tranh chấp khóa.
 \end{itemize}
 
-\subsection{Cơ chế MVCC của MySQL}
-
+\subsubsection{Test đọc ghi hỗn hợp}\\
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/Kha/mvcctest.png}
-    \caption{Kết quả test MVCC}
-    \label{fig:mvcctest}
+    \includegraphics[width=0.85\textwidth]{figures/Kha/rw3thread.png}
+    \caption{Kết quả test đọc ghi hỗn hợp theo tỉ lệ}
+    \label{fig:mixedtest}
 \end{figure}
 
-\textbf{Nhận xét:} Reader không block Writer và ngược lại. Trong một transaction, version của một row được cố định để tránh lỗi Non-repeatable Read. Trong Redis, các lệnh chạy tuần tự nên Reader và Writer phải chờ nhau.
+
+\textbf{Nhận xét: }\\
+\begin{itemize}
+    \item MySQL vẫn cho kết quả tốt khi lượng đọc vẫn còn ít, càng đọc nhiều thì throughput càng giảm.
+    \item Redis cho throughput tốt và ổn định dù ở tỉ lệ nào.
+\end{itemize}
 
 \subsection{Cơ chế lock trong MySQL}
 MySQL sử dụng Shared Lock (S-Lock) và Exclusive Lock (X-Lock):
@@ -165,6 +174,35 @@ MySQL sử dụng Shared Lock (S-Lock) và Exclusive Lock (X-Lock):
     \caption{Test lock -- Tổng hợp kết quả}
     \label{fig:locktest4}
 \end{figure}
+
+\subsection{Cơ chế MVCC của MySQL}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/Kha/mvcctest.png}
+    \caption{Tính Repeatable Read của MySQL nhờ MVCC}
+    \label{fig:mvcctest}
+\end{figure}
+
+\textbf{Nhận xét:}
+\begin{itemize}
+    \item \textbf{Điểm tạo Snapshot:} Ngay khi Reader thực hiện lệnh SELECT đầu tiên (hoặc BEGIN), một "bản chụp" dữ liệu tại thời điểm đó được xác lập.
+    \item \textbf{Độc lập với Writers:} Sau khi snapshot được tạo, Reader sẽ chỉ nhìn thấy dữ liệu tại thời điểm đó, bất kể Writer có thực hiện UPDATE/INSERT/DELETE nào sau đó. Điều này đảm bảo tính Repeatable Read.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/Kha/mvccmul_reader.png}
+    \caption{Quản lý đa phiên bản (Multi-versioning) trong MVCC}
+    \label{fig:mvcctest2}
+\end{figure}
+\textbf{Nhận xét: }
+\begin{itemize}
+    \item \textbf{Đa phiên bản:} MySQL không chỉ giữ một phiên bản mà có thể quản lý nhiều phiên bản cùng lúc
+    \item \textbf{Phiên bản dữ liệu:} Mỗi khi Writer thực hiện UPDATE, một phiên bản mới của hàng được tạo ra. Reader sẽ chỉ nhìn thấy phiên bản tại thời điểm snapshot được tạo, không bị ảnh hưởng bởi các phiên bản mới.
+\end{itemize}
+
+\textbf{Ưu điểm về hiệu năng: } Reader không bị block bởi Writer và ngược lại, giúp tăng hiệu năng khi có nhiều transaction đọc và ghi đồng thời.
+
 
 \subsection{Deadlock trong MySQL}
 MySQL có cơ chế kiểm tra deadlock; nếu phát hiện vòng lặp chờ đợi (circular wait), nó sẽ rollback một transaction để giải tỏa nghẽn. Redis không xảy ra deadlock do kiến trúc single-threaded.
