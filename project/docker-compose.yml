@@ -1,0 +1,75 @@
+# Docker Compose for DBMS Project
+# =================================
+# Services: MySQL Database + phpMyAdmin
+# Purpose: Team collaboration for database development
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dbms_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: example
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpassword
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      # Persistent MySQL data
+      - mysql_data:/var/lib/mysql
+      # Auto-load seed files when container first starts
+      - ./database/seed:/docker-entrypoint-initdb.d:ro
+      # Mount database folders for easy access
+      - ./database:/var/database:ro
+    networks:
+      - dbms_network
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO
+      --default-time-zone='+07:00'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "dbuser",
+          "-pdbpassword",
+        ]
+      timeout: 20s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: dbms_phpmyadmin
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: dbuser
+      PMA_PASSWORD: dbpassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+      UPLOAD_LIMIT: 64M
+      MEMORY_LIMIT: 512M
+    ports:
+      - "8080:80"
+    networks:
+      - dbms_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  dbms_network:
+    driver: bridge
+    name: dbms_project_network
