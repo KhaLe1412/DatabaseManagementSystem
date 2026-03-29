@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  29 MAR 2026 17:45
-=======
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  23 MAR 2026 08:35
->>>>>>> Stashed changes
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  29 MAR 2026 18:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1472,11 +1468,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [17] (figures/Nhân/indexing.tex
-=======
-[16] (figures/Nhân/indexing.tex
->>>>>>> Stashed changes
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1487,11 +1479,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [18] (D:\Program\Miktex\tex/latex/listings\lstlang1.sty
-=======
-[17] (D:\Program\Miktex\tex/latex/listings\lstlang1.sty
->>>>>>> Stashed changes
 File: lstlang1.sty 2025/11/14 1.11b listings language file
 )
 File: bk_name_en.png Graphic file (type bmp)
@@ -1504,11 +1492,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [19]
-=======
-[18]
->>>>>>> Stashed changes
 File: figures//Nhân/mysql_brand_id.png Graphic file (type bmp)
 <figures//Nhân/mysql_brand_id.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1521,11 +1505,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [20]
-=======
-[19]
->>>>>>> Stashed changes
 File: figures//Nhân/redis_brand_id.png Graphic file (type bmp)
 <figures//Nhân/redis_brand_id.png>
 File: figures//Nhân/mysql_test2.png Graphic file (type bmp)
@@ -1540,11 +1520,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [21]
-=======
-[20]
->>>>>>> Stashed changes
 File: figures//Nhân/mysql_test2_index.png Graphic file (type bmp)
 <figures//Nhân/mysql_test2_index.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1557,11 +1533,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [22]
-=======
-[21]
->>>>>>> Stashed changes
 File: figures//Nhân/redis_test2.png Graphic file (type bmp)
 <figures//Nhân/redis_test2.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1574,11 +1546,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [23]
-=======
-[22]
->>>>>>> Stashed changes
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1589,11 +1557,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [24]
-=======
-[23]
->>>>>>> Stashed changes
 File: figures//Nhân/mysql_test3.png Graphic file (type bmp)
 <figures//Nhân/mysql_test3.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1606,11 +1570,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [25]
-=======
-[24]
->>>>>>> Stashed changes
 File: figures//Nhân/redis_test3.png Graphic file (type bmp)
 <figures//Nhân/redis_test3.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1623,11 +1583,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [26]
-=======
-[25]
->>>>>>> Stashed changes
 File: figures//Nhân/mysql_test4.png Graphic file (type bmp)
 <figures//Nhân/mysql_test4.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1640,11 +1596,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [27]
-=======
-[26]
->>>>>>> Stashed changes
 File: figures//Nhân/redis_test4.png Graphic file (type bmp)
 <figures//Nhân/redis_test4.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -1657,11 +1609,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [28]
-=======
-[27]
->>>>>>> Stashed changes
 Overfull \hbox (108.93791pt too wide) in paragraph at lines 686--690
 []\TU/TimesNewRoman(0)/m/n/12 Sau khi thực hiện \TU/CourierNew(0)/m/n/12 CONFIG
  RESETSTAT \TU/TimesNewRoman(0)/m/n/12 và chạy truy vấn 10 lần, chỉ số \TU/Time
@@ -1710,11 +1658,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [29])
-=======
-[28])
->>>>>>> Stashed changes
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1725,7 +1669,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [30] (figures/Trung/query.tex
 Underfull \hbox (badness 10000) in paragraph at lines 16--16
 []|\TU/TimesNewRoman(0)/m/n/12 JOIN / GROUP
@@ -1769,9 +1712,6 @@ File: figures/Trung/q1-mysql.png Graphic file (type bmp)
 <figures/Trung/q1-mysql.png>
 File: figures/Trung/q1-redis.png Graphic file (type bmp)
 <figures/Trung/q1-redis.png>
-=======
-[29] (figures/Trung/query.tex)
->>>>>>> Stashed changes
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1782,15 +1722,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [33]
 File: figures/Trung/q2-mysql.png Graphic file (type bmp)
 <figures/Trung/q2-mysql.png>
 File: figures/Trung/q2-redis.png Graphic file (type bmp)
 <figures/Trung/q2-redis.png>
-=======
-[30] (figures/Thời/transaction.tex)
->>>>>>> Stashed changes
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1801,7 +1737,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
 [34]
 File: figures/Trung/q3-mysql.png Graphic file (type bmp)
 <figures/Trung/q3-mysql.png>
@@ -1908,7 +1843,58 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[40] (figures/Thời/transaction.tex)
+[40] (figures/Thời/transaction.tex
+Underfull \hbox (badness 4582) in paragraph at lines 46--47
+[]|\TU/TimesNewRoman(0)/m/n/12 Đảm bảo đầy đủ thông qua
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--47
+\TU/CourierNew(0)/m/n/12 COMMIT \TU/TimesNewRoman(0)/m/n/12 và \TU/CourierNew(0
+)/m/n/12 ROLLBACK\TU/TimesNewRoman(0)/m/n/12 ; sử
+ []
+
+
+Underfull \hbox (badness 7522) in paragraph at lines 47--48
+[]|\TU/TimesNewRoman(0)/m/n/12 Chỉ đảm bảo thực thi tuần
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 47--48
+\TU/TimesNewRoman(0)/m/n/12 tự thông qua \TU/CourierNew(0)/m/n/12 MULTI/EXEC
+ []
+
+
+Underfull \hbox (badness 4699) in paragraph at lines 51--52
+\TU/TimesNewRoman(0)/m/n/12 dữ liệu như \TU/CourierNew(0)/m/n/12 FOREIGN KEY\TU
+/TimesNewRoman(0)/m/n/12 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 56--57
+\TU/TimesNewRoman(0)/m/n/12 (Read Uncommitted, Read
+ []
+
+
+Underfull \hbox (badness 7256) in paragraph at lines 56--57
+\TU/TimesNewRoman(0)/m/n/12 Committed, Repeatable Read,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 57--58
+\TU/TimesNewRoman(0)/m/n/12 hỗ trợ isolation theo nghĩa
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[41]
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -1919,10 +1905,174 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[41] (figures/Kha/concurrency.tex
-=======
-[31] (figures/Kha/concurrency.tex
->>>>>>> Stashed changes
+[42]
+File: figures/Thời/order-before-transaction.png Graphic file (type bmp)
+<figures/Thời/order-before-transaction.png>
+File: figures/Thời/item-before-transaction.png Graphic file (type bmp)
+<figures/Thời/item-before-transaction.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[43]
+File: figures/Thời/stock-before-transaction.png Graphic file (type bmp)
+<figures/Thời/stock-before-transaction.png>
+File: figures/Thời/after-transaction.png Graphic file (type bmp)
+<figures/Thời/after-transaction.png>
+File: figures/Thời/order-after-transaction.png Graphic file (type bmp)
+<figures/Thời/order-after-transaction.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[44]
+File: figures/Thời/item-after-transaction.png Graphic file (type bmp)
+<figures/Thời/item-after-transaction.png>
+File: figures/Thời/stock-after-transaction.png Graphic file (type bmp)
+<figures/Thời/stock-after-transaction.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[45]
+Overfull \hbox (5.74265pt too wide) in paragraph at lines 175--176
+[]\TU/TimesNewRoman(0)/m/n/12 Ngoài ra, tính \TU/TimesNewRoman(0)/b/n/12 Consis
+tency \TU/TimesNewRoman(0)/m/n/12 cũng được duy trì, khi các ràng buộc khóa ngo
+ại giữa các bảng (\TU/CourierNew(0)/m/n/12 orders\TU/TimesNewRoman(0)/m/n/12 ,
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[46]
+File: figures/Thời/stock-before-rollback.png Graphic file (type bmp)
+<figures/Thời/stock-before-rollback.png>
+File: figures/Thời/after-excute-rollback.png Graphic file (type bmp)
+<figures/Thời/after-excute-rollback.png>
+File: figures/Thời/stock-after-rollback.png Graphic file (type bmp)
+<figures/Thời/stock-after-rollback.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[47]
+File: figures/Thời/redis-order-before-success.png Graphic file (type bmp)
+<figures/Thời/redis-order-before-success.png>
+File: figures/Thời/redis-stock-before-success.png Graphic file (type bmp)
+<figures/Thời/redis-stock-before-success.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[48]
+File: figures/Thời/redis-after-excute.png Graphic file (type bmp)
+<figures/Thời/redis-after-excute.png>
+File: figures/Thời/redis-stock-after-success.png Graphic file (type bmp)
+<figures/Thời/redis-stock-after-success.png>
+File: figures/Thời/redis-order-after-success.png Graphic file (type bmp)
+<figures/Thời/redis-order-after-success.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[49]
+File: figures/Thời/redis-lua-success.png Graphic file (type bmp)
+<figures/Thời/redis-lua-success.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[50]
+File: figures/Thời/redis-stock-before-fail.png Graphic file (type bmp)
+<figures/Thời/redis-stock-before-fail.png>
+File: figures/Thời/redis-stock-after-fail.png Graphic file (type bmp)
+<figures/Thời/redis-stock-after-fail.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 397--398
+
+ []
+
+File: figures/Thời/redis-watch.png Graphic file (type bmp)
+<figures/Thời/redis-watch.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[52])
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[53] (figures/Kha/concurrency.tex
 
 figures/Kha/concurrency.tex:27: LaTeX Error: There's no line here to end.
 
@@ -1960,11 +2110,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[42]
-=======
-[32]
->>>>>>> Stashed changes
+[54]
 
 figures/Kha/concurrency.tex:48: LaTeX Error: There's no line here to end.
 
@@ -1989,11 +2135,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[43]
-=======
-[33]
->>>>>>> Stashed changes
+[55]
 Underfull \hbox (badness 10000) in paragraph at lines 103--104
 
  []
@@ -2014,11 +2156,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[44]
-=======
-[34]
->>>>>>> Stashed changes
+[56]
 
 figures/Kha/concurrency.tex:129: LaTeX Error: There's no line here to end.
 
@@ -2050,11 +2188,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[45]
-=======
-[35]
->>>>>>> Stashed changes
+[57]
 File: figures/Kha/locktest2.png Graphic file (type bmp)
 <figures/Kha/locktest2.png>
 File: figures/Kha/locktest3.png Graphic file (type bmp)
@@ -2069,11 +2203,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[46]
-=======
-[36]
->>>>>>> Stashed changes
+[58]
 File: figures/Kha/locktest4.png Graphic file (type bmp)
 <figures/Kha/locktest4.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -2086,11 +2216,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[47]
-=======
-[37]
->>>>>>> Stashed changes
+[59]
 File: figures/Kha/mvcctest.png Graphic file (type bmp)
 <figures/Kha/mvcctest.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -2103,11 +2229,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[48]
-=======
-[38]
->>>>>>> Stashed changes
+[60]
 File: figures/Kha/mvccmul_reader.png Graphic file (type bmp)
 <figures/Kha/mvccmul_reader.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -2120,11 +2242,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[49]
-=======
-[39]
->>>>>>> Stashed changes
+[61]
 File: figures/Kha/deadlocktest.png Graphic file (type bmp)
 <figures/Kha/deadlocktest.png>
 File: bk_name_en.png Graphic file (type bmp)
@@ -2137,11 +2255,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[50]
-=======
-[40]
->>>>>>> Stashed changes
+[62]
 File: figures/Kha/luaredis.png Graphic file (type bmp)
 <figures/Kha/luaredis.png>
 
@@ -2170,11 +2284,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[51]
-=======
-[41]
->>>>>>> Stashed changes
+[63]
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -2185,11 +2295,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[52])
-=======
-[42])
->>>>>>> Stashed changes
+[64])
 Overfull \hbox (24.45653pt too wide) in paragraph at lines 150--151
 []\TU/TimesNewRoman(0)/m/n/12 Reference Link to Github: []$[][][][][] [] [] [] 
 [][][][][][] [] [][][] [] [][][][][][][][][] [] [][][][][][][][][][][][][][][][
@@ -2218,11 +2324,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-<<<<<<< Updated upstream
-[53] 
-=======
-[43] 
->>>>>>> Stashed changes
+[65] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (c:/Users\khela\Downloads\DBMS\report\out\main.aux)
  ***********
@@ -2234,31 +2336,16 @@ L3 programming layer <2026-01-19>
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-<<<<<<< Updated upstream
-(rerunfilecheck)             Checksum: 5B9AE162A858A12839D00CFA2AEE3B66;6693.
+(rerunfilecheck)             Checksum: 6A8D57CE34E9C57C16826416B6FDA79C;7441.
  ) 
 Here is how much of TeX's memory you used:
- 33472 strings out of 402983
- 701413 string characters out of 5454071
- 1640335 words of memory out of 5000000
- 61567 multiletter control sequences out of 15000+600000
- 633183 words of font info for 106 fonts, out of 8000000 for 9000
+ 33676 strings out of 402983
+ 709129 string characters out of 5454071
+ 1640339 words of memory out of 5000000
+ 61751 multiletter control sequences out of 15000+600000
+ 633191 words of font info for 107 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 86i,13n,99p,758b,2024s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 86i,13n,99p,758b,2046s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (53 pages).
-=======
-(rerunfilecheck)             Checksum: D64DB14FE0641FACD5E465AECD455283;5088.
- ) 
-Here is how much of TeX's memory you used:
- 33243 strings out of 402983
- 695729 string characters out of 5454071
- 1484950 words of memory out of 5000000
- 61354 multiletter control sequences out of 15000+600000
- 632035 words of font info for 101 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 86i,13n,99p,758b,2024s stack positions out of 10000i,1000n,20000p,200000b,200000s
-
-Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (43 pages).
->>>>>>> Stashed changes
+Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (65 pages).
 
