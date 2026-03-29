@@ -1,0 +1,74 @@
+# ─── Python ───────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ─── Test outputs ─────────────────────────────────────────────
+test_src/**/__pycache__/
+test_src/**/*.pyc
+test_src/**/results/
+test_src/**/output/
+test_src/**/*.log
+
+# Giữ lại các file backup mẫu, bỏ qua backup runtime
+test_src/backup/backups/*.rdb
+test_src/backup/backups/*.sql
+
+# ─── Frontend (Vite / Node.js) ────────────────────────────────
+project/frontend/node_modules/
+project/frontend/dist/
+project/frontend/.output/
+project/frontend/.cache/
+project/frontend/*.local
+project/frontend/.env
+project/frontend/.env.*
+!project/frontend/.env.example
+
+# Backend (nếu dùng Node.js sau này)
+project/backend/node_modules/
+project/backend/dist/
+project/backend/.env
+project/backend/.env.*
+!project/backend/.env.example
+
+# ─── LaTeX build outputs ──────────────────────────────────────
+report/out/
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# ─── Dataset / large files ────────────────────────────────────
+dataset/*.zip
+dataset/*.csv
+dataset/Sales Transaction v.4a.csv/
+
+# ─── IDE / OS ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Misc ─────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+*.log
+
+.test_src/**

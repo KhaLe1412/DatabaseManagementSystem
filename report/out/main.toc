@@ -1,4 +1,75 @@
 \xpg@aux {}{vietnamese}
+<<<<<<< Updated upstream
+\contentsline {chapter}{\numberline {1}Overview}{5}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Giới thiệu MySQL}{5}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Giới thiệu Redis}{5}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Mục tiêu của đề tài}{6}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Phạm vi nghiên cứu}{6}{section.1.4}%
+\contentsline {chapter}{\numberline {2}So sánh 2 DBMS trên các phương diện}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Data Storage and Management}{7}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Mục tiêu}{7}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Cơ chế lưu trữ vật lý (Physical Storage)}{7}{subsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.2.1}Lưu trữ trong MySQL (Disk-Based Storage)}{7}{subsubsection.2.1.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.2.2}Lưu trữ trong Redis (In-Memory Storage)}{7}{subsubsection.2.1.2.2}%
+\contentsline {subsection}{\numberline {2.1.3}Quản lý bộ nhớ và Tối ưu hóa chuyên sâu}{8}{subsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.3.1}Quản lý giới hạn không gian (Eviction Policies)}{8}{subsubsection.2.1.3.1}%
+\contentsline {subsubsection}{\numberline {2.1.3.2}Tối ưu hóa cấu trúc nội bộ (Internal Memory Encodings)}{8}{subsubsection.2.1.3.2}%
+\contentsline {subsubsection}{\numberline {2.1.3.3}Phân mảnh lưu trữ (Storage Fragmentation)}{8}{subsubsection.2.1.3.3}%
+\contentsline {subsection}{\numberline {2.1.4}Cơ chế độ bền dữ liệu (Data Persistence)}{8}{subsection.2.1.4}%
+\contentsline {subsubsection}{\numberline {2.1.4.1}MySQL: Đảm bảo ACID với Write-Ahead Logging}{8}{subsubsection.2.1.4.1}%
+\contentsline {subsubsection}{\numberline {2.1.4.2}Redis: Tùy chọn RDB và AOF}{8}{subsubsection.2.1.4.2}%
+\contentsline {subsection}{\numberline {2.1.5}Benchmark}{9}{subsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.5.1}Test Case 1: Đánh giá không gian lưu trữ (Storage Footprint)}{9}{subsubsection.2.1.5.1}%
+\contentsline {subsubsection}{\numberline {2.1.5.2}Test Case 2: Tốc độ nạp dữ liệu hàng loạt (Bulk Insert Performance)}{11}{subsubsection.2.1.5.2}%
+\contentsline {subsubsection}{\numberline {2.1.5.3}Test Case 3: Phản ứng khi đạt giới hạn lưu trữ (Storage Overload and Eviction)}{13}{subsubsection.2.1.5.3}%
+\contentsline {subsubsection}{\numberline {2.1.5.4}Test Case 4: Đánh giá thời gian phục hồi dữ liệu (Recovery Time Objective - RTO)}{14}{subsubsection.2.1.5.4}%
+\contentsline {subsection}{\numberline {2.1.6}Kết luận}{16}{subsection.2.1.6}%
+\contentsline {section}{\numberline {2.2}Indexing}{18}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Mục tiêu}{18}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Các loại index trong MySQL và Redis}{18}{subsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.2.1}Index trong MySQL}{18}{subsubsection.2.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2.2}Index trong Redid}{19}{subsubsection.2.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Benchmark}{19}{subsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.3.1}Test case 1: Tìm sản phẩm theo brand (có index)}{19}{subsubsection.2.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.2.3.2}Test Case 2 — Tìm sản phẩm theo khoảng giá (MySQL có index, Redis không có)}{21}{subsubsection.2.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.2.3.3}Test Case 3 — Tìm sản phẩm theo tên (LIKE / pattern matching)}{24}{subsubsection.2.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.2.3.4}Test case 4: Tìm đơn hàng theo điều kiện phức hợp (Composite Condition)}{26}{subsubsection.2.2.3.4}%
+\contentsline {subsection}{\numberline {2.2.4}Tạo Sorted Set index trong Redis}{28}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.2.5}Kết luận}{29}{subsection.2.2.5}%
+\contentsline {section}{\numberline {2.3}Query Processing}{31}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Khái niệm Query Processing}{31}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Cách tiếp cận của MySQL và Redis}{31}{subsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.2.1}MySQL}{31}{subsubsection.2.3.2.1}%
+\contentsline {subsubsection}{\numberline {2.3.2.2}Redis}{31}{subsubsection.2.3.2.2}%
+\contentsline {subsection}{\numberline {2.3.3}Môi trường và dữ liệu thử nghiệm}{32}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Thực nghiệm truy vấn}{32}{subsection.2.3.4}%
+\contentsline {subsubsection}{\numberline {2.3.4.1}Truy vấn đơn giản trên một bảng}{32}{subsubsection.2.3.4.1}%
+\contentsline {subsubsection}{\numberline {2.3.4.2}Truy vấn JOIN nhiều bảng}{34}{subsubsection.2.3.4.2}%
+\contentsline {subsubsection}{\numberline {2.3.4.3}Truy vấn gom nhóm và tính tổng}{35}{subsubsection.2.3.4.3}%
+\contentsline {subsubsection}{\numberline {2.3.4.4}Truy vấn Top-N}{36}{subsubsection.2.3.4.4}%
+\contentsline {subsubsection}{\numberline {2.3.4.5}Truy vấn lồng nhau / anti-join}{38}{subsubsection.2.3.4.5}%
+\contentsline {subsection}{\numberline {2.3.5}Phân tích sâu hơn về khả năng biểu diễn truy vấn}{39}{subsection.2.3.5}%
+\contentsline {subsubsection}{\numberline {2.3.5.1}Độ phức tạp triển khai}{39}{subsubsection.2.3.5.1}%
+\contentsline {subsubsection}{\numberline {2.3.5.2}Khả năng mở rộng truy vấn}{40}{subsubsection.2.3.5.2}%
+\contentsline {subsection}{\numberline {2.3.6}Tổng hợp ưu và nhược điểm}{40}{subsection.2.3.6}%
+\contentsline {subsection}{\numberline {2.3.7}Kết luận}{40}{subsection.2.3.7}%
+\contentsline {section}{\numberline {2.4}Transaction}{41}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Concurrency}{42}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Khái niệm Concurrency Control}{42}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Kiến trúc 2 DBMS}{42}{subsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.2.1}MySQL}{42}{subsubsection.2.5.2.1}%
+\contentsline {subsubsection}{\numberline {2.5.2.2}Redis}{43}{subsubsection.2.5.2.2}%
+\contentsline {subsection}{\numberline {2.5.3}Thực nghiệm}{43}{subsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.1}Môi trường kiểm thử}{43}{subsubsection.2.5.3.1}%
+\contentsline {subsubsection}{\numberline {2.5.3.2}Test đọc đồng thời}{43}{subsubsection.2.5.3.2}%
+\contentsline {subsubsection}{\numberline {2.5.3.3}Test ghi đồng thời}{44}{subsubsection.2.5.3.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.4}Test đọc ghi hỗn hợp}{45}{subsubsection.2.5.3.4}%
+\contentsline {subsection}{\numberline {2.5.4}Cơ chế lock trong MySQL}{45}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}Cơ chế MVCC của MySQL}{49}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}Deadlock trong MySQL}{50}{subsection.2.5.6}%
+\contentsline {subsection}{\numberline {2.5.7}Tính nguyên tử của Redis}{51}{subsection.2.5.7}%
+\contentsline {subsection}{\numberline {2.5.8}Kết luận}{51}{subsection.2.5.8}%
+=======
 \contentsline {chapter}{\numberline {1}Overview}{4}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Giới thiệu MySQL}{4}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Giới thiệu Redis}{4}{section.1.2}%
@@ -24,20 +95,32 @@
 \contentsline {subsubsection}{\numberline {2.1.5.4}Test Case 4: Đánh giá thời gian phục hồi dữ liệu (Recovery Time Objective - RTO)}{13}{subsubsection.2.1.5.4}%
 \contentsline {subsection}{\numberline {2.1.6}Kết luận}{15}{subsection.2.1.6}%
 \contentsline {section}{\numberline {2.2}Indexing}{17}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Query Processing}{18}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Transaction}{19}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Concurrency}{20}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Khái niệm Concurrency Control}{20}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Kiến trúc 2 DBMS}{20}{subsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.2.1}MySQL}{20}{subsubsection.2.5.2.1}%
-\contentsline {subsubsection}{\numberline {2.5.2.2}Redis}{21}{subsubsection.2.5.2.2}%
-\contentsline {subsection}{\numberline {2.5.3}Thực nghiệm}{21}{subsection.2.5.3}%
-\contentsline {subsubsection}{\numberline {2.5.3.1}Môi trường kiểm thử}{21}{subsubsection.2.5.3.1}%
-\contentsline {subsubsection}{\numberline {2.5.3.2}Test đọc đồng thời}{21}{subsubsection.2.5.3.2}%
-\contentsline {subsubsection}{\numberline {2.5.3.3}Test ghi đồng thời}{22}{subsubsection.2.5.3.3}%
-\contentsline {subsubsection}{\numberline {2.5.3.4}Test đọc ghi hỗn hợp}{23}{subsubsection.2.5.3.4}%
-\contentsline {subsection}{\numberline {2.5.4}Cơ chế lock trong MySQL}{23}{subsection.2.5.4}%
-\contentsline {subsection}{\numberline {2.5.5}Cơ chế MVCC của MySQL}{27}{subsection.2.5.5}%
-\contentsline {subsection}{\numberline {2.5.6}Deadlock trong MySQL}{28}{subsection.2.5.6}%
-\contentsline {subsection}{\numberline {2.5.7}Tính nguyên tử của Redis}{29}{subsection.2.5.7}%
-\contentsline {subsection}{\numberline {2.5.8}Kết luận}{29}{subsection.2.5.8}%
+\contentsline {subsection}{\numberline {2.2.1}Mục tiêu}{17}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Các loại index trong MySQL và Redis}{17}{subsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.2.1}Index trong MySQL}{17}{subsubsection.2.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2.2}Index trong Redid}{18}{subsubsection.2.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Benchmark}{18}{subsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.3.1}Test case 1: Tìm sản phẩm theo brand (có index)}{18}{subsubsection.2.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.2.3.2}Test Case 2 — Tìm sản phẩm theo khoảng giá (MySQL có index, Redis không có)}{20}{subsubsection.2.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.2.3.3}Test Case 3 — Tìm sản phẩm theo tên (LIKE / pattern matching)}{23}{subsubsection.2.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.2.3.4}Test case 4: Tìm đơn hàng theo điều kiện phức hợp (Composite Condition)}{25}{subsubsection.2.2.3.4}%
+\contentsline {subsection}{\numberline {2.2.4}Tạo Sorted Set index trong Redis}{27}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.2.5}Kết luận}{28}{subsection.2.2.5}%
+\contentsline {section}{\numberline {2.3}Query Processing}{30}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Transaction}{31}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Concurrency}{32}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Khái niệm Concurrency Control}{32}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Kiến trúc 2 DBMS}{32}{subsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.2.1}MySQL}{32}{subsubsection.2.5.2.1}%
+\contentsline {subsubsection}{\numberline {2.5.2.2}Redis}{33}{subsubsection.2.5.2.2}%
+\contentsline {subsection}{\numberline {2.5.3}Thực nghiệm}{33}{subsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.1}Môi trường kiểm thử}{33}{subsubsection.2.5.3.1}%
+\contentsline {subsubsection}{\numberline {2.5.3.2}Test đọc đồng thời}{33}{subsubsection.2.5.3.2}%
+\contentsline {subsubsection}{\numberline {2.5.3.3}Test ghi đồng thời}{34}{subsubsection.2.5.3.3}%
+\contentsline {subsubsection}{\numberline {2.5.3.4}Test đọc ghi hỗn hợp}{35}{subsubsection.2.5.3.4}%
+\contentsline {subsection}{\numberline {2.5.4}Cơ chế lock trong MySQL}{35}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}Cơ chế MVCC của MySQL}{39}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}Deadlock trong MySQL}{40}{subsection.2.5.6}%
+\contentsline {subsection}{\numberline {2.5.7}Tính nguyên tử của Redis}{41}{subsection.2.5.7}%
+\contentsline {subsection}{\numberline {2.5.8}Kết luận}{41}{subsection.2.5.8}%
+>>>>>>> Stashed changes
