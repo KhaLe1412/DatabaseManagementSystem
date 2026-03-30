@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  29 MAR 2026 18:06
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  30 MAR 2026 08:59
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -2073,36 +2073,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
 [53] (figures/Kha/concurrency.tex
-
-figures/Kha/concurrency.tex:27: LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.27 
-     
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
 File: figures/Kha/mvcc.png Graphic file (type bmp)
 <figures/Kha/mvcc.png>
-
-figures/Kha/concurrency.tex:43: LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.43 
-     
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 32.34152pt, for example:
@@ -2111,23 +2086,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
 [54]
-
-figures/Kha/concurrency.tex:48: LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.48 
-     
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
 File: figures/Kha/readtest.png Graphic file (type bmp)
 <figures/Kha/readtest.png>
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 32.34152pt, for example:
@@ -2157,19 +2120,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
 [56]
-
-figures/Kha/concurrency.tex:129: LaTeX Error: There's no line here to end.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.129 \begin
-            {figure}[H]
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
 File: figures/Kha/rw3thread.png Graphic file (type bmp)
 <figures/Kha/rw3thread.png>
 
@@ -2295,22 +2245,77 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[64])
-Overfull \hbox (24.45653pt too wide) in paragraph at lines 150--151
+[64]) (chapter/app.tex
+Chương 3.
+
+Underfull \hbox (badness 10000) in paragraph at lines 23--30
+
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[65
+
+]
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[66]
+File: figures/Kha/erd.drawio.png Graphic file (type bmp)
+<figures/Kha/erd.drawio.png>
+File: figures/Kha/mapping.drawio.png Graphic file (type bmp)
+<figures/Kha/mapping.drawio.png>
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[67])
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[68]
+Overfull \hbox (24.45653pt too wide) in paragraph at lines 153--154
 []\TU/TimesNewRoman(0)/m/n/12 Reference Link to Github: []$[][][][][] [] [] [] 
 [][][][][][] [] [][][] [] [][][][][][][][][] [] [][][][][][][][][][][][][][][][
 ][][][] []
  []
 
 
-Overfull \hbox (28.99168pt too wide) in paragraph at lines 151--152
+Overfull \hbox (28.99168pt too wide) in paragraph at lines 154--155
 []\TU/TimesNewRoman(0)/m/n/12 Reference Link to Figma: []$[][][][][] [] [] [] [
 ][][] [] [][][][][] [] [][][] [] [][][][] [] [][][][][][][][][][][][][][][][][]
 [][][][][] []
  []
 
 
-Overfull \hbox (16.3793pt too wide) in paragraph at lines 151--152
+Overfull \hbox (16.3793pt too wide) in paragraph at lines 154--155
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] [] [] [] [
 ][][][][][][][][][][][][][][][][][][][] [] [][][][][][][][][][] []
  []
@@ -2324,7 +2329,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[65] 
+[69] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (c:/Users\khela\Downloads\DBMS\report\out\main.aux)
  ***********
@@ -2336,16 +2341,16 @@ L3 programming layer <2026-01-19>
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 6A8D57CE34E9C57C16826416B6FDA79C;7441.
+(rerunfilecheck)             Checksum: C632718A18B351013CF715B6E4885BDD;8283.
  ) 
 Here is how much of TeX's memory you used:
- 33676 strings out of 402983
- 709129 string characters out of 5454071
- 1640339 words of memory out of 5000000
- 61751 multiletter control sequences out of 15000+600000
+ 33701 strings out of 402983
+ 709819 string characters out of 5454071
+ 1640340 words of memory out of 5000000
+ 61771 multiletter control sequences out of 15000+600000
  633191 words of font info for 107 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 86i,13n,99p,758b,2046s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 86i,13n,99p,789b,2046s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (65 pages).
+Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (69 pages).
 

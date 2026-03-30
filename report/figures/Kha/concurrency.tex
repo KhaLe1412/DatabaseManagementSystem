@@ -23,7 +23,7 @@ Mục tiêu & Đảm bảo ACID & Đảm bảo Performance \\ \hline
 \end{tabular}
 \end{table}
 
-\subsubsection{MySQL}\\
+\subsubsection{MySQL}
 
 Mỗi connection được gán với 1 thread riêng, có thể đọc / ghi đồng thời trên cùng dữ liệu. Do đó, MySQL cần các cơ chế lock để kiểm soát truy cập:
 \begin{itemize}
@@ -39,12 +39,12 @@ Mỗi connection được gán với 1 thread riêng, có thể đọc / ghi đ�
     \label{fig:mvcc}
 \end{figure}
 
-\subsubsection{Redis}\\
+\subsubsection{Redis}
 
 Redis hoạt động Single-threaded, mọi lệnh của Redis (INCR, HINCRBY, v.v.), các transaction (MULTI / EXEC), Lua Script đều nguyên tử và được thực thi tuần tự. Điều này đảm bảo rằng không có 2 lệnh nào chạy đồng thời, do đó các transaction được xử lý tuần tự, không gặp race-condition, không phải dùng các cơ chế lock phức tạp.
 
 \subsection{Thực nghiệm}
-\subsubsection{Môi trường kiểm thử}\\
+\subsubsection{Môi trường kiểm thử}
 
 Các thông số môi trường thử nghiệm:
 
@@ -125,7 +125,7 @@ def redis_worker_pooled(thread_id):
     \item \textbf{Nguyên nhân:} MySQL cần duy trì tính ACID, ghi xuống đĩa và lock dữ liệu gây bottleneck. Redis hoạt động trên RAM và không tốn chi phí tranh chấp khóa.
 \end{itemize}
 
-\subsubsection{Test đọc ghi hỗn hợp}\\
+\subsubsection{Test đọc ghi hỗn hợp}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/Kha/rw3thread.png}

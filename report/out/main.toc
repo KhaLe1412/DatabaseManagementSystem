@@ -79,3 +79,8 @@
 \contentsline {subsection}{\numberline {2.5.6}Deadlock trong MySQL}{62}{subsection.2.5.6}%
 \contentsline {subsection}{\numberline {2.5.7}Tính nguyên tử của Redis}{63}{subsection.2.5.7}%
 \contentsline {subsection}{\numberline {2.5.8}Kết luận}{63}{subsection.2.5.8}%
+\contentsline {chapter}{\numberline {3}HỆ THỐNG HỖ TRỢ TUTOR CHO SINH VIÊN BÁCH KHOA}{65}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Giới thiệu}{65}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Mô tả hệ thống}{65}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Lựa chọn DBMS}{66}{section.3.3}%
+\contentsline {section}{\numberline {3.4}ERD and Mapping}{67}{section.3.4}%
