@@ -1,0 +1,47 @@
+# Database backups
+*.sql.backup
+*.dump
+backup_*.sql
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker volumes (don't commit data)
+docker-data/
+mysql-data/
+
+# Logs
+logs/
+*.log
+
+# IDE files  
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Test output files
+test_output/
+test_results/
+
+# Personal notes (allow team members to have personal notes)
+personal_notes.md
+my_notes.md
+*.personal.sql
