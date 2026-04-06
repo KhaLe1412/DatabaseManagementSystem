@@ -9,7 +9,7 @@ services:
     container_name: dbms_mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: example
+      MYSQL_DATABASE: dbms_project
       MYSQL_USER: dbuser
       MYSQL_PASSWORD: dbpassword
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
@@ -19,10 +19,14 @@ services:
     volumes:
       # Persistent MySQL data
       - mysql_data:/var/lib/mysql
-      # Auto-load seed files when container first starts
-      - ./database/seed:/docker-entrypoint-initdb.d:ro
-      # Mount database folders for easy access
-      - ./database:/var/database:ro
+      # Init script: runs table → procedure → seed in order on first start
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      # Mount each SQL folder so the init script can source them
+      - ./database/table:/var/database/table:ro
+      - ./database/procedure:/var/database/procedure:ro
+      - ./database/seed:/var/database/seed:ro
+      # Mount test folder for manual test execution
+      - ./database/test:/var/database/test:ro
     networks:
       - dbms_network
     command: >
@@ -54,13 +58,13 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: dbuser
-      PMA_PASSWORD: dbpassword
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
       MYSQL_ROOT_PASSWORD: rootpassword
       UPLOAD_LIMIT: 64M
       MEMORY_LIMIT: 512M
     ports:
-      - "8080:80"
+      - "8081:80"
     networks:
       - dbms_network
     restart: unless-stopped

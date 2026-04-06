@@ -1,1 +1,2 @@
-drop database if exists dbms_project;
+use dbms_project;
+select * from example;
