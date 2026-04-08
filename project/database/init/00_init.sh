@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================
 # Database Initialization Script
-# Runs SQL files in order: table → procedure → seed
+# Runs SQL files in order: table -> procedure -> seed
 # =============================================================
 set -e
 
