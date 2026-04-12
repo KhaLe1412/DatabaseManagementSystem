@@ -9,46 +9,46 @@
 
 ### 1.1 Bảng dữ liệu (`table/`)
 
-| File | Bảng tạo ra | PK type | Ghi chú |
-|---|---|---|---|
-| `01_users.sql` | `users` | `CHAR(36)` (UUID) | Bảng gốc cho tất cả người dùng |
-| `02_subjects.sql` | `subjects` | `CHAR(36)` (UUID) | Danh mục môn học |
-| `03_resources.sql` | `resource` + view `resources` | `BIGINT AUTO_INCREMENT` | Tài nguyên thư viện |
-| `03_students_tutors.sql` | `students`, `tutors` | `CHAR(36)` — FK → `users(id)` | Profile chi tiết |
-| `04_message.sql` | `message` | `BIGINT AUTO_INCREMENT` | Tin nhắn giữa người dùng |
-| `04_user_subjects.sql` | `user_subjects` | `(user_id, subject_id)` composite | Môn học của user |
-| `05_comment.sql` | `comment` | `(student_id, session_id)` composite | Đánh giá buổi học |
-| `06_resource_subject.sql` | `resource_subject` | `(resource_id, subject_name)` composite | Liên kết tài nguyên–chủ đề |
+| File                      | Bảng tạo ra                   | PK type                                 | Ghi chú                        |
+| ------------------------- | ----------------------------- | --------------------------------------- | ------------------------------ |
+| `01_users.sql`            | `users`                       | `CHAR(36)` (UUID)                       | Bảng gốc cho tất cả người dùng |
+| `02_subjects.sql`         | `subjects`                    | `CHAR(36)` (UUID)                       | Danh mục môn học               |
+| `03_resources.sql`        | `resource` + view `resources` | `BIGINT AUTO_INCREMENT`                 | Tài nguyên thư viện            |
+| `03_students_tutors.sql`  | `students`, `tutors`          | `CHAR(36)` — FK → `users(id)`           | Profile chi tiết               |
+| `04_message.sql`          | `message`                     | `BIGINT AUTO_INCREMENT`                 | Tin nhắn giữa người dùng       |
+| `04_user_subjects.sql`    | `user_subjects`               | `(user_id, subject_id)` composite       | Môn học của user               |
+| `05_comment.sql`          | `comment`                     | `(student_id, session_id)` composite    | Đánh giá buổi học              |
+| `06_resource_subject.sql` | `resource_subject`            | `(resource_id, subject_name)` composite | Liên kết tài nguyên–chủ đề     |
 
 ### 1.2 Stored Procedures (`procedure/`)
 
-| File | Procedure | Bảng thao tác |
-|---|---|---|
-| `sp_auth.sql` | `sp_register_user`, `sp_login` | `users` |
-| `sp_user_profiles.sql` | `sp_get_user_info`, `sp_update_user_profile`, `sp_get_all_students`, `sp_get_all_tutors` | `users`, `students`, `tutors` |
-| `sp_user_subjects.sql` | `sp_get_user_subjects`, `sp_add_user_subject`, `sp_remove_user_subject` | `user_subjects`, `subjects` |
-| `sp_send_message.sql` | `sp_send_message` | `message` |
-| `sp_get_messages_between.sql` | `sp_get_messages_between` | `message` |
-| `sp_mark_as_read.sql` | `sp_mark_as_read` | `message` |
-| `sp_add_comment.sql` | `sp_add_comment` | `comment` |
-| `sp_comment_by_session.sql` | `sp_comment_by_session` | `comment`, `students`, `accounts` ⚠️ |
-| `sp_add_document.sql` | `sp_add_document` | `resource` |
-| `sp_get_all_documents.sql` | `sp_get_all_documents` | `resource` |
-| `sp_get_documents_by_filter.sql` | `sp_get_documents_by_filter` | `resource` |
-| `sp_delete_document.sql` | `sp_delete_document` | `resource` |
+| File                             | Procedure                                                                                | Bảng thao tác                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------ |
+| `sp_auth.sql`                    | `sp_register_user`, `sp_login`                                                           | `users`                              |
+| `sp_user_profiles.sql`           | `sp_get_user_info`, `sp_update_user_profile`, `sp_get_all_students`, `sp_get_all_tutors` | `users`, `students`, `tutors`        |
+| `sp_user_subjects.sql`           | `sp_get_user_subjects`, `sp_add_user_subject`, `sp_remove_user_subject`                  | `user_subjects`, `subjects`          |
+| `sp_send_message.sql`            | `sp_send_message`                                                                        | `message`                            |
+| `sp_get_messages_between.sql`    | `sp_get_messages_between`                                                                | `message`                            |
+| `sp_mark_as_read.sql`            | `sp_mark_as_read`                                                                        | `message`                            |
+| `sp_add_comment.sql`             | `sp_add_comment`                                                                         | `comment`                            |
+| `sp_comment_by_session.sql`      | `sp_comment_by_session`                                                                  | `comment`, `students`, `accounts` ⚠️ |
+| `sp_add_document.sql`            | `sp_add_document`                                                                        | `resource`                           |
+| `sp_get_all_documents.sql`       | `sp_get_all_documents`                                                                   | `resource`                           |
+| `sp_get_documents_by_filter.sql` | `sp_get_documents_by_filter`                                                             | `resource`                           |
+| `sp_delete_document.sql`         | `sp_delete_document`                                                                     | `resource`                           |
 
 ### 1.3 Seed data (`seed/`)
 
-| File | Bảng được seed | Ghi chú |
-|---|---|---|
-| `01_init_database.sql` | — | Tạo database `dbms_project` |
-| `02_seed_subjects.sql` | `subjects` | 4 môn học mẫu, UUID cố định |
-| `03_seed_users.sql` | `users` | 5 user mẫu (1 admin, 2 SV, 2 GS), UUID cố định |
-| `04_seed_profiles.sql` | `students`, `tutors` | Tham chiếu UUID từ `03_seed_users.sql` |
-| `04_library.sql` | `resource` | ~100 tài nguyên mẫu |
-| `05_seed_user_subjects.sql` | `user_subjects` | Tham chiếu UUID từ users và subjects |
-| `05_message.sql` | `message` | Dùng integer ID ⚠️ |
-| `06_comment.sql` | `comment` | Dùng integer ID ⚠️ |
+| File                        | Bảng được seed       | Ghi chú                                        |
+| --------------------------- | -------------------- | ---------------------------------------------- |
+| `01_init_database.sql`      | —                    | Tạo database `dbms_project`                    |
+| `02_seed_subjects.sql`      | `subjects`           | 4 môn học mẫu, UUID cố định                    |
+| `03_seed_users.sql`         | `users`              | 5 user mẫu (1 admin, 2 SV, 2 GS), UUID cố định |
+| `04_seed_profiles.sql`      | `students`, `tutors` | Tham chiếu UUID từ `03_seed_users.sql`         |
+| `04_library.sql`            | `resource`           | ~100 tài nguyên mẫu                            |
+| `05_seed_user_subjects.sql` | `user_subjects`      | Tham chiếu UUID từ users và subjects           |
+| `05_message.sql`            | `message`            | Dùng integer ID ⚠️                             |
+| `06_comment.sql`            | `comment`            | Dùng integer ID ⚠️                             |
 
 ---
 
@@ -120,11 +120,13 @@ a.full_name AS student_name                -- cột 'full_name' không có trong
 ```
 
 **Nguyên nhân:**
+
 - Bảng `accounts` không tồn tại, phải dùng `users`.
 - Cột `full_name` không có trong `users` (tên cột đúng là `name`).
 - Bảng `students` không có cột `user_id` — `student_id` chính là FK sang `users(id)`.
 
 **Sửa:**
+
 ```sql
 JOIN users u ON u.id = c.student_id
 ...
@@ -194,44 +196,44 @@ Tương tự [W3] — `student_id` và `session_id` không khớp với UUID sch
 
 ### 🟢 OK — Không phát hiện vấn đề
 
-| Thành phần | Trạng thái |
-|---|---|
-| `01_users.sql` | ✅ |
-| `02_subjects.sql` | ✅ |
-| `03_resources.sql` | ✅ |
-| `03_students_tutors.sql` | ✅ |
-| `04_user_subjects.sql` | ✅ |
-| `sp_auth.sql` | ✅ |
-| `sp_user_profiles.sql` | ✅ |
-| `sp_user_subjects.sql` | ✅ |
-| `sp_add_document.sql` | ✅ |
-| `sp_get_all_documents.sql` | ✅ |
-| `sp_get_documents_by_filter.sql` | ✅ |
-| `sp_delete_document.sql` | ✅ |
-| `01_init_database.sql` | ✅ |
-| `02_seed_subjects.sql` | ✅ |
-| `03_seed_users.sql` | ✅ |
-| `04_seed_profiles.sql` | ✅ |
-| `04_library.sql` | ✅ |
-| `05_seed_user_subjects.sql` | ✅ |
+| Thành phần                       | Trạng thái |
+| -------------------------------- | ---------- |
+| `01_users.sql`                   | ✅         |
+| `02_subjects.sql`                | ✅         |
+| `03_resources.sql`               | ✅         |
+| `03_students_tutors.sql`         | ✅         |
+| `04_user_subjects.sql`           | ✅         |
+| `sp_auth.sql`                    | ✅         |
+| `sp_user_profiles.sql`           | ✅         |
+| `sp_user_subjects.sql`           | ✅         |
+| `sp_add_document.sql`            | ✅         |
+| `sp_get_all_documents.sql`       | ✅         |
+| `sp_get_documents_by_filter.sql` | ✅         |
+| `sp_delete_document.sql`         | ✅         |
+| `01_init_database.sql`           | ✅         |
+| `02_seed_subjects.sql`           | ✅         |
+| `03_seed_users.sql`              | ✅         |
+| `04_seed_profiles.sql`           | ✅         |
+| `04_library.sql`                 | ✅         |
+| `05_seed_user_subjects.sql`      | ✅         |
 
 ---
 
 ## 3. Tóm tắt các sửa đổi cần thực hiện
 
-| ID | File | Mức độ | Mô tả |
-|---|---|---|---|
-| C1 | `table/04_message.sql` | 🔴 Critical | Đổi FK tham chiếu từ `accounts(user_id)` → `users(id)` |
-| C2 | `table/04_message.sql` | 🔴 Critical | Đổi kiểu `sender_id`, `receiver_id` từ `BIGINT` → `CHAR(36)` |
-| C3 | `table/05_comment.sql` | 🔴 Critical | Tạo bảng `sessions` hoặc bỏ FK đến `sessions` |
-| C4 | `table/05_comment.sql` | 🔴 Critical | Đổi kiểu `student_id` từ `BIGINT` → `CHAR(36)` |
-| C5 | `procedure/sp_comment_by_session.sql` | 🔴 Critical | Sửa JOIN dùng `users` thay `accounts`, dùng `u.name` thay `a.full_name` |
-| C6 | `procedure/sp_send_message.sql`, `sp_get_messages_between.sql`, `sp_mark_as_read.sql` | 🔴 Critical | Đổi tham số ID từ `BIGINT` → `CHAR(36)` |
-| C7 | `procedure/sp_add_comment.sql` | 🔴 Critical | Đổi `p_student_id` từ `BIGINT` → `CHAR(36)` |
-| W1 | *(thiếu file)* | 🟡 Warning | Tạo `table/05_sessions.sql` để định nghĩa bảng `sessions` |
-| W2 | `table/06_resource_subject.sql` | 🟡 Warning | Cân nhắc thêm FK hoặc đồng nhất cách tham chiếu subject |
-| W3 | `seed/05_message.sql` | 🟡 Warning | Viết lại seed dùng UUID `CHAR(36)` |
-| W4 | `seed/06_comment.sql` | 🟡 Warning | Viết lại seed dùng UUID `CHAR(36)` |
+| ID  | File                                                                                  | Mức độ      | Mô tả                                                                   |
+| --- | ------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+| C1  | `table/04_message.sql`                                                                | 🔴 Critical | Đổi FK tham chiếu từ `accounts(user_id)` → `users(id)`                  |
+| C2  | `table/04_message.sql`                                                                | 🔴 Critical | Đổi kiểu `sender_id`, `receiver_id` từ `BIGINT` → `CHAR(36)`            |
+| C3  | `table/05_comment.sql`                                                                | 🔴 Critical | Tạo bảng `sessions` hoặc bỏ FK đến `sessions`                           |
+| C4  | `table/05_comment.sql`                                                                | 🔴 Critical | Đổi kiểu `student_id` từ `BIGINT` → `CHAR(36)`                          |
+| C5  | `procedure/sp_comment_by_session.sql`                                                 | 🔴 Critical | Sửa JOIN dùng `users` thay `accounts`, dùng `u.name` thay `a.full_name` |
+| C6  | `procedure/sp_send_message.sql`, `sp_get_messages_between.sql`, `sp_mark_as_read.sql` | 🔴 Critical | Đổi tham số ID từ `BIGINT` → `CHAR(36)`                                 |
+| C7  | `procedure/sp_add_comment.sql`                                                        | 🔴 Critical | Đổi `p_student_id` từ `BIGINT` → `CHAR(36)`                             |
+| W1  | _(thiếu file)_                                                                        | 🟡 Warning  | Tạo `table/05_sessions.sql` để định nghĩa bảng `sessions`               |
+| W2  | `table/06_resource_subject.sql`                                                       | 🟡 Warning  | Cân nhắc thêm FK hoặc đồng nhất cách tham chiếu subject                 |
+| W3  | `seed/05_message.sql`                                                                 | 🟡 Warning  | Viết lại seed dùng UUID `CHAR(36)`                                      |
+| W4  | `seed/06_comment.sql`                                                                 | 🟡 Warning  | Viết lại seed dùng UUID `CHAR(36)`                                      |
 
 ---
 
