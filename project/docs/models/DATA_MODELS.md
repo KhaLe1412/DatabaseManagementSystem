@@ -1,6 +1,6 @@
 # Data Models - HCMUT Tutoring System
 
-## 1. Accounts (Tài khoản)
+## 1. Users (Tài khoản)
 
 Bảng lưu trữ thông tin chung cho tất cả người dùng.
 
@@ -21,7 +21,7 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | Field     | Type     | Key | Description                           |
 | --------- | -------- | --- | ------------------------------------- |
 | studentID | char(36) | PK  | Mã định danh sinh viên                |
-| userID    | int      | FK1 | Tham chiếu đến bảng Accounts (userID) |
+| userID    | char(36) | FK1 | Tham chiếu đến bảng Users (userID) |
 
 ---
 
@@ -30,7 +30,7 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | Field   | Type     | Key | Description                           |
 | ------- | -------- | --- | ------------------------------------- |
 | tutorID | char(36) | PK  | Mã định danh gia sư                   |
-| userID  | int      | FK1 | Tham chiếu đến bảng Accounts (userID) |
+| userID  | char(36) | FK1 | Tham chiếu đến bảng Users (userID) |
 
 ---
 
@@ -79,8 +79,8 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | Field      | Type     | Key | Description                                |
 | ---------- | -------- | --- | ------------------------------------------ |
 | messageID  | int      | PK  | Mã tin nhắn                                |
-| senderID   | int      | FK1 | ID người gửi (tham chiếu Accounts.userID)  |
-| receiverID | int      | FK2 | ID người nhận (tham chiếu Accounts.userID) |
+| senderID   | char(36) | FK1 | ID người gửi (tham chiếu Users.userID)  |
+| receiverID | char(36) | FK2 | ID người nhận (tham chiếu Users.userID) |
 | timestamp  | datetime |     | Thời gian gửi                              |
 | content    | text     |     | Nội dung tin nhắn                          |
 | status     | varchar  |     | Trạng thái: Đã gửi, Đã xem, ...            |
@@ -92,7 +92,7 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | Field          | Type     | Key | Description                                |
 | -------------- | -------- | --- | ------------------------------------------ |
 | notificationID | int      | PK  | Mã thông báo                               |
-| receiverID     | int      | FK1 | ID người nhận (tham chiếu Accounts.userID) |
+| receiverID     | char(36) | FK1 | ID người nhận (tham chiếu Users.userID) |
 | timestamp      | datetime |     | Thời gian thông báo                        |
 | content        | text     |     | Nội dung thông báo                         |
 | type           | varchar  |     | Loại thông báo                             |
@@ -104,8 +104,8 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | Field      | Type     | Key | Description                                    |
 | ---------- | -------- | --- | ---------------------------------------------- |
 | requestID  | int      | PK  | Mã yêu cầu                                     |
-| studentID  | char(36) | FK1 | ID sinh viên gửi yêu cầu (tham chiếu Students) |
-| sessionID  | char(36) | FK2 | ID buổi học được yêu cầu (tham chiếu Sessions) |
+| studentID  | char(36) | FK1 | ID sinh viên gửi yêu cầu (tham chiếu Students.studentID) |
+| sessionID  | char(36) | FK2 | ID buổi học được yêu cầu (tham chiếu Sessions.sessionID) |
 | date       | date     |     | Ngày yêu cầu                                   |
 | start_time | time     |     | Giờ bắt đầu mong muốn                          |
 | end_time   | time     |     | Giờ kết thúc mong muốn                         |
@@ -136,7 +136,7 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | resourceID | int  | PK, FK1 | Tham chiếu Resources.resourceID |
 | subjectID  | int  | PK, FK2 | Tham chiếu Subjects.subjectID   |
 
-### 10.4 Joins (Sinh viên tham gia buổi học)
+### 10.4 Session_Participants (Sinh viên tham gia buổi học)
 
 | Field     | Type     | Key     | Description                   |
 | --------- | -------- | ------- | ----------------------------- |
@@ -151,9 +151,9 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 
 ```
 ┌──────────────────────────────────┐
-│            Accounts              │
+│            Users                 │
 ├──────────────────────────────────┤
-│ userID (PK, int)                 │
+│ userID (PK, char(36))            │
 │ full_name, username, password    │
 │ email, department, role          │
 └───────────┬──────────────────────┘
