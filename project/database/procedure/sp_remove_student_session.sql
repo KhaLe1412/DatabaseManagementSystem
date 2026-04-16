@@ -65,7 +65,3 @@ END//
 
 DELIMITER ;
 
-DELIMITER ;
-
--- Test procedure
--- CALL sp_remove_student_session(2, 3);

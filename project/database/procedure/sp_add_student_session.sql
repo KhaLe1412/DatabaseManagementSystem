@@ -34,7 +34,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid student_id';
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM students WHERE user_id = p_student_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM students WHERE student_id = p_student_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Student not found';
     END IF;
 

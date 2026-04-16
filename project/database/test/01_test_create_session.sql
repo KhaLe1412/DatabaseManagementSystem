@@ -3,6 +3,8 @@
 -- Tác giả: Nhan
 -- Ngày tạo: 2026-04-10
 
+-- Run in window: Get-Content database\test\01_test_create_session.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
+
 USE dbms_project;
 
 -- Ensure no leftover test sessions
@@ -11,8 +13,8 @@ DELETE FROM sessions WHERE notes LIKE 'TEST_CREATE_%';
 SELECT '=== TEST 01: CREATE SESSION (MULTIPLE CASES) ===' AS suite;
 
 -- Prepare tutors and subjects
-SET @tutor1 = (SELECT user_id FROM tutors ORDER BY user_id LIMIT 1);
-SET @tutor2 = (SELECT user_id FROM tutors ORDER BY user_id DESC LIMIT 1);
+SET @tutor1 = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
+SET @tutor2 = (SELECT tutor_id FROM tutors ORDER BY tutor_id DESC LIMIT 1);
 SET @subject1 = 'Programming Fundamentals';
 SET @subject2 = 'Data Structures';
 

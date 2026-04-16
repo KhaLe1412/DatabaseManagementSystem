@@ -3,6 +3,8 @@
 -- Tác giả: Nhan
 -- Ngày tạo: 2026-04-10
 
+-- Run in window: Get-Content database\test\03_test_filter_sessions.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
+
 USE dbms_project;
 
 -- Ensure connection uses the same collation as tables to avoid collation-mix errors
@@ -12,9 +14,9 @@ SET collation_connection = 'utf8mb4_unicode_ci';
 SELECT '=== TEST 03: FILTER SESSIONS (10 happy-path cases) ===' AS suite;
 
 -- Prepare params (use subject strings since subjects table was removed)
-SET @tutor1 = (SELECT user_id FROM tutors ORDER BY user_id LIMIT 1);
-SET @tutor2 = (SELECT user_id FROM tutors ORDER BY user_id DESC LIMIT 1);
-SET @student1 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1);
+SET @tutor1 = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
+SET @tutor2 = (SELECT tutor_id FROM tutors ORDER BY tutor_id DESC LIMIT 1);
+SET @student1 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1);
 SET @subject1 = 'Programming Fundamentals';
 SET @session_date = '2026-04-12'; -- seeded date with multiple sessions
 

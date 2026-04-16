@@ -1,7 +1,7 @@
 -- File: 01_init_database.sql
 -- Mô tả: Khởi tạo database và cấu hình cơ bản
--- Tác giả: Nhan
--- Ngày tạo: 2026-04-10
+-- Tác giả: Huỳnh Hữu Nhật
+-- Ngày tạo: 2026-04-09
 
 -- Tạo database nếu chưa có
 CREATE DATABASE IF NOT EXISTS dbms_project
@@ -10,10 +10,8 @@ DEFAULT COLLATE utf8mb4_unicode_ci;
 
 USE dbms_project;
 
--- Cấu hình time zone
+-- Cấu hình time zone sang giờ Việt Nam
 SET time_zone = '+07:00';
 
--- Disable foreign key checks while running seeds (individual seed files may re-enable as needed)
-SET FOREIGN_KEY_CHECKS = 0;
-
+-- Log xác nhận
 SELECT 'Database initialized successfully' AS status;

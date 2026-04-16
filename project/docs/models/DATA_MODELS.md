@@ -1,305 +1,224 @@
 # Data Models - HCMUT Tutoring System
 
-## 1. User Models
+## 1. Users (Tài khoản)
 
-### 1.1 Base User
+Bảng lưu trữ thông tin chung cho tất cả người dùng.
 
-| Field  | Type     | Required | Description              |
-| ------ | -------- | -------- | ------------------------ |
-| id     | string   | Yes      | Unique identifier (UUID) |
-| name   | string   | Yes      | Full name                |
-| email  | string   | Yes      | Email address (unique)   |
-| role   | UserRole | Yes      | User's role              |
-| avatar | string   | No       | Avatar URL               |
-
-**UserRole Enum:**
-
-```
-'student' | 'tutor' | 'academic-affairs' | 'student-affairs' | 'admin'
-```
+| Field      | Type         | Key | Description                         |
+| ---------- | ------------ | --- | ----------------------------------- |
+| userID     | int          | PK  | Mã định danh người dùng             |
+| full_name  | varchar      |     | Họ và tên                           |
+| username   | varchar      |     | Tên đăng nhập                       |
+| password   | varchar      |     | Mật khẩu (đã hash)                  |
+| email      | varchar      |     | Địa chỉ email (unique)              |
+| department | varchar      |     | Phòng ban / Khoa                    |
+| role       | enum/varchar |     | Vai trò: Admin, Student, Tutor, ... |
 
 ---
 
-### 1.2 Student (extends User)
+## 2. Students (Sinh viên)
 
-| Field        | Type     | Required | Description                  |
-| ------------ | -------- | -------- | ---------------------------- |
-| studentId    | string   | Yes      | Student ID (e.g., "2012345") |
-| department   | string   | Yes      | Department name              |
-| year         | int      | Yes      | Academic year (1-6)          |
-| supportNeeds | string[] | No       | Learning support needs       |
-| gpa          | float    | Yes      | Current GPA (0.0 - 4.0)      |
+| Field     | Type     | Key | Description                           |
+| --------- | -------- | --- | ------------------------------------- |
+| studentID | char(36) | PK  | Mã định danh sinh viên                |
+| userID    | char(36) | FK1 | Tham chiếu đến bảng Users (userID) |
 
 ---
 
-### 1.3 Tutor (extends User)
+## 3. Tutors (Gia sư / Giảng viên)
 
-| Field         | Type     | Required | Description                |
-| ------------- | -------- | -------- | -------------------------- |
-| tutorId       | string   | Yes      | Tutor ID                   |
-| department    | string   | Yes      | Department name            |
-| expertise     | string[] | Yes      | Areas of expertise         |
-| rating        | float    | Yes      | Average rating (0.0 - 5.0) |
-| totalSessions | int      | Yes      | Total sessions conducted   |
+| Field   | Type     | Key | Description                           |
+| ------- | -------- | --- | ------------------------------------- |
+| tutorID | char(36) | PK  | Mã định danh gia sư                   |
+| userID  | char(36) | FK1 | Tham chiếu đến bảng Users (userID) |
 
 ---
 
-### 1.4 Admin (extends User)
+## 4. Subjects (Môn học)
 
-| Field      | Type   | Required | Description     |
-| ---------- | ------ | -------- | --------------- |
-| adminId    | string | Yes      | Admin ID        |
-| department | string | Yes      | Department name |
-
----
-
-## 2. Session Models
-
-### 2.1 Session
-
-| Field            | Type            | Required | Description                      |
-| ---------------- | --------------- | -------- | -------------------------------- |
-| id               | string          | Yes      | Unique identifier (UUID)         |
-| tutorId          | string          | Yes      | Reference to Tutor               |
-| subject          | string          | Yes      | Subject being taught             |
-| date             | string          | Yes      | Session date (YYYY-MM-DD)        |
-| startTime        | string          | Yes      | Start time (HH:mm)               |
-| endTime          | string          | Yes      | End time (HH:mm)                 |
-| type             | SessionType     | Yes      | In-person or online              |
-| status           | SessionStatus   | Yes      | Current status                   |
-| location         | string          | No       | Physical location (if in-person) |
-| meetingLink      | string          | No       | Meeting URL (if online)          |
-| notes            | string          | No       | Session notes                    |
-| feedback         | SessionFeedback | No       | Feedback after session           |
-| summary          | string          | No       | Session summary                  |
-| recordingUrl     | string          | No       | Recording URL                    |
-| maxStudents      | int             | Yes      | Max students allowed             |
-| enrolledStudents | string[]        | No       | List of enrolled student IDs     |
-| reviews          | StudentReview[] | No       | Student reviews                  |
-
-**SessionType Enum:**
-
-```
-'in-person' | 'online'
-```
-
-**SessionStatus Enum:**
-
-```
-'scheduled' | 'completed' | 'cancelled' | 'open' | 'full'
-```
+| Field        | Type    | Key | Description |
+| ------------ | ------- | --- | ----------- |
+| subjectID    | int     | PK  | Mã môn học  |
+| subject_name | varchar |     | Tên môn học |
 
 ---
 
-### 2.2 SessionFeedback
+## 5. Resources (Tài liệu)
 
-| Field          | Type     | Required | Description                 |
-| -------------- | -------- | -------- | --------------------------- |
-| id             | string   | Yes      | Unique identifier (UUID)    |
-| sessionId      | string   | Yes      | Reference to Session        |
-| studentRating  | int      | No       | Rating from student (1-5)   |
-| studentComment | string   | No       | Comment from student        |
-| tutorProgress  | string   | No       | Progress note from tutor    |
-| tutorNotes     | string   | No       | Additional notes from tutor |
-| submittedAt    | datetime | Yes      | Submission timestamp        |
+| Field      | Type    | Key | Description                        |
+| ---------- | ------- | --- | ---------------------------------- |
+| resourceID | int     | PK  | Mã tài liệu                        |
+| title      | varchar |     | Tiêu đề tài liệu                   |
+| author     | varchar |     | Tác giả                            |
+| type       | varchar |     | Loại tài liệu: PDF, Video, Doc ... |
+| url        | varchar |     | Đường dẫn đến tài liệu             |
 
 ---
 
-### 2.3 StudentReview
+## 6. Sessions (Buổi học / Phiên làm việc)
 
-| Field       | Type     | Required | Description          |
-| ----------- | -------- | -------- | -------------------- |
-| studentId   | string   | Yes      | Reference to Student |
-| rating      | int      | Yes      | Rating (1-5)         |
-| comment     | string   | No       | Review comment       |
-| submittedAt | datetime | Yes      | Submission timestamp |
-
----
-
-## 3. Match Request Model
-
-### 3.1 MatchRequest
-
-| Field          | Type               | Required | Description                |
-| -------------- | ------------------ | -------- | -------------------------- |
-| id             | string             | Yes      | Unique identifier (UUID)   |
-| studentId      | string             | Yes      | Reference to Student       |
-| subjects       | string[]           | Yes      | Subjects needing help      |
-| preferredType  | PreferredType      | Yes      | Session type preference    |
-| preferredTimes | string[]           | Yes      | Preferred time slots       |
-| status         | MatchRequestStatus | Yes      | Current status             |
-| matchedTutorId | string             | No       | Matched tutor (if matched) |
-
-**PreferredType Enum:**
-
-```
-'in-person' | 'online' | 'both'
-```
-
-**MatchRequestStatus Enum:**
-
-```
-'pending' | 'matched' | 'rejected'
-```
+| Field       | Type     | Key | Description                                 |
+| ----------- | -------- | --- | ------------------------------------------- |
+| sessionID   | char(36) | PK  | Mã buổi học                                 |
+| tutorID     | char(36) | FK1 | Gia sư đứng lớp (tham chiếu Tutors.tutorID) |
+| date        | date     |     | Ngày diễn ra                                |
+| start_time  | time     |     | Giờ bắt đầu                                 |
+| end_time    | time     |     | Giờ kết thúc                                |
+| type        | varchar  |     | Hình thức: Online / Offline                 |
+| max_student | int      |     | Số lượng sinh viên tối đa                   |
+| note        | text     |     | Ghi chú                                     |
+| summary     | text     |     | Tóm tắt nội dung buổi học                   |
+| record_url  | varchar  |     | Đường dẫn bản ghi (nếu có)                  |
+| meeting_url | varchar  |     | Link họp trực tuyến (Online session)        |
+| room        | varchar  |     | Phòng học (Offline session)                 |
 
 ---
 
-## 4. Messaging Models
+## 7. Messages (Tin nhắn)
 
-### 4.1 Message
-
-| Field            | Type        | Required | Description                     |
-| ---------------- | ----------- | -------- | ------------------------------- |
-| id               | string      | Yes      | Unique identifier (UUID)        |
-| senderId         | string      | Yes      | Reference to sender User        |
-| receiverId       | string      | Yes      | Reference to receiver User      |
-| content          | string      | Yes      | Message content                 |
-| timestamp        | datetime    | Yes      | Send timestamp                  |
-| read             | boolean     | Yes      | Read status                     |
-| type             | MessageType | No       | Message type                    |
-| relatedSessionId | string      | No       | Related session (if applicable) |
-
-**MessageType Enum:**
-
-```
-'regular' | 'reschedule-notification' | 'material-request'
-```
+| Field      | Type     | Key | Description                                |
+| ---------- | -------- | --- | ------------------------------------------ |
+| messageID  | int      | PK  | Mã tin nhắn                                |
+| senderID   | char(36) | FK1 | ID người gửi (tham chiếu Users.userID)  |
+| receiverID | char(36) | FK2 | ID người nhận (tham chiếu Users.userID) |
+| timestamp  | datetime |     | Thời gian gửi                              |
+| content    | text     |     | Nội dung tin nhắn                          |
+| status     | varchar  |     | Trạng thái: Đã gửi, Đã xem, ...            |
 
 ---
 
-### 4.2 RescheduleRequest
+## 8. Notifications (Thông báo)
 
-| Field         | Type                    | Required | Description              |
-| ------------- | ----------------------- | -------- | ------------------------ |
-| id            | string                  | Yes      | Unique identifier (UUID) |
-| sessionId     | string                  | Yes      | Reference to Session     |
-| requesterId   | string                  | Yes      | Reference to requester   |
-| requesterRole | RequesterRole           | Yes      | Role of requester        |
-| newDate       | string                  | Yes      | New proposed date        |
-| newStartTime  | string                  | Yes      | New proposed start time  |
-| newEndTime    | string                  | Yes      | New proposed end time    |
-| reason        | string                  | Yes      | Reason for reschedule    |
-| status        | RescheduleRequestStatus | Yes      | Current status           |
-| createdAt     | datetime                | Yes      | Creation timestamp       |
-
-**RequesterRole Enum:**
-
-```
-'student' | 'tutor'
-```
-
-**RescheduleRequestStatus Enum:**
-
-```
-'pending' | 'approved' | 'rejected'
-```
+| Field          | Type     | Key | Description                                |
+| -------------- | -------- | --- | ------------------------------------------ |
+| notificationID | int      | PK  | Mã thông báo                               |
+| receiverID     | char(36) | FK1 | ID người nhận (tham chiếu Users.userID) |
+| timestamp      | datetime |     | Thời gian thông báo                        |
+| content        | text     |     | Nội dung thông báo                         |
+| type           | varchar  |     | Loại thông báo                             |
 
 ---
 
-## 5. Library Resource Model
+## 9. Requests (Yêu cầu)
 
-### 5.1 LibraryResource
-
-| Field     | Type         | Required | Description              |
-| --------- | ------------ | -------- | ------------------------ |
-| id        | string       | Yes      | Unique identifier (UUID) |
-| title     | string       | Yes      | Resource title           |
-| type      | ResourceType | Yes      | Type of resource         |
-| subject   | string       | Yes      | Related subject          |
-| author    | string       | Yes      | Author/Creator name      |
-| url       | string       | Yes      | Resource URL             |
-| thumbnail | string       | No       | Thumbnail image URL      |
-
-**ResourceType Enum:**
-
-```
-'textbook' | 'document' | 'video' | 'article'
-```
+| Field      | Type     | Key | Description                                    |
+| ---------- | -------- | --- | ---------------------------------------------- |
+| requestID  | int      | PK  | Mã yêu cầu                                     |
+| studentID  | char(36) | FK1 | ID sinh viên gửi yêu cầu (tham chiếu Students.studentID) |
+| sessionID  | char(36) | FK2 | ID buổi học được yêu cầu (tham chiếu Sessions.sessionID) |
+| date       | date     |     | Ngày yêu cầu                                   |
+| start_time | time     |     | Giờ bắt đầu mong muốn                          |
+| end_time   | time     |     | Giờ kết thúc mong muốn                         |
+| reason     | text     |     | Lý do yêu cầu                                  |
 
 ---
 
-## 6. Evaluation Model
+## 10. Bảng trung gian (Quan hệ N-M)
 
-### 6.1 StudentEvaluation
+### 10.1 Study (Sinh viên cần hỗ trợ môn)
 
-| Field           | Type       | Required | Description                  |
-| --------------- | ---------- | -------- | ---------------------------- |
-| id              | string     | Yes      | Unique identifier (UUID)     |
-| studentId       | string     | Yes      | Reference to Student         |
-| tutorId         | string     | Yes      | Reference to Tutor           |
-| sessionId       | string     | Yes      | Reference to Session         |
-| skills          | SkillsObj  | Yes      | Skill ratings                |
-| attitude        | int        | Yes      | Attitude rating (1-5)        |
-| testResults     | TestResult | No       | Test result details          |
-| overallProgress | string     | Yes      | Overall progress description |
-| recommendations | string     | Yes      | Tutor recommendations        |
-| createdAt       | datetime   | Yes      | Creation timestamp           |
+| Field     | Type     | Key     | Description                   |
+| --------- | -------- | ------- | ----------------------------- |
+| studentID | char(36) | PK, FK1 | Tham chiếu Students.studentID |
+| subjectID | int      | PK, FK2 | Tham chiếu Subjects.subjectID |
 
-### 6.2 Skills Object
+### 10.2 Teach (Gia sư có thể dạy môn)
 
-| Field         | Type | Required | Range | Description         |
-| ------------- | ---- | -------- | ----- | ------------------- |
-| understanding | int  | Yes      | 1-5   | Understanding level |
-| participation | int  | Yes      | 1-5   | Class participation |
-| preparation   | int  | Yes      | 1-5   | Preparation level   |
+| Field     | Type     | Key     | Description                   |
+| --------- | -------- | ------- | ----------------------------- |
+| tutorID   | char(36) | PK, FK1 | Tham chiếu Tutors.tutorID     |
+| subjectID | int      | PK, FK2 | Tham chiếu Subjects.subjectID |
 
-### 6.3 TestResult Object
+### 10.3 Resource_Subject (Tài liệu thuộc môn)
 
-| Field    | Type   | Required | Description      |
-| -------- | ------ | -------- | ---------------- |
-| score    | int    | Yes      | Score achieved   |
-| maxScore | int    | Yes      | Maximum possible |
-| notes    | string | No       | Additional notes |
+| Field      | Type | Key     | Description                     |
+| ---------- | ---- | ------- | ------------------------------- |
+| resourceID | int  | PK, FK1 | Tham chiếu Resources.resourceID |
+| subjectID  | int  | PK, FK2 | Tham chiếu Subjects.subjectID   |
+
+### 10.4 Session_Participants (Sinh viên tham gia buổi học)
+
+| Field     | Type     | Key     | Description                   |
+| --------- | -------- | ------- | ----------------------------- |
+| studentID | char(36) | PK, FK1 | Tham chiếu Students.studentID |
+| sessionID | char(36) | PK, FK2 | Tham chiếu Sessions.sessionID |
+| comment   | text     |         | Nhận xét của sinh viên        |
+| rating    | int      |         | Điểm đánh giá (1-5)           |
 
 ---
 
 ## Entity Relationship Diagram (ERD)
 
 ```
-┌─────────────┐       ┌─────────────┐       ┌─────────────────┐
-│    User     │       │   Session   │       │ LibraryResource │
-├─────────────┤       ├─────────────┤       ├─────────────────┤
-│ id (PK)     │       │ id (PK)     │       │ id (PK)         │
-│ name        │       │ tutorId(FK) │───────│ title           │
-│ email       │       │ subject     │       │ type            │
-│ role        │       │ date        │       │ subject         │
-│ avatar      │       │ status      │       │ author          │
-└──────┬──────┘       │ maxStudents │       │ url             │
-       │              └──────┬──────┘       └─────────────────┘
-       │                     │
-   Extends                   │
-       │              ┌──────┴──────┐
-       ▼              ▼             ▼
-┌─────────────┐ ┌───────────────┐ ┌────────────────┐
-│   Student   │ │SessionFeedback│ │ StudentReview  │
-├─────────────┤ ├───────────────┤ ├────────────────┤
-│ studentId   │ │ id (PK)       │ │ studentId (FK) │
-│ department  │ │ sessionId(FK) │ │ rating         │
-│ year        │ │ studentRating │ │ comment        │
-│ gpa         │ │ tutorNotes    │ │ submittedAt    │
-└──────┬──────┘ └───────────────┘ └────────────────┘
-       │
-       │        ┌─────────────────┐      ┌────────────────────┐
-       │        │  MatchRequest   │      │ StudentEvaluation   │
-       └───────▶├─────────────────┤      ├────────────────────┤
-                │ id (PK)         │      │ id (PK)             │
-                │ studentId (FK)  │      │ studentId (FK)      │
-                │ subjects        │      │ tutorId (FK)        │
-                │ preferredType   │      │ sessionId (FK)      │
-                │ status          │      │ skills              │
-                │ matchedTutorId  │      │ attitude            │
-                └─────────────────┘      │ overallProgress     │
-                                         └────────────────────┘
+┌──────────────────────────────────┐
+│            Users                 │
+├──────────────────────────────────┤
+│ userID (PK, char(36))            │
+│ full_name, username, password    │
+│ email, department, role          │
+└───────────┬──────────────────────┘
+            │ 1
+     ───────┴───────
+     │              │
+     ▼              ▼
+┌──────────┐   ┌──────────┐
+│ Students │   │  Tutors  │
+├──────────┤   ├──────────┤
+│studentID │   │ tutorID  │
+│(PK,ch36) │   │(PK,ch36) │
+│ userID   │   │ userID   │
+│  (FK1)   │   │  (FK1)   │
+└────┬─────┘   └────┬─────┘
+     │              │
+     │N            N│
+     ▼              ▼
+┌──────────────────────────────────┐
+│             Subjects             │
+├──────────────────────────────────┤
+│ subjectID (PK, int)              │
+│ subject_name                     │
+└──────────────────────────────────┘
+     ▲              ▲
+     │N            N│
+ (Study)        (Teach)
+ (Resource_Subject)
 
-┌─────────────┐       ┌───────────────────┐
-│   Message   │       │ RescheduleRequest │
-├─────────────┤       ├───────────────────┤
-│ id (PK)     │       │ id (PK)           │
-│ senderId(FK)│       │ sessionId (FK)    │
-│ receiverId  │       │ requesterId (FK)  │
-│ content     │       │ newDate           │
-│ timestamp   │       │ status            │
-│ read        │       │ reason            │
-│ type        │       │ createdAt         │
-└─────────────┘       └───────────────────┘
+┌──────────┐    N        1  ┌──────────────────────────────────┐
+│ Students │───────────────▶│            Sessions              │
+│          │  (Joins)       ├──────────────────────────────────┤
+│studentID │◀──────────     │ sessionID (PK, char(36))         │
+└──────────┘    rating,     │ tutorID   (FK1, char(36))        │
+                comment     │ date, start_time, end_time       │
+                            │ type, max_student, note          │
+                            │ summary, record_url              │
+                            │ meeting_url, room                │
+                            └──────────────────────────────────┘
+                                         ▲
+                                         │
+                            ┌────────────┴─────────────────────┐
+                            │           Requests               │
+                            ├──────────────────────────────────┤
+                            │ requestID (PK, int)              │
+                            │ studentID (FK1, char(36))        │
+                            │ sessionID (FK2, char(36))        │
+                            │ date, start_time, end_time       │
+                            │ reason                           │
+                            └──────────────────────────────────┘
+
+┌──────────────────────────────────┐   ┌──────────────────────────────────┐
+│            Messages              │   │          Notifications           │
+├──────────────────────────────────┤   ├──────────────────────────────────┤
+│ messageID (PK, int)              │   │ notificationID (PK, int)         │
+│ senderID   (FK1 → Accounts)      │   │ receiverID (FK1 → Accounts)      │
+│ receiverID (FK2 → Accounts)      │   │ timestamp, content, type         │
+│ timestamp, content, status       │   └──────────────────────────────────┘
+└──────────────────────────────────┘
+
+┌──────────────────────────────────┐
+│            Resources             │
+├──────────────────────────────────┤
+│ resourceID (PK, int)             │
+│ title, author, type, url         │
+└──────────────────────────────────┘
+  (Resource_Subject → Subjects N-M)
 ```

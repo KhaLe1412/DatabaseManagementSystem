@@ -5,9 +5,9 @@
 USE dbms_project;
 
 INSERT IGNORE INTO session_participants (session_id, student_id) VALUES
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111'),
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '22222222-2222-2222-2222-222222222222'),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '33333333-3333-3333-3333-333333333333');
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'USER-STUD-0000-0000-000000000001'),
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'USER-STUD-0000-0000-000000000002'),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'USER-STUD-0000-0000-000000000001');
 
 SELECT COUNT(*) AS participants_inserted FROM session_participants;
 SELECT 'Sample session participants data loaded successfully' AS status;

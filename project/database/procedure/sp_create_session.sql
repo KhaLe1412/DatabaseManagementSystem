@@ -56,7 +56,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid max_students';
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM tutors WHERE user_id = p_tutor_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM tutors WHERE tutor_id = p_tutor_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tutor not found';
     END IF;
 

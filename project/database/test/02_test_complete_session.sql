@@ -3,14 +3,16 @@
 -- Tác giả: Nhan
 -- Ngày tạo: 2026-04-10
 
+-- Run in window: Get-Content database\test\02_test_complete_session.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
+
 USE dbms_project;
 
 SELECT '=== TEST 02: COMPLETE SESSION (10 cases) ===' AS suite_name;
 
 -- Prepare helpers
-SET @tutor_id = (SELECT user_id FROM tutors ORDER BY user_id LIMIT 1);
+SET @tutor_id = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
 SET @subject = 'Programming Fundamentals';
-SET @student1 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1);
+SET @student1 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1);
 
 -- Ensure no leftover
 DELETE FROM session_participants WHERE session_id IN (SELECT session_id FROM sessions WHERE notes LIKE 'TEST_COMPLETE_%');

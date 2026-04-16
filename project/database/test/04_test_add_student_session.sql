@@ -3,17 +3,19 @@
 -- Tác giả: Nhan
 -- Ngày tạo: 2026-04-10
 
+-- Run in window: Get-Content database\test\04_test_add_student_session.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
+
 USE dbms_project;
 
 SELECT '=== TEST 04: ADD STUDENT TO SESSION (10 happy-path cases) ===' AS suite;
 
 -- Prepare helpers (use seeded UUID users)
-SET @tutor1 = (SELECT user_id FROM tutors ORDER BY user_id LIMIT 1);
-SET @tutor2 = (SELECT user_id FROM tutors ORDER BY user_id DESC LIMIT 1);
-SET @s1 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1);
-SET @s2 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1 OFFSET 1);
-SET @s3 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1 OFFSET 2);
-SET @s4 = (SELECT user_id FROM students ORDER BY user_id LIMIT 1 OFFSET 3);
+SET @tutor1 = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
+SET @tutor2 = (SELECT tutor_id FROM tutors ORDER BY tutor_id DESC LIMIT 1);
+SET @s1 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1);
+SET @s2 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1 OFFSET 1);
+SET @s3 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1 OFFSET 2);
+SET @s4 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1 OFFSET 3);
 
 -- TEST CASE 1
 SELECT '=== TEST CASE 1 ===' AS test_name;
