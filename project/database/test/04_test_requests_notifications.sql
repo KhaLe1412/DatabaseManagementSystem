@@ -1,117 +1,90 @@
 -- File: 04_test_requests_notifications.sql
--- Mô tả: Test các Stored Procedures cho Requests và Notifications (Nhiệm vụ 4)
--- Tác giả: Huỳnh Hữu Nhật (bổ sung kịch bản Requests/Notifications)
--- Ngày cập nhật: 2026-04-16
+-- Description: Run full Task 4 flow test for requests and notifications.
+-- Author: Ha Thanh Trung
+-- Created on: 2026-04-15
 
 USE dbms_project;
 
--- ================================
--- SETUP MOCK DATA
--- ================================
-SELECT '=== SETUP DỮ LIỆU TEST ===' AS action;
-
-SET @test_tutor_uuid = 'TEST-TUTO-0000-0000-0000-000000000000';
-SET @test_student_uuid = 'TEST-STUD-0000-0000-0000-000000000000';
-SET @test_session_uuid = 'TEST-SESS-0000-0000-0000-000000000000';
-
--- 1. Tạo User & Role
-INSERT INTO users (id, username, password, email, full_name, role) 
-VALUES 
-    (@test_tutor_uuid, 'test_tutor', 'pass', 'tutor@test.com', 'Test Tutor', 'tutor'),
-    (@test_student_uuid, 'test_student', 'pass', 'student@test.com', 'Test Student', 'student');
-
-INSERT INTO tutors (tutor_id) VALUES (@test_tutor_uuid);
-INSERT INTO students (student_id) VALUES (@test_student_uuid);
-
--- 2. Tạo Session & Đăng ký tham gia
-INSERT INTO sessions (session_id, tutor_id, date, start_time, end_time, type, max_student) 
-VALUES (@test_session_uuid, @test_tutor_uuid, '2026-05-01', '08:00:00', '10:00:00', 'online', 10);
-
-INSERT INTO session_participants (student_id, session_id) 
-VALUES (@test_student_uuid, @test_session_uuid);
-
-
--- ================================
--- TEST 1: Sinh viên tạo Request dời lịch
--- ================================
-SELECT '=== TEST 1: sp_create_request ===' AS test_name;
-
-CALL sp_create_request(
-    @test_student_uuid, 
-    @test_session_uuid, 
-    '2026-05-02', '14:00:00', '16:00:00', 
-    'Bị cấn lịch thi giữa kỳ'
+-- Pick existing records for a full flow:
+-- - One session with at least two participants for reschedule/request flow
+-- - One different session for cancel flow
+-- - Tutor and two students from the chosen session
+SET @session_with_participants := (
+    SELECT s.session_id
+    FROM sessions s
+    JOIN session_participants sp ON sp.session_id = s.session_id
+    WHERE s.status IN ('open', 'scheduled', 'full')
+    GROUP BY s.session_id
+    HAVING COUNT(*) >= 2
+    ORDER BY s.created_at, s.session_id
+    LIMIT 1
 );
 
--- Lấy ID của request vừa tạo để dùng cho các test sau
-SET @new_request_id = LAST_INSERT_ID();
+SET @session_any := (
+    SELECT s.session_id
+    FROM sessions s
+    WHERE s.session_id <> @session_with_participants
+    ORDER BY s.created_at, s.session_id
+    LIMIT 1
+);
 
-SELECT 
-    CASE WHEN status = 'pending' THEN 'CREATE REQUEST: PASSED' ELSE 'CREATE REQUEST: FAILED' END AS result 
-FROM requests WHERE request_id = @new_request_id;
+SET @tutor_id := (
+    SELECT s.tutor_id
+    FROM sessions s
+    WHERE s.session_id = @session_with_participants
+    LIMIT 1
+);
 
+SET @student1 := (
+    SELECT sp.student_id
+    FROM session_participants sp
+    WHERE sp.session_id = @session_with_participants
+    ORDER BY sp.student_id
+    LIMIT 1
+);
 
--- ================================
--- TEST 2: Gia sư xem danh sách Request
--- ================================
-SELECT '=== TEST 2: sp_get_tutor_requests ===' AS test_name;
+SET @student2 := (
+    SELECT sp.student_id
+    FROM session_participants sp
+    WHERE sp.session_id = @session_with_participants
+      AND sp.student_id <> @student1
+    ORDER BY sp.student_id
+    LIMIT 1
+);
 
-CALL sp_get_tutor_requests(@test_tutor_uuid);
+SELECT '=== DEBUG SELECTED IDS ===' AS step;
+SELECT @session_with_participants AS session_for_flow, @session_any AS session_for_cancel, @tutor_id AS tutor_id, @student1 AS student1, @student2 AS student2;
 
+-- (6)(7) Before write
+SELECT '=== (6)(7) BEFORE WRITE ===' AS step;
+CALL sp_list_requests_for_tutor(@tutor_id);
+CALL sp_list_notifications_for_user(@student1);
+CALL sp_list_notifications_for_user(@student2);
 
--- ================================
--- TEST 3: Gia sư chấp nhận Request -> Test Update Session & Notification
--- ================================
-SELECT '=== TEST 3: sp_accept_request ===' AS test_name;
+-- (1) Update session time + create reschedule notifications
+SELECT '=== (1) UPDATE SESSION TIME + NOTIFICATIONS ===' AS step;
+CALL sp_update_session_time_notify(@session_with_participants, DATE_ADD(CURDATE(), INTERVAL 7 DAY), '14:00:00', '16:00:00');
 
-CALL sp_accept_request(@new_request_id);
+-- (2) Cancel another session + create cancel notifications
+SELECT '=== (2) CANCEL SESSION + NOTIFICATIONS ===' AS step;
+CALL sp_cancel_session_notify(@session_any);
 
--- Validate 1: Trạng thái request đã đổi thành approved chưa?
--- Validate 2: Giờ học trong session đã đổi thành 2026-05-02 14:00:00 chưa?
-SELECT 
-    r.status AS request_status, 
-    s.date AS new_date,
-    CASE 
-        WHEN r.status = 'approved' AND s.date = '2026-05-02' THEN 'ACCEPT REQUEST: PASSED' 
-        ELSE 'ACCEPT REQUEST: FAILED' 
-    END AS result
-FROM requests r
-JOIN sessions s ON r.session_id = s.session_id
-WHERE r.request_id = @new_request_id;
+-- (3) + (5) Create request then reject
+SELECT '=== (3)(5) CREATE REQUEST THEN REJECT ===' AS step;
+CALL sp_create_reschedule_request(@student1, @session_with_participants, DATE_ADD(CURDATE(), INTERVAL 8 DAY), '09:00:00', '10:30:00', 'Need another slot');
+SET @req_reject := LAST_INSERT_ID();
+CALL sp_reject_reschedule_request(@req_reject);
 
+-- (3) + (4) Create request then accept
+SELECT '=== (3)(4) CREATE REQUEST THEN ACCEPT ===' AS step;
+CALL sp_create_reschedule_request(@student2, @session_with_participants, DATE_ADD(CURDATE(), INTERVAL 9 DAY), '10:00:00', '11:30:00', 'Prefer this schedule');
+SET @req_accept := LAST_INSERT_ID();
+CALL sp_accept_reschedule_request(@req_accept);
 
--- ================================
--- TEST 4: Gia sư hủy Session -> Test tự động gửi Notification
--- ================================
-SELECT '=== TEST 4: sp_cancel_session ===' AS test_name;
+-- (6)(7) After write
+SELECT '=== (6)(7) AFTER WRITE ===' AS step;
+CALL sp_list_requests_for_tutor(@tutor_id);
+CALL sp_list_notifications_for_user(@student1);
+CALL sp_list_notifications_for_user(@student2);
 
-CALL sp_cancel_session(@test_session_uuid);
-
--- Validate: Session đã bị xóa chưa?
-SELECT 
-    CASE WHEN COUNT(*) = 0 THEN 'CANCEL SESSION: PASSED' ELSE 'CANCEL SESSION: FAILED' END AS result
-FROM sessions WHERE session_id = @test_session_uuid;
-
-
--- ================================
--- TEST 5: Sinh viên kiểm tra Notifications
--- ================================
-SELECT '=== TEST 5: sp_get_user_notifications ===' AS test_name;
-
--- Should show at least 3 notifications: 
--- 1. Request Approved (từ Test 3)
--- 2. Reschedule Notification (từ Test 3)
--- 3. Cancel Notification (từ Test 4)
-CALL sp_get_user_notifications(@test_student_uuid);
-
-
--- ================================
--- CLEANUP
--- ================================
-SELECT '=== CLEANING UP TEST DATA ===' AS action;
-
--- Việc xóa Users sẽ kích hoạt ON DELETE CASCADE xóa sạch dữ liệu liên quan
--- ở các bảng tutors, students, requests, notifications, session_participants.
-DELETE FROM users WHERE id IN (@test_tutor_uuid, @test_student_uuid);
-
-SELECT '=== TEST COMPLETED ===' AS test_name;
+SELECT '=== DONE FULL FLOW TASK 4 ===' AS step;

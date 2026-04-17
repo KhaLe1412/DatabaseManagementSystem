@@ -4,6 +4,9 @@
 -- Date: 2026-04-10
 
 USE dbms_project;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS session_requests;
+DROP TABLE IF EXISTS session_participants;
 DROP TABLE IF EXISTS sessions;
 
 -- 1. BẢNG BUỔI HỌC (SESSIONS)
