@@ -1,7 +1,7 @@
 -- File: 04_message.sql
--- Mô tả: Tạo bảng tin nhắn giữa người dùng
--- Tác giả: Nguyễn Hữu Thời
--- Ngày tạo: 2026-04-04
+-- Mo ta: Tao bang tin nhan giua nguoi dung
+-- Tac gia: Nguyen Huu Thoi
+-- Ngay tao: 2026-04-04
 
 USE dbms_project;
 
@@ -10,15 +10,14 @@ DROP TABLE IF EXISTS message;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE message (
-    message_id CHAR(36) NOT NULL COMMENT 'Mã tin nhắn (UUID)',
-    sender_id CHAR(36) NOT NULL COMMENT 'Người gửi',
-    receiver_id CHAR(36) NOT NULL COMMENT 'Người nhận',
-    content TEXT NOT NULL COMMENT 'Nội dung tin nhắn',
-    status ENUM('SENT', 'READ') NOT NULL DEFAULT 'SENT' COMMENT 'Trạng thái tin nhắn',
-    `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm gửi',
+    message_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Ma tin nhan',
+    sender_id CHAR(36) NOT NULL COMMENT 'ID nguoi gui',
+    receiver_id CHAR(36) NOT NULL COMMENT 'ID nguoi nhan',
+    content TEXT NOT NULL COMMENT 'Noi dung tin nhan',
+    status ENUM('SENT', 'READ') NOT NULL DEFAULT 'SENT' COMMENT 'Trang thai tin nhan',
+    `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thoi diem gui',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (message_id),
     CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES users(id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
@@ -30,4 +29,4 @@ CREATE TABLE message (
 CREATE INDEX idx_message_conversation ON message(sender_id, receiver_id, `timestamp`);
 CREATE INDEX idx_message_status ON message(status);
 
-ALTER TABLE message COMMENT = 'Bảng hội thoại giữa người dùng';
+ALTER TABLE message COMMENT = 'Bang luu tru tin nhan giua nguoi dung';

@@ -2,7 +2,7 @@
 -- Mô tả: Gửi một tin nhắn mới
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
--- Parameters: p_sender_id CHAR(36), p_receiver_id CHAR(36), p_content TEXT
+-- Parameters: p_sender_id VARCHAR(36), p_receiver_id VARCHAR(36), p_content TEXT
 -- Returns: Tin nhắn vừa tạo
 
 USE dbms_project;
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_send_message//
 
 CREATE PROCEDURE sp_send_message(
-    IN p_sender_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_receiver_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_sender_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_receiver_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_content TEXT
 )
 BEGIN
@@ -25,11 +25,12 @@ BEGIN
         RESIGNAL;
     END;
 
-    IF p_sender_id IS NULL OR p_receiver_id IS NULL THEN
+    IF p_sender_id IS NULL OR CHAR_LENGTH(TRIM(p_sender_id)) = 0
+       OR p_receiver_id IS NULL OR CHAR_LENGTH(TRIM(p_receiver_id)) = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid sender_id or receiver_id';
     END IF;
 
-    IF p_sender_id = p_receiver_id THEN
+    IF TRIM(p_sender_id) = TRIM(p_receiver_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sender and receiver must be different';
     END IF;
 
@@ -39,7 +40,8 @@ BEGIN
 
     START TRANSACTION;
 
-    SET v_message_id = UUID();
+    INSERT INTO message (sender_id, receiver_id, content, status)
+    VALUES (TRIM(p_sender_id), TRIM(p_receiver_id), TRIM(p_content), 'SENT');
 
     INSERT INTO message (message_id, sender_id, receiver_id, content, status)
     VALUES (v_message_id, p_sender_id, p_receiver_id, TRIM(p_content), 'SENT');

@@ -126,3 +126,21 @@ INSERT IGNORE INTO resource (title, author, `type`, url) VALUES
     ('Code Review Simulation for Junior Developers', 'David Walker', 'VIDEO', 'https://learnhub.example.com/backend-tools/code-review-simulation-for-junior-developers');
 
 SELECT COUNT(*) AS resource_seeded FROM resource;
+
+INSERT IGNORE INTO resource_subject (resource_id, subject_id)
+SELECT resource_id, 'SUBJ-0000-0000-0000-000000000001'
+FROM resource
+WHERE url LIKE 'https://learnhub.example.com/sql/%';
+
+INSERT IGNORE INTO resource_subject (resource_id, subject_id)
+SELECT resource_id, 'SUBJ-0000-0000-0000-000000000002'
+FROM resource
+WHERE url LIKE 'https://learnhub.example.com/java/%';
+
+INSERT IGNORE INTO resource_subject (resource_id, subject_id)
+SELECT resource_id, 'SUBJ-0000-0000-0000-000000000003'
+FROM resource
+WHERE url LIKE 'https://learnhub.example.com/system-design/%'
+   OR url LIKE 'https://learnhub.example.com/rest-api/%';
+
+SELECT COUNT(*) AS resource_subject_seeded FROM resource_subject;

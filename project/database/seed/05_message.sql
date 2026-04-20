@@ -6,30 +6,18 @@
 USE dbms_project;
 SET NAMES utf8mb4;
 
--- Hoi thoai giua gia su Binh (USER-TUTO-...001) va sinh vien Nhat (USER-STUD-...001)
-INSERT INTO message (message_id, sender_id, receiver_id, content, status, `timestamp`) VALUES
-    ('msg-0001-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Em doc truoc tai lieu Lap trinh can ban trong thu vien, neu kip thi lam hai bai dau.', 'READ', '2026-04-05 20:00:00'),
-    ('msg-0001-0000-0000-000000000002', 'USER-STUD-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Da, em co can lam truoc bai lab hay chi doc tai lieu thoi a?', 'READ', '2026-04-05 20:07:00'),
-    ('msg-0001-0000-0000-000000000003', 'USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Em xem lai phan nen tang va chuan bi mot vi du tu bai tap hien tai la on.', 'READ', '2026-04-05 20:14:00'),
-    ('msg-0001-0000-0000-000000000004', 'USER-STUD-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Em dang hoi vuong o cho polymorphism, em nen on phan nao truoc?', 'READ', '2026-04-05 20:21:00'),
-    ('msg-0001-0000-0000-000000000005', 'USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Co em, buoi OOP van giu lich. Minh se tap trung vao phan polymorphism.', 'READ', '2026-04-05 20:28:00'),
-    ('msg-0001-0000-0000-000000000006', 'USER-STUD-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Da ro roi, em se chuan bi day du va vao dung gio.', 'SENT', '2026-04-05 20:35:00');
+INSERT IGNORE INTO message (sender_id, receiver_id, content, status, `timestamp`) VALUES
+    ('USER-STUD-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Em chào thầy, tối nay buổi Hệ quản trị cơ sở dữ liệu vẫn học online đúng không ạ?', 'READ', '2026-04-11 19:00:00'),
+    ('USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Đúng em. Em xem trước phần SELECT, JOIN và mang theo câu hỏi nếu có.', 'READ', '2026-04-11 19:03:00'),
+    ('USER-STUD-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Dạ, em đang bị rối ở JOIN và GROUP BY. Em sẽ chuẩn bị trước.', 'READ', '2026-04-11 19:06:00'),
+    ('USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Tốt. Nếu cần thì gửi thẳng bài SQL em đang làm để thầy xem nhanh.', 'SENT', '2026-04-11 19:09:00'),
+    ('USER-STUD-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000002', 'Em muốn hỏi buổi học chiều mai có học tại phòng B1-203 không ạ?', 'READ', '2026-04-11 20:10:00'),
+    ('USER-TUTO-0000-0000-000000000002', 'USER-STUD-0000-0000-000000000002', 'Có em. Mình học trực tiếp, em đến sớm 10 phút để ôn lại bài cũ.', 'READ', '2026-04-11 20:14:00'),
+    ('USER-STUD-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000002', 'Dạ rõ. Em sẽ mang theo notebook và bài tập đang làm dở.', 'READ', '2026-04-11 20:18:00'),
+    ('USER-TUTO-0000-0000-000000000002', 'USER-STUD-0000-0000-000000000002', 'Ok em. Nếu cần thì xem thêm tài liệu trong thư viện trước giờ học.', 'SENT', '2026-04-11 20:22:00'),
+    ('USER-STUD-0000-0000-000000000001', 'USER-ADMIN-0000-0000-000000000001', 'Em đã đăng ký môn học và cập nhật hồ sơ thành công, nhờ admin kiểm tra giúp.', 'READ', '2026-04-12 08:00:00'),
+    ('USER-ADMIN-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000001', 'Hệ thống đã ghi nhận. Nếu không thấy dữ liệu hiển thị, em đăng nhập lại để đồng bộ.', 'READ', '2026-04-12 08:05:00'),
+    ('USER-TUTO-0000-0000-000000000001', 'USER-ADMIN-0000-0000-000000000001', 'Tôi đã cập nhật rating và tổng số buổi dạy, nhờ kiểm tra quyền xem báo cáo.', 'READ', '2026-04-12 09:15:00'),
+    ('USER-ADMIN-0000-0000-000000000001', 'USER-TUTO-0000-0000-000000000001', 'Đã kiểm tra. Quyền hiện tại hợp lệ, thầy có thể tiếp tục sử dụng bình thường.', 'SENT', '2026-04-12 09:18:00');
 
--- Hoi thoai giua gia su Binh (USER-TUTO-...001) va sinh vien An (USER-STUD-...002)
-INSERT INTO message (message_id, sender_id, receiver_id, content, status, `timestamp`) VALUES
-    ('msg-0002-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000001', 'Chao thay Binh, em muon xac nhan buoi Lap trinh can ban luc 9:00 con dien ra khong?', 'READ', '2026-04-05 19:00:00'),
-    ('msg-0002-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000002', 'Co em, buoi hoc van dien ra dung lich. Em nho chuan bi bai truoc nhe.', 'READ', '2026-04-05 19:07:00'),
-    ('msg-0002-0000-0000-000000000003', 'USER-STUD-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000001', 'Da, em se den som 10 phut de chuan bi a.', 'SENT', '2026-04-05 19:14:00');
-
--- Hoi thoai giua gia su Cuong (USER-TUTO-...002) va sinh vien Long (USER-STUD-...004)
-INSERT INTO message (message_id, sender_id, receiver_id, content, status, `timestamp`) VALUES
-    ('msg-0003-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000004', 'USER-TUTO-0000-0000-000000000002', 'Hi thay Cuong, sau buoi Giai tich 1 hom truoc em van con mot cho chua hieu ro.', 'READ', '2026-04-05 18:00:00'),
-    ('msg-0003-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000002', 'USER-STUD-0000-0000-000000000004', 'Em cu hoi cu the di, phan nao dang gay kho cho em?', 'READ', '2026-04-05 18:07:00'),
-    ('msg-0003-0000-0000-000000000003', 'USER-STUD-0000-0000-000000000004', 'USER-TUTO-0000-0000-000000000002', 'Em chua hieu ro phan gioi han day so, nhat la L Hopital.', 'READ', '2026-04-05 18:14:00'),
-    ('msg-0003-0000-0000-000000000004', 'USER-TUTO-0000-0000-000000000002', 'USER-STUD-0000-0000-000000000004', 'Duoc, buoi toi minh se on lai phan do cho em. Hen em luc 9:30 nhe.', 'SENT', '2026-04-05 18:21:00');
-
--- Hoi thoai giua gia su Binh (USER-TUTO-...001) va sinh vien Hoa (USER-STUD-...003)
-INSERT INTO message (message_id, sender_id, receiver_id, content, status, `timestamp`) VALUES
-    ('msg-0004-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000003', 'USER-TUTO-0000-0000-000000000001', 'Chao thay Binh, em muon hoi ve buoi Cau truc du lieu sap toi.', 'READ', '2026-04-05 17:00:00'),
-    ('msg-0004-0000-0000-000000000002', 'USER-TUTO-0000-0000-000000000001', 'USER-STUD-0000-0000-000000000003', 'Buoi hoc se tap trung vao Linked list va Stack. Em doc truoc bai ghi nhe.', 'READ', '2026-04-05 17:07:00'),
-    ('msg-0004-0000-0000-000000000003', 'USER-STUD-0000-0000-000000000003', 'USER-TUTO-0000-0000-000000000001', 'Da, em se chuan bi ky truoc buoi hoc a.', 'SENT', '2026-04-05 17:14:00');
+SELECT COUNT(*) AS message_seeded FROM message;

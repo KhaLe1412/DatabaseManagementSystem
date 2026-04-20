@@ -1,7 +1,7 @@
 -- File: 03_resources.sql
--- Mô tả: Tạo bảng resource và view tương thích resources
--- Tác giả: Nguyễn Hữu Thời
--- Ngày tạo: 2026-04-04
+-- Mo ta: Tao bang resource va view tuong thich resources
+-- Tac gia: Nguyen Huu Thoi
+-- Ngay tao: 2026-04-04
 
 USE dbms_project;
 
@@ -11,12 +11,11 @@ DROP TABLE IF EXISTS resource;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE resource (
-    resource_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Mã tài nguyên (UUID)',
-    title VARCHAR(255) NOT NULL COMMENT 'Tiêu đề tài liệu',
-    author VARCHAR(255) NOT NULL COMMENT 'Tác giả hoặc người biên soạn',
-    `type` VARCHAR(100) NOT NULL COMMENT 'Loại tài nguyên',
-    url VARCHAR(500) NOT NULL COMMENT 'Đường dẫn truy cập',
-    subject VARCHAR(100) NULL COMMENT 'Chủ đề liên quan',
+    resource_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Ma tai lieu',
+    title VARCHAR(255) NOT NULL COMMENT 'Tieu de tai lieu',
+    author VARCHAR(255) NOT NULL COMMENT 'Tac gia tai lieu',
+    `type` VARCHAR(100) NOT NULL COMMENT 'Loai tai lieu',
+    url VARCHAR(500) NOT NULL COMMENT 'Duong dan tai lieu',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (resource_id),
@@ -24,10 +23,10 @@ CREATE TABLE resource (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_resource_type ON resource(`type`);
-CREATE INDEX idx_resource_subject ON resource(subject);
 CREATE INDEX idx_resource_title ON resource(title);
+CREATE INDEX idx_resource_author ON resource(author);
 
-ALTER TABLE resource COMMENT = 'Bảng lưu trữ tài nguyên học tập';
+ALTER TABLE resource COMMENT = 'Bang luu tru tai lieu hoc tap';
 
 CREATE VIEW resources AS
 SELECT
@@ -36,7 +35,6 @@ SELECT
     author,
     `type`,
     url,
-    subject,
     created_at,
     updated_at
 FROM resource;
