@@ -4,6 +4,7 @@
 -- Ngày tạo: 2026-04-04
 
 USE dbms_project;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- ================================
 -- TEST SETUP

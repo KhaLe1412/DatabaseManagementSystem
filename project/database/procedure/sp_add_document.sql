@@ -15,10 +15,10 @@ CREATE PROCEDURE sp_add_document(
     IN p_title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_author VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_type VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_url TEXT
+    IN p_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
-    DECLARE v_resource_id CHAR(36);
+    DECLARE v_resource_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN

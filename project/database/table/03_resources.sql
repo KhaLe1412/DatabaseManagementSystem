@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS resource;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE resource (
-    resource_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Ma tai lieu',
+    resource_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Ma tai lieu (UUID)',
     title VARCHAR(255) NOT NULL COMMENT 'Tieu de tai lieu',
     author VARCHAR(255) NOT NULL COMMENT 'Tac gia tai lieu',
     `type` VARCHAR(100) NOT NULL COMMENT 'Loai tai lieu',

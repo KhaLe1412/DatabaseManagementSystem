@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS message;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE message (
-    message_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Ma tin nhan',
+    message_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Ma tin nhan (UUID)',
     sender_id CHAR(36) NOT NULL COMMENT 'ID nguoi gui',
     receiver_id CHAR(36) NOT NULL COMMENT 'ID nguoi nhan',
     content TEXT NOT NULL COMMENT 'Noi dung tin nhan',
@@ -18,6 +18,7 @@ CREATE TABLE message (
     `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thoi diem gui',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (message_id),
     CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES users(id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,

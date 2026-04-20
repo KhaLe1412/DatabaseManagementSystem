@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS resource_subject;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE resource_subject (
-    resource_id BIGINT NOT NULL COMMENT 'Ma tai lieu',
+    resource_id CHAR(36) NOT NULL COMMENT 'Ma tai lieu (UUID)',
     subject_id CHAR(36) NOT NULL COMMENT 'ID mon hoc',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (resource_id, subject_id),

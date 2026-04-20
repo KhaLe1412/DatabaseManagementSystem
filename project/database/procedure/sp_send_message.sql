@@ -14,10 +14,10 @@ DROP PROCEDURE IF EXISTS sp_send_message//
 CREATE PROCEDURE sp_send_message(
     IN p_sender_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_receiver_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_content TEXT
+    IN p_content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
-    DECLARE v_message_id CHAR(36);
+    DECLARE v_message_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -40,11 +40,10 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO message (sender_id, receiver_id, content, status)
-    VALUES (TRIM(p_sender_id), TRIM(p_receiver_id), TRIM(p_content), 'SENT');
+    SET v_message_id = UUID();
 
     INSERT INTO message (message_id, sender_id, receiver_id, content, status)
-    VALUES (v_message_id, p_sender_id, p_receiver_id, TRIM(p_content), 'SENT');
+    VALUES (v_message_id, TRIM(p_sender_id), TRIM(p_receiver_id), TRIM(p_content), 'SENT');
 
     COMMIT;
 

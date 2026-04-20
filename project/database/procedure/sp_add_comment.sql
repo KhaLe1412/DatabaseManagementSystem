@@ -14,7 +14,7 @@ DROP PROCEDURE IF EXISTS sp_add_comment//
 CREATE PROCEDURE sp_add_comment(
     IN p_student_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_session_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_comment TEXT,
+    IN p_comment TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_rating INT
 )
 BEGIN
