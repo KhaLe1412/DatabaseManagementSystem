@@ -1,4 +1,4 @@
--- File: sp_mark_as_read.sql
+﻿-- File: sp_mark_as_read.sql
 -- Mô tả: Đánh dấu tin nhắn từ một người gửi tới một người nhận là đã đọc
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_mark_as_read//
 
 CREATE PROCEDURE sp_mark_as_read(
-    IN p_sender_id CHAR(36),
-    IN p_receiver_id CHAR(36)
+    IN p_sender_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_receiver_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     DECLARE v_updated_rows INT DEFAULT 0;
@@ -45,3 +45,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

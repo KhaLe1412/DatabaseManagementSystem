@@ -1,4 +1,4 @@
--- File: sp_reject_reschedule_request.sql
+﻿-- File: sp_reject_reschedule_request.sql
 -- Description: Reject a pending reschedule request without changing session time.
 -- Author: Ha Thanh Trung
 -- Created on: 2026-04-15
@@ -10,7 +10,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_reject_reschedule_request//
 CREATE PROCEDURE sp_reject_reschedule_request(
-    IN p_request_id CHAR(36)
+    IN p_request_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     UPDATE session_requests
@@ -27,3 +27,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

@@ -1,4 +1,4 @@
--- File: sp_comment_by_session.sql
+﻿-- File: sp_comment_by_session.sql
 -- Mô tả: Lấy danh sách nhận xét theo phiên học
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,7 +12,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_comment_by_session//
 
 CREATE PROCEDURE sp_comment_by_session(
-    IN p_session_id CHAR(36)
+    IN p_session_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     IF p_session_id IS NULL THEN
@@ -33,3 +33,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

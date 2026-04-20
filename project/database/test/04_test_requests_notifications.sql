@@ -4,6 +4,8 @@
 -- Created on: 2026-04-15
 
 USE dbms_project;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci';
 
 -- Pick existing records for a full flow:
 -- - One session with at least two participants for reschedule/request flow
@@ -72,13 +74,13 @@ CALL sp_cancel_session_notify(@session_any);
 -- (3) + (5) Create request then reject
 SELECT '=== (3)(5) CREATE REQUEST THEN REJECT ===' AS step;
 CALL sp_create_reschedule_request(@student1, @session_with_participants, DATE_ADD(CURDATE(), INTERVAL 8 DAY), '09:00:00', '10:30:00', 'Need another slot');
-SET @req_reject := LAST_INSERT_ID();
+SET @req_reject := (SELECT request_id FROM session_requests WHERE student_id = @student1 ORDER BY created_at DESC LIMIT 1);
 CALL sp_reject_reschedule_request(@req_reject);
 
 -- (3) + (4) Create request then accept
 SELECT '=== (3)(4) CREATE REQUEST THEN ACCEPT ===' AS step;
 CALL sp_create_reschedule_request(@student2, @session_with_participants, DATE_ADD(CURDATE(), INTERVAL 9 DAY), '10:00:00', '11:30:00', 'Prefer this schedule');
-SET @req_accept := LAST_INSERT_ID();
+SET @req_accept := (SELECT request_id FROM session_requests WHERE student_id = @student2 ORDER BY created_at DESC LIMIT 1);
 CALL sp_accept_reschedule_request(@req_accept);
 
 -- (6)(7) After write

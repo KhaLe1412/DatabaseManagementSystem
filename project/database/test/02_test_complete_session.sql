@@ -6,12 +6,14 @@
 -- Run in window: Get-Content database\test\02_test_complete_session.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
 
 USE dbms_project;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci';
 
 SELECT '=== TEST 02: COMPLETE SESSION (10 cases) ===' AS suite_name;
 
 -- Prepare helpers
 SET @tutor_id = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
-SET @subject = 'Programming Fundamentals';
+SET @subject = 'SUBJ-0000-0000-0000-000000000005'; -- Lập trình căn bản
 SET @student1 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1);
 
 -- Ensure no leftover

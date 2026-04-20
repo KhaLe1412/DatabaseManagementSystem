@@ -1,4 +1,4 @@
--- File: sp_get_documents_by_filter.sql
+﻿-- File: sp_get_documents_by_filter.sql
 -- Mô tả: Lọc tài liệu theo tiêu đề và loại
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_get_documents_by_filter//
 
 CREATE PROCEDURE sp_get_documents_by_filter(
-    IN p_title VARCHAR(255),
-    IN p_type VARCHAR(100)
+    IN p_title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_type VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     SELECT
@@ -32,3 +32,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

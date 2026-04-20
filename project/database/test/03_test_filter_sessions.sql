@@ -17,7 +17,7 @@ SELECT '=== TEST 03: FILTER SESSIONS (10 happy-path cases) ===' AS suite;
 SET @tutor1 = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
 SET @tutor2 = (SELECT tutor_id FROM tutors ORDER BY tutor_id DESC LIMIT 1);
 SET @student1 = (SELECT student_id FROM students ORDER BY student_id LIMIT 1);
-SET @subject1 = 'Programming Fundamentals';
+SET @subject1 = 'SUBJ-0000-0000-0000-000000000005'; -- Lập trình căn bản
 SET @session_date = '2026-04-12'; -- seeded date with multiple sessions
 
 -- CASE 1: no filters (expect total sessions >= 1)
@@ -41,8 +41,8 @@ SELECT CASE WHEN (SELECT COUNT(*) FROM sessions WHERE tutor_id = @tutor2) >= 0 T
 -- CASE 4: filter by subject (string)
 SELECT '=== TEST CASE 4: filter by subject ===' AS test_name;
 CALL sp_filter_sessions(NULL, NULL, @subject1, NULL, NULL, NULL);
-SELECT (SELECT COUNT(*) FROM sessions WHERE subject = @subject1) AS count_for_subject;
-SELECT CASE WHEN (SELECT COUNT(*) FROM sessions WHERE subject = @subject1) >= 1 THEN 'PASSED' ELSE 'FAILED' END AS result;
+SELECT (SELECT COUNT(*) FROM sessions WHERE subject_id = @subject1) AS count_for_subject;
+SELECT CASE WHEN (SELECT COUNT(*) FROM sessions WHERE subject_id = @subject1) >= 1 THEN 'PASSED' ELSE 'FAILED' END AS result;
 
 -- CASE 5: filter by date
 SELECT '=== TEST CASE 5: filter by date ===' AS test_name;
@@ -72,8 +72,8 @@ SELECT CASE WHEN (
 -- CASE 8: filter by tutor + subject
 SELECT '=== TEST CASE 8: filter by tutor+subject ===' AS test_name;
 CALL sp_filter_sessions(@tutor1, NULL, @subject1, NULL, NULL, NULL);
-SELECT (SELECT COUNT(*) FROM sessions WHERE tutor_id=@tutor1 AND subject=@subject1) AS count_tutor_subject;
-SELECT CASE WHEN (SELECT COUNT(*) FROM sessions WHERE tutor_id=@tutor1 AND subject=@subject1) >= 1 THEN 'PASSED' ELSE 'FAILED' END AS result;
+SELECT (SELECT COUNT(*) FROM sessions WHERE tutor_id=@tutor1 AND subject_id=@subject1) AS count_tutor_subject;
+SELECT CASE WHEN (SELECT COUNT(*) FROM sessions WHERE tutor_id=@tutor1 AND subject_id=@subject1) >= 1 THEN 'PASSED' ELSE 'FAILED' END AS result;
 
 -- CASE 9: filter by date + type
 SELECT '=== TEST CASE 9: filter by date+type ===' AS test_name;

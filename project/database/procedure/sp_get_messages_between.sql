@@ -1,4 +1,4 @@
--- File: sp_get_messages_between.sql
+﻿-- File: sp_get_messages_between.sql
 -- Mô tả: Lấy lịch sử hội thoại giữa hai người dùng
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_get_messages_between//
 
 CREATE PROCEDURE sp_get_messages_between(
-    IN p_user_1 CHAR(36),
-    IN p_user_2 CHAR(36)
+    IN p_user_1 CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_user_2 CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     IF p_user_1 IS NULL OR p_user_2 IS NULL THEN
@@ -38,3 +38,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

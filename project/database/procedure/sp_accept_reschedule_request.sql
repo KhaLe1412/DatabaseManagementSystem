@@ -1,4 +1,4 @@
--- File: sp_accept_reschedule_request.sql
+﻿-- File: sp_accept_reschedule_request.sql
 -- Description: Accept a reschedule request, update session time, and notify participants.
 -- Author: Ha Thanh Trung
 -- Created on: 2026-04-15
@@ -10,7 +10,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_accept_reschedule_request//
 CREATE PROCEDURE sp_accept_reschedule_request(
-    IN p_request_id CHAR(36)
+    IN p_request_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 proc_main: BEGIN
     DECLARE v_session_id CHAR(36);
@@ -80,7 +80,7 @@ proc_main: BEGIN
         v_session_id,
         sp.student_id,
         CONCAT(
-            'Lich hoc mon ', v_subject_name, ' (', v_session_id, ') da chuyen sang ',,
+            'Lich hoc mon ', v_subject_name, ' (', v_session_id, ') da chuyen sang ',
             DATE_FORMAT(v_date, '%Y-%m-%d'),
             ' tu ',
             DATE_FORMAT(v_start, '%H:%i'),
@@ -103,3 +103,4 @@ proc_main: BEGIN
 END proc_main//
 
 DELIMITER ;
+

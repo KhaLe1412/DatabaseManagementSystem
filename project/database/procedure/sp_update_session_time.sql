@@ -1,4 +1,4 @@
--- File: sp_update_session_time.sql
+﻿-- File: sp_update_session_time.sql
 /* Mô tả: Cập nhật thời gian của một buổi học (session) và tự động tạo 
         thông báo (notification) cho tất cả sinh viên tham gia buổi học đó. */
 -- Tác giả: Huỳnh Hữu Nhật
@@ -14,7 +14,7 @@ USE dbms_project;
 DROP PROCEDURE IF EXISTS sp_update_session_time;
 DELIMITER //
 CREATE PROCEDURE sp_update_session_time(
-    IN p_session_id CHAR(36),
+    IN p_session_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_new_date DATE,
     IN p_new_start_time TIME,
     IN p_new_end_time TIME

@@ -1,4 +1,4 @@
--- File: sp_add_comment.sql
+﻿-- File: sp_add_comment.sql
 -- Mô tả: Thêm mới hoặc cập nhật nhận xét cho một phiên học
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_add_comment//
 
 CREATE PROCEDURE sp_add_comment(
-    IN p_student_id CHAR(36),
-    IN p_session_id CHAR(36),
+    IN p_student_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_session_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_comment TEXT,
     IN p_rating INT
 )
@@ -63,3 +63,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

@@ -4,6 +4,8 @@
 -- Ngày tạo: 2026-04-09
 
 USE dbms_project;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci';
 
 -- ================================
 -- TEST UNIQUE CONSTRAINTS

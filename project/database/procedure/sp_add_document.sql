@@ -1,4 +1,4 @@
--- File: sp_add_document.sql
+﻿-- File: sp_add_document.sql
 -- Mô tả: Thêm tài liệu mới vào thư viện
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,9 +12,9 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_add_document//
 
 CREATE PROCEDURE sp_add_document(
-    IN p_title VARCHAR(255),
-    IN p_author VARCHAR(255),
-    IN p_type VARCHAR(100),
+    IN p_title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_author VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_type VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_url TEXT
 )
 BEGIN
@@ -62,3 +62,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

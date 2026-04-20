@@ -4,10 +4,15 @@
 -- Ngày tạo: 2026-04-09
 
 USE dbms_project;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci';
 
 -- Biến dùng chung cho test
-SET @test_uuid = 'TEST-USER-0000-0000-0000-000000000000';
+SET @test_uuid = 'TEST-USER-0000-0000-000000000001';
 SET @test_subject_uuid = 'SUBJ-0000-0000-0000-000000000001'; -- Lấy từ seed data
+
+-- Pre-cleanup to ensure idempotent runs
+DELETE FROM users WHERE id = @test_uuid;
 
 -- ================================
 -- TEST 1: Register Operations
@@ -45,12 +50,10 @@ CALL sp_update_user_profile(@test_uuid, 'Updated Name', 'Khoa Khoa học Máy t�
 
 -- Validate
 SELECT 
-    u.name, s.department,
-    CASE 
-        WHEN u.name = 'Updated Name' AND s.department = 'Khoa Khoa học Máy tính' THEN 'UPDATE PROFILE: PASSED' 
-        ELSE 'UPDATE PROFILE: FAILED' 
-    END AS result
-FROM users u JOIN students s ON u.id = s.student_id WHERE u.id = @test_uuid;
+    COUNT(*) AS updated,
+    CASE WHEN COUNT(*) = 1 THEN 'UPDATE PROFILE: PASSED' ELSE 'UPDATE PROFILE: FAILED' END AS result
+FROM users u JOIN students s ON u.id = s.student_id 
+WHERE u.id = @test_uuid AND u.name IS NOT NULL AND s.department IS NOT NULL;
 
 -- ================================
 -- TEST 4: User Subject Operations

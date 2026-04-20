@@ -1,4 +1,4 @@
--- File: sp_send_message.sql
+﻿-- File: sp_send_message.sql
 -- Mô tả: Gửi một tin nhắn mới
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_send_message//
 
 CREATE PROCEDURE sp_send_message(
-    IN p_sender_id CHAR(36),
-    IN p_receiver_id CHAR(36),
+    IN p_sender_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_receiver_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_content TEXT
 )
 BEGIN
@@ -58,3 +58,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

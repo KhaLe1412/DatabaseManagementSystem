@@ -6,6 +6,8 @@
 -- Run in window: Get-Content database\test\01_test_create_session.sql | docker exec -i dbms_mysql mysql -u root -prootpassword dbms_project
 
 USE dbms_project;
+SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+SET collation_connection = 'utf8mb4_unicode_ci';
 
 -- Ensure no leftover test sessions
 DELETE FROM sessions WHERE notes LIKE 'TEST_CREATE_%';
@@ -15,8 +17,8 @@ SELECT '=== TEST 01: CREATE SESSION (MULTIPLE CASES) ===' AS suite;
 -- Prepare tutors and subjects
 SET @tutor1 = (SELECT tutor_id FROM tutors ORDER BY tutor_id LIMIT 1);
 SET @tutor2 = (SELECT tutor_id FROM tutors ORDER BY tutor_id DESC LIMIT 1);
-SET @subject1 = 'Programming Fundamentals';
-SET @subject2 = 'Data Structures';
+SET @subject1 = 'SUBJ-0000-0000-0000-000000000005'; -- Lập trình căn bản
+SET @subject2 = 'SUBJ-0000-0000-0000-000000000002'; -- Cấu trúc dữ liệu
 
 -- Helper pattern per-case: call then assert
 

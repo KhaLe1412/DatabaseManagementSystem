@@ -1,4 +1,4 @@
--- File: database/procedure/02_sp_user_profiles.sql
+﻿-- File: database/procedure/02_sp_user_profiles.sql
 -- Mô tả: Lấy thông tin chi tiết và cập nhật hồ sơ người dùng (SV/Gia sư)
 -- Tác giả: Huỳnh Hữu Nhật
 -- Ngày tạo: 2026-04-09
@@ -16,7 +16,7 @@ DELIMITER //
 -- =================================================================
 DROP PROCEDURE IF EXISTS sp_get_user_info//
 CREATE PROCEDURE sp_get_user_info(
-    IN p_user_id CHAR(36)
+    IN p_user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     SELECT 
@@ -38,24 +38,24 @@ END//
 -- =================================================================
 DROP PROCEDURE IF EXISTS sp_update_user_profile//
 CREATE PROCEDURE sp_update_user_profile(
-    IN p_user_id CHAR(36),
-    IN p_name VARCHAR(100),
-    IN p_department VARCHAR(100)
+    IN p_user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_department VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
-    DECLARE v_role VARCHAR(20);
+    DECLARE v_role VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
     -- Lấy role của user để biết đường rẽ nhánh
-    SELECT role INTO v_role FROM users WHERE id = p_user_id;
+    SELECT role INTO v_role FROM users WHERE id = p_user_id COLLATE utf8mb4_unicode_ci;
 
     -- 1. Cập nhật bảng gốc
-    UPDATE users SET name = p_name WHERE id = p_user_id;
+    UPDATE users SET name = p_name WHERE id = p_user_id COLLATE utf8mb4_unicode_ci;
 
     -- 2. Rẽ nhánh cập nhật bảng con
     IF v_role = 'student' THEN
-        UPDATE students SET department = p_department WHERE student_id = p_user_id;
+        UPDATE students SET department = p_department WHERE student_id = p_user_id COLLATE utf8mb4_unicode_ci;
     ELSEIF v_role = 'tutor' THEN
-        UPDATE tutors SET department = p_department WHERE tutor_id = p_user_id;
+        UPDATE tutors SET department = p_department WHERE tutor_id = p_user_id COLLATE utf8mb4_unicode_ci;
     END IF;
 END//
 
