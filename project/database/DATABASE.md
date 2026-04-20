@@ -2,7 +2,7 @@
 
 > Cơ sở dữ liệu: `dbms_project`  
 > Engine: InnoDB, Charset: `utf8mb4`, Collation: `utf8mb4_unicode_ci`  
-> Cập nhật: 2026-04-17
+> Cập nhật: 2026-04-20 (sau đợt sửa lỗi FIX_20_4)
 
 ---
 
@@ -21,7 +21,7 @@
    - [resource_subject](#9-resource_subject)
    - [message](#10-message)
    - [comment](#11-comment)
-   - [requests](#12-requests)
+   - [session_requests](#12-session_requests)
    - [notifications](#13-notifications)
 3. [Stored Procedures](#stored-procedures)
    - [Xác thực & Người dùng](#xác-thực--người-dùng)
@@ -42,20 +42,23 @@ users (id PK)
  │    ├── user_subjects (user_id FK→users.id)
  │    ├── session_participants (student_id FK→students.student_id)
  │    ├── comment (student_id FK→students.student_id)
- │    └── requests (student_id FK→students.student_id)
+ │    └── session_requests (student_id FK→students.student_id)
  ├── tutors (tutor_id FK→users.id)
  │    └── sessions (tutor_id FK→tutors.tutor_id)
  │         ├── session_participants (session_id FK→sessions.session_id)
  │         ├── comment (session_id FK→sessions.session_id)
- │         └── requests (session_id FK→sessions.session_id)
- ├── message (sender_id, receiver_id FK→accounts.user_id ⚠ lỗi)
- └── notifications (receiver_id FK→users.id)
+ │         ├── session_requests (session_id FK→sessions.session_id)
+ │         └── notifications (session_id FK→sessions.session_id)
+ ├── message (sender_id, receiver_id FK→users.id ✓)
+ └── notifications (receiver_user_id FK→users.id)
 
 subjects (id PK)
- └── user_subjects (subject_id FK→subjects.id)
+ ├── user_subjects (subject_id FK→subjects.id)
+ └── sessions (subject_id FK→subjects.id)
 
 resource (resource_id PK)
- └── resource_subject (resource_id FK→resource.resource_id, subject_name lưu text ⚠)
+ └── resource_subject (resource_id FK→resource.resource_id,
+                        subject_id FK→subjects.id ✓)
 ```
 
 ---
@@ -190,13 +193,11 @@ Buổi học do gia sư tạo ra.
 
 Bảng N-N: sinh viên tham gia buổi học. Tách riêng khỏi `comment` để hỗ trợ trường hợp tham gia nhưng chưa đánh giá.
 
-| Cột           | Kiểu        | Ràng buộc                            | Mô tả                                             |
-| ------------- | ----------- | ------------------------------------ | ------------------------------------------------- |
-| `session_id`  | `CHAR(36)`  | PK, FK→`sessions.session_id` CASCADE | ID buổi học                                       |
-| `student_id`  | `CHAR(36)`  | PK, FK→`students.student_id` CASCADE | ID sinh viên                                      |
-| `enrolled_at` | `TIMESTAMP` | DEFAULT NOW                          | Thời điểm đăng ký tham gia                        |
-| `comment`     | `TEXT`      | NULL                                 | Nhận xét (dự phòng, logic chính ở bảng `comment`) |
-| `rating`      | `INT`       | CHECK 1–5, NULL                      | Đánh giá (dự phòng)                               |
+| Cột           | Kiểu        | Ràng buộc                            | Mô tả                      |
+| ------------- | ----------- | ------------------------------------ | -------------------------- |
+| `session_id`  | `CHAR(36)`  | PK, FK→`sessions.session_id` CASCADE | ID buổi học                |
+| `student_id`  | `CHAR(36)`  | PK, FK→`students.student_id` CASCADE | ID sinh viên               |
+| `enrolled_at` | `TIMESTAMP` | DEFAULT NOW                          | Thời điểm đăng ký tham gia |
 
 ---
 
@@ -209,7 +210,7 @@ Bảng tài nguyên học tập trong thư viện.
 
 | Cột           | Kiểu           | Ràng buộc          | Mô tả                       |
 | ------------- | -------------- | ------------------ | --------------------------- |
-| `resource_id` | `BIGINT`       | PK, AUTO_INCREMENT | Mã tài nguyên               |
+| `resource_id` | `CHAR(36)`     | PK, DEFAULT UUID() | Mã tài nguyên (UUID)        |
 | `title`       | `VARCHAR(255)` | NOT NULL           | Tiêu đề tài liệu            |
 | `author`      | `VARCHAR(255)` | NOT NULL           | Tác giả                     |
 | `type`        | `VARCHAR(100)` | NOT NULL           | Loại tài liệu (PDF, Video…) |
@@ -226,19 +227,15 @@ Bảng tài nguyên học tập trong thư viện.
 
 > File: `table/06_resource_subject.sql` | Tác giả: Nguyễn Hữu Thời
 
-Bảng ánh xạ N-N giữa tài nguyên và chủ đề (lưu dạng text, không dùng FK đến `subjects`).
+Bảng ánh xạ N-N giữa tài nguyên và môn học (có FK đến `subjects`).
 
-| Cột            | Kiểu           | Ràng buộc                             | Mô tả                           |
-| -------------- | -------------- | ------------------------------------- | ------------------------------- |
-| `resource_id`  | `BIGINT`       | PK, FK→`resource.resource_id` CASCADE | Mã tài nguyên                   |
-| `subject_name` | `VARCHAR(100)` | PK                                    | Tên chủ đề (lưu text, không FK) |
-| `created_at`   | `TIMESTAMP`    | DEFAULT NOW                           | —                               |
+| Cột           | Kiểu        | Ràng buộc                             | Mô tả             |
+| ------------- | ----------- | ------------------------------------- | ----------------- |
+| `resource_id` | `CHAR(36)`  | PK, FK→`resource.resource_id` CASCADE | Mã tài nguyên     |
+| `subject_id`  | `CHAR(36)`  | PK, FK→`subjects.id` CASCADE          | Mã môn học (UUID) |
+| `created_at`  | `TIMESTAMP` | DEFAULT NOW                           | —                 |
 
-**Indexes:** `idx_resource_subject_name`
-
-> ⚠️ Xem lỗi #3 trong [ISSUE_17_4.md](notes/ISSUE_17_4.md)
-
----
+**Indexes:** `idx_resource_subject_subject`
 
 ### 10. `message`
 
@@ -246,20 +243,18 @@ Bảng ánh xạ N-N giữa tài nguyên và chủ đề (lưu dạng text, khô
 
 Tin nhắn trực tiếp giữa hai người dùng.
 
-| Cột           | Kiểu        | Ràng buộc               | Mô tả             |
-| ------------- | ----------- | ----------------------- | ----------------- |
-| `message_id`  | `BIGINT`    | PK, AUTO_INCREMENT      | Mã tin nhắn       |
-| `sender_id`   | `BIGINT`    | FK→`accounts.user_id` ⚠ | ID người gửi      |
-| `receiver_id` | `BIGINT`    | FK→`accounts.user_id` ⚠ | ID người nhận     |
-| `content`     | `TEXT`      | NOT NULL                | Nội dung tin nhắn |
-| `status`      | `ENUM`      | DEFAULT `SENT`          | `SENT`, `READ`    |
-| `timestamp`   | `TIMESTAMP` | DEFAULT NOW             | Thời điểm gửi     |
-| `created_at`  | `TIMESTAMP` | DEFAULT NOW             | —                 |
-| `updated_at`  | `TIMESTAMP` | AUTO UPDATE             | —                 |
+| Cột           | Kiểu        | Ràng buộc             | Mô tả              |
+| ------------- | ----------- | --------------------- | ------------------ |
+| `message_id`  | `CHAR(36)`  | PK                    | Mã tin nhắn (UUID) |
+| `sender_id`   | `CHAR(36)`  | FK→`users.id` CASCADE | ID người gửi       |
+| `receiver_id` | `CHAR(36)`  | FK→`users.id` CASCADE | ID người nhận      |
+| `content`     | `TEXT`      | NOT NULL              | Nội dung tin nhắn  |
+| `status`      | `ENUM`      | DEFAULT `SENT`        | `SENT`, `READ`     |
+| `timestamp`   | `TIMESTAMP` | DEFAULT NOW           | Thời điểm gửi      |
+| `created_at`  | `TIMESTAMP` | DEFAULT NOW           | —                  |
+| `updated_at`  | `TIMESTAMP` | AUTO UPDATE           | —                  |
 
 **Indexes:** `idx_message_conversation(sender_id, receiver_id, timestamp)`, `idx_message_status`
-
-> ⚠️ Xem lỗi #1 và #2 trong [ISSUE_17_4.md](notes/ISSUE_17_4.md)
 
 ---
 
@@ -269,24 +264,22 @@ Tin nhắn trực tiếp giữa hai người dùng.
 
 Đánh giá và nhận xét của sinh viên cho từng buổi học (logic chính).
 
-| Cột          | Kiểu               | Ràng buộc                              | Mô tả             |
-| ------------ | ------------------ | -------------------------------------- | ----------------- |
-| `student_id` | `BIGINT`           | PK, FK→`students.student_id` CASCADE ⚠ | ID sinh viên      |
-| `session_id` | `BIGINT`           | PK, FK→`sessions.session_id` CASCADE ⚠ | ID buổi học       |
-| `comment`    | `TEXT`             | NOT NULL                               | Nội dung nhận xét |
-| `rating`     | `TINYINT UNSIGNED` | NOT NULL, CHECK 1–5                    | Điểm đánh giá     |
-| `created_at` | `TIMESTAMP`        | DEFAULT NOW                            | —                 |
-| `updated_at` | `TIMESTAMP`        | AUTO UPDATE                            | —                 |
+| Cột          | Kiểu               | Ràng buộc                            | Mô tả             |
+| ------------ | ------------------ | ------------------------------------ | ----------------- |
+| `student_id` | `CHAR(36)`         | PK, FK→`students.student_id` CASCADE | ID sinh viên      |
+| `session_id` | `CHAR(36)`         | PK, FK→`sessions.session_id` CASCADE | ID buổi học       |
+| `comment`    | `TEXT`             | NOT NULL                             | Nội dung nhận xét |
+| `rating`     | `TINYINT UNSIGNED` | NOT NULL, CHECK 1–5                  | Điểm đánh giá     |
+| `created_at` | `TIMESTAMP`        | DEFAULT NOW                          | —                 |
+| `updated_at` | `TIMESTAMP`        | AUTO UPDATE                          | —                 |
 
 **Indexes:** `idx_comment_session_rating`
-
-> ⚠️ Xem lỗi #2 trong [ISSUE_17_4.md](notes/ISSUE_17_4.md)
 
 ---
 
 ### 12. `requests`
 
-> File: `table/07_requests.sql` | Tác giả: Huỳnh Hữu Nhật
+> File: `table/07_session_requests.sql` | Tác giả: Hà Thanh Trung
 
 Yêu cầu dời lịch học từ phía sinh viên.
 
@@ -306,18 +299,22 @@ Yêu cầu dời lịch học từ phía sinh viên.
 
 ### 13. `notifications`
 
-> File: `table/08_notifications.sql` | Tác giả: Huỳnh Hữu Nhật
+> File: `table/08_notifications.sql` | Tác giả: Hà Thanh Trung
 
-Thông báo tự động gửi cho người dùng.
+Thông báo tự động gửi cho người dùng khi buổi học bị hủy hoặc dời lịch.
 
-| Cột               | Kiểu          | Ràng buộc             | Mô tả                                                                                          |
-| ----------------- | ------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
-| `notification_id` | `INT`         | PK, AUTO_INCREMENT    | Mã thông báo                                                                                   |
-| `receiver_id`     | `CHAR(36)`    | FK→`users.id` CASCADE | Người nhận thông báo                                                                           |
-| `timestamp`       | `DATETIME`    | DEFAULT NOW           | Thời điểm tạo                                                                                  |
-| `content`         | `TEXT`        | NOT NULL              | Nội dung thông báo                                                                             |
-| `type`            | `VARCHAR(50)` | NOT NULL              | Loại: `reschedule-notification`, `cancel-notification`, `request-approved`, `request-rejected` |
-| `is_read`         | `BOOLEAN`     | DEFAULT FALSE         | Trạng thái đã đọc                                                                              |
+| Cột                | Kiểu        | Ràng buộc                        | Mô tả                  |
+| ------------------ | ----------- | -------------------------------- | ---------------------- |
+| `notification_id`  | `CHAR(36)`  | PK, DEFAULT UUID()               | Mã thông báo (UUID)    |
+| `session_id`       | `CHAR(36)`  | FK→`sessions.session_id` CASCADE | Buổi học liên quan     |
+| `receiver_user_id` | `CHAR(36)`  | FK→`users.id` CASCADE            | Người nhận thông báo   |
+| `sent_time`        | `TIMESTAMP` | DEFAULT NOW                      | Thời điểm gửi          |
+| `content`          | `TEXT`      | NOT NULL                         | Nội dung thông báo     |
+| `type`             | `ENUM`      | NOT NULL                         | `reschedule`, `cancel` |
+
+**Indexes:** `idx_notifications_receiver_time(receiver_user_id, sent_time DESC)`
+
+> **Lưu ý:** Cột `is_read` và các loại `request-approved`/`request-rejected` chưa được triển khai. Xem [FIX_20_4.md](FIX_20_4.md) — Phần II.
 
 ---
 
@@ -341,17 +338,18 @@ Thông báo tự động gửi cho người dùng.
 
 ### Buổi học (Sessions)
 
-> File: `procedure/sp_create_session.sql`, `sp_add_student_session.sql`, `sp_remove_student_session.sql`, `sp_complete_session.sql`, `sp_cancel_session.sql`, `sp_filter_sessions.sql`, `sp_update_session_time.sql`
+> File: `procedure/sp_create_session.sql`, `sp_add_student_session.sql`, `sp_remove_student_session.sql`, `sp_complete_session.sql`, `sp_cancel_session.sql`, `sp_filter_sessions.sql`, `sp_update_session_time.sql`, `sp_update_session_summary.sql`
 
-| Procedure                   | Parameters                                                                                                             | Mô tả                                                                                        |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `sp_create_session`         | `p_tutor_id, p_subject, p_date, p_start_time, p_end_time, p_type, p_location, p_meeting_link, p_max_students, p_notes` | Tạo buổi học mới. Kiểm tra overlap lịch gia sư. Dùng transaction.                            |
-| `sp_add_student_session`    | `p_session_id, p_student_id`                                                                                           | Thêm sinh viên vào buổi học. Kiểm tra trạng thái, sĩ số. Tự cập nhật `status = full` khi đủ. |
-| `sp_remove_student_session` | `p_session_id, p_student_id`                                                                                           | Xóa sinh viên khỏi buổi học. Tự cập nhật `status = open` nếu đang `full`.                    |
-| `sp_complete_session`       | `p_session_id`                                                                                                         | Đánh dấu buổi học hoàn thành. Idempotent (đã completed thì bỏ qua).                          |
-| `sp_cancel_session`         | `p_session_id`                                                                                                         | Hủy buổi học và gửi thông báo cho tất cả sinh viên. ⚠ Dùng DELETE thay vì UPDATE status.     |
-| `sp_filter_sessions`        | `p_tutor_id, p_student_id, p_subject, p_session_date, p_status, p_type`                                                | Lọc buổi học theo nhiều bộ lọc tùy chọn. Trả về kèm `current_students`.                      |
-| `sp_update_session_time`    | `p_session_id, p_new_date, p_new_start_time, p_new_end_time`                                                           | Cập nhật lịch buổi học và tự động gửi `reschedule-notification` cho toàn bộ sinh viên.       |
+| Procedure                   | Parameters                                                                                                                | Mô tả                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `sp_create_session`         | `p_tutor_id, p_subject_id, p_date, p_start_time, p_end_time, p_type, p_location, p_meeting_link, p_max_students, p_notes` | Tạo buổi học mới. Kiểm tra overlap lịch gia sư. Dùng transaction.                                                                |
+| `sp_add_student_session`    | `p_session_id, p_student_id`                                                                                              | Thêm sinh viên vào buổi học. Kiểm tra trạng thái, sĩ số. Kiểm tra sinh viên đã enrolled. Tự cập nhật `status = full` khi đủ.     |
+| `sp_remove_student_session` | `p_session_id, p_student_id`                                                                                              | Xóa sinh viên khỏi buổi học. Tự cập nhật `status = open` nếu đang `full`.                                                        |
+| `sp_complete_session`       | `p_session_id`                                                                                                            | Đánh dấu buổi học hoàn thành. Idempotent (đã completed thì bỏ qua).                                                              |
+| `sp_update_session_summary` | `p_session_id, p_summary, p_recording_url`                                                                                | Cập nhật `summary` và `recording_url`. Chỉ hoạt động khi session đã `completed`. Dùng `COALESCE` nên NULL giữ nguyên giá trị cũ. |
+| `sp_cancel_session`         | `p_session_id`                                                                                                            | Hủy buổi học (UPDATE status = cancelled) và gửi thông báo `cancel` cho tất cả sinh viên.                                         |
+| `sp_filter_sessions`        | `p_tutor_id, p_student_id, p_subject_id, p_session_date, p_status, p_type`                                                | Lọc buổi học theo nhiều bộ lọc tùy chọn. Trả về kèm `current_students`.                                                          |
+| `sp_update_session_time`    | `p_session_id, p_new_date, p_new_start_time, p_new_end_time`                                                              | Cập nhật lịch buổi học và tự động gửi thông báo `reschedule` cho toàn bộ sinh viên.                                              |
 
 ---
 
@@ -359,11 +357,11 @@ Thông báo tự động gửi cho người dùng.
 
 > File: `procedure/sp_send_message.sql`, `sp_get_messages_between.sql`, `sp_mark_as_read.sql`
 
-| Procedure                 | Parameters                                                 | Mô tả                                                                                            |
-| ------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `sp_send_message`         | `p_sender_id BIGINT, p_receiver_id BIGINT, p_content TEXT` | Gửi tin nhắn mới. Trả về bản ghi vừa tạo. ⚠ Dùng BIGINT cho ID.                                  |
-| `sp_get_messages_between` | `p_user_1 BIGINT, p_user_2 BIGINT`                         | Lấy lịch sử hội thoại hai chiều. Sắp xếp theo `timestamp ASC`. ⚠ Dùng BIGINT.                    |
-| `sp_mark_as_read`         | `p_sender_id BIGINT, p_receiver_id BIGINT`                 | Đánh dấu đã đọc toàn bộ tin nhắn từ sender đến receiver. Trả về số dòng cập nhật. ⚠ Dùng BIGINT. |
+| Procedure                 | Parameters                                                     | Mô tả                                                                             |
+| ------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `sp_send_message`         | `p_sender_id CHAR(36), p_receiver_id CHAR(36), p_content TEXT` | Gửi tin nhắn mới. Trả về bản ghi vừa tạo.                                         |
+| `sp_get_messages_between` | `p_user_1 CHAR(36), p_user_2 CHAR(36)`                         | Lấy lịch sử hội thoại hai chiều. Sắp xếp theo `timestamp ASC`.                    |
+| `sp_mark_as_read`         | `p_sender_id CHAR(36), p_receiver_id CHAR(36)`                 | Đánh dấu đã đọc toàn bộ tin nhắn từ sender đến receiver. Trả về số dòng cập nhật. |
 
 ---
 
@@ -376,7 +374,7 @@ Thông báo tự động gửi cho người dùng.
 | `sp_add_document`            | `p_title, p_author, p_type, p_url` | Thêm tài liệu mới vào `resource`. `type` tự động uppercase. |
 | `sp_get_all_documents`       | —                                  | Lấy toàn bộ tài liệu, sắp xếp `created_at DESC`.            |
 | `sp_get_documents_by_filter` | `p_title, p_type`                  | Lọc theo tiêu đề (LIKE) và loại (exact, uppercase).         |
-| `sp_delete_document`         | `p_resource_id BIGINT`             | Xóa tài liệu. Báo lỗi nếu không tìm thấy.                   |
+| `sp_delete_document`         | `p_resource_id CHAR(36)`           | Xóa tài liệu. Báo lỗi nếu không tìm thấy.                   |
 
 ---
 
@@ -384,23 +382,23 @@ Thông báo tự động gửi cho người dùng.
 
 > File: `procedure/sp_add_comment.sql`, `procedure/sp_comment_by_session.sql`
 
-| Procedure               | Parameters                                                               | Mô tả                                                                  |
-| ----------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `sp_add_comment`        | `p_student_id BIGINT, p_session_id BIGINT, p_comment TEXT, p_rating INT` | Thêm mới hoặc cập nhật nhận xét (UPSERT). ⚠ Dùng BIGINT cho ID.        |
-| `sp_comment_by_session` | `p_session_id BIGINT`                                                    | Lấy danh sách nhận xét theo buổi học. ⚠ JOIN `accounts` không tồn tại. |
+| Procedure               | Parameters                                                                   | Mô tả                                                               |
+| ----------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `sp_add_comment`        | `p_student_id CHAR(36), p_session_id CHAR(36), p_comment TEXT, p_rating INT` | Thêm mới hoặc cập nhật nhận xét (UPSERT). Kiểm tra session tồn tại. |
+| `sp_comment_by_session` | `p_session_id CHAR(36)`                                                      | Lấy danh sách nhận xét theo buổi học (JOIN `users`).                |
 
 ---
 
 ### Yêu cầu dời lịch (Requests)
 
-> File: `procedure/sp_create_request.sql`, `sp_accept_request.sql`, `sp_reject_request.sql`, `sp_get_tutor_requests.sql`
+> File: `procedure/sp_create_reschedule_request.sql`, `procedure/sp_accept_reschedule_request.sql`, `procedure/sp_reject_reschedule_request.sql`, `procedure/sp_list_requests_for_tutor.sql`
 
-| Procedure               | Parameters                                                               | Mô tả                                                                                              |
-| ----------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `sp_create_request`     | `p_student_id, p_session_id, p_date, p_start_time, p_end_time, p_reason` | Tạo yêu cầu dời lịch với status `pending`.                                                         |
-| `sp_accept_request`     | `p_request_id INT`                                                       | Chấp nhận yêu cầu: cập nhật `approved`, gọi `sp_update_session_time`, gửi thông báo cho sinh viên. |
-| `sp_reject_request`     | `p_request_id INT`                                                       | Từ chối yêu cầu: cập nhật `rejected`, gửi thông báo cho sinh viên.                                 |
-| `sp_get_tutor_requests` | `p_tutor_id CHAR(36)`                                                    | Lấy tất cả yêu cầu thuộc sessions của gia sư. ⚠ Tham chiếu `s.subject_name` sai tên cột.           |
+| Procedure                      | Parameters                                                                                                            | Mô tả                                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `sp_create_reschedule_request` | `p_student_id CHAR(36), p_session_id CHAR(36), p_proposed_date, p_proposed_start_time, p_proposed_end_time, p_reason` | Tạo yêu cầu dời lịch với status `pending`.                                                  |
+| `sp_accept_reschedule_request` | `p_request_id CHAR(36)`                                                                                               | Chấp nhận yêu cầu: cập nhật `accepted`, cập nhật lịch session, gửi thông báo cho sinh viên. |
+| `sp_reject_reschedule_request` | `p_request_id CHAR(36)`                                                                                               | Từ chối yêu cầu: cập nhật `rejected`, gửi thông báo cho sinh viên.                          |
+| `sp_list_requests_for_tutor`   | `p_tutor_id CHAR(36)`                                                                                                 | Lấy tất cả yêu cầu thuộc sessions của gia sư (JOIN `subjects` để lấy tên môn).              |
 
 ---
 
@@ -412,7 +410,7 @@ Thông báo tự động gửi cho người dùng.
 | --------------------------- | -------------------- | ------------------------------------------------------------- |
 | `sp_get_user_notifications` | `p_user_id CHAR(36)` | Lấy toàn bộ thông báo của người dùng, sắp xếp mới nhất trước. |
 
-> **Lưu ý:** Các procedure tạo notification (`sp_cancel_session`, `sp_update_session_time`, `sp_accept_request`, `sp_reject_request`) gọi trực tiếp `INSERT INTO notifications` nội tuyến, không qua stored procedure riêng.
+> **Lưu ý:** Các procedure tạo notification (`sp_cancel_session`, `sp_update_session_time`, `sp_accept_reschedule_request`, `sp_reject_reschedule_request`) gọi trực tiếp `INSERT INTO notifications` nội tuyến, không qua stored procedure riêng.
 
 ---
 
@@ -430,7 +428,7 @@ table/05_sessions.sql
 table/05_comment.sql
 table/06_resource_subject.sql
 table/06_session_participants.sql
-table/07_requests.sql
+table/07_session_requests.sql
 table/08_notifications.sql
 procedure/*.sql           ← Tất cả stored procedures
 seed/02_seed_subjects.sql

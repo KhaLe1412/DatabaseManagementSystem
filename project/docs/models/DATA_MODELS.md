@@ -146,8 +146,6 @@ Bảng lưu trữ thông tin chung cho tất cả người dùng.
 | --------- | -------- | ------- | ----------------------------- |
 | studentID | char(36) | PK, FK1 | Tham chiếu Students.studentID |
 | sessionID | char(36) | PK, FK2 | Tham chiếu Sessions.sessionID |
-| comment   | text     |         | Nhận xét của sinh viên        |
-| rating    | int      |         | Điểm đánh giá (1-5)           |
 
 ---
 

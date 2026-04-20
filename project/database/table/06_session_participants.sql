@@ -8,8 +8,6 @@ CREATE TABLE session_participants (
     session_id CHAR(36) NOT NULL,
     student_id CHAR(36) NOT NULL COMMENT 'ID của sinh viên',
     enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    comment TEXT,
-    rating INT CHECK (rating >= 1 AND rating <= 5),
     PRIMARY KEY (session_id, student_id),
 
     FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE,
