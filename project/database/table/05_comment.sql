@@ -10,8 +10,8 @@ DROP TABLE IF EXISTS `comment`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE `comment` (
-    student_id BIGINT NOT NULL COMMENT 'Mã sinh viên',
-    session_id BIGINT NOT NULL COMMENT 'Mã phiên học',
+    student_id CHAR(36) NOT NULL COMMENT 'Mã sinh viên (UUID)',
+    session_id CHAR(36) NOT NULL COMMENT 'Mã phiên học (UUID)',
     `comment` TEXT NOT NULL COMMENT 'Nội dung nhận xét',
     rating TINYINT UNSIGNED NOT NULL COMMENT 'Điểm đánh giá từ 1 đến 5',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

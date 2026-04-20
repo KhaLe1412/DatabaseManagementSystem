@@ -18,7 +18,7 @@ CREATE PROCEDURE sp_add_document(
     IN p_url TEXT
 )
 BEGIN
-    DECLARE v_resource_id BIGINT;
+    DECLARE v_resource_id CHAR(36);
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -44,10 +44,10 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO resource (title, author, `type`, url)
-    VALUES (TRIM(p_title), TRIM(p_author), UPPER(TRIM(p_type)), TRIM(p_url));
+    SET v_resource_id = UUID();
 
-    SET v_resource_id = LAST_INSERT_ID();
+    INSERT INTO resource (resource_id, title, author, `type`, url)
+    VALUES (v_resource_id, TRIM(p_title), TRIM(p_author), UPPER(TRIM(p_type)), TRIM(p_url));
 
     COMMIT;
 

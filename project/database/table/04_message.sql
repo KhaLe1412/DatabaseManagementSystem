@@ -10,18 +10,19 @@ DROP TABLE IF EXISTS message;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE message (
-    message_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Mã tin nhắn',
-    sender_id BIGINT NOT NULL COMMENT 'Người gửi',
-    receiver_id BIGINT NOT NULL COMMENT 'Người nhận',
+    message_id CHAR(36) NOT NULL COMMENT 'Mã tin nhắn (UUID)',
+    sender_id CHAR(36) NOT NULL COMMENT 'Người gửi',
+    receiver_id CHAR(36) NOT NULL COMMENT 'Người nhận',
     content TEXT NOT NULL COMMENT 'Nội dung tin nhắn',
     status ENUM('SENT', 'READ') NOT NULL DEFAULT 'SENT' COMMENT 'Trạng thái tin nhắn',
     `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm gửi',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES accounts(user_id)
+    PRIMARY KEY (message_id),
+    CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES users(id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    CONSTRAINT fk_message_receiver FOREIGN KEY (receiver_id) REFERENCES accounts(user_id)
+    CONSTRAINT fk_message_receiver FOREIGN KEY (receiver_id) REFERENCES users(id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

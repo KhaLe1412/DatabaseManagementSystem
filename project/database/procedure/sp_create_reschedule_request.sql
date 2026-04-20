@@ -18,6 +18,8 @@ CREATE PROCEDURE sp_create_reschedule_request(
     IN p_reason TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
+    DECLARE v_request_id CHAR(36);
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -36,13 +38,15 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Student is not enrolled in this session';
     END IF;
 
+    SET v_request_id = UUID();
+
     INSERT INTO session_requests (
-        student_id, session_id, proposed_date, proposed_start_time, proposed_end_time, reason, status
+        request_id, student_id, session_id, proposed_date, proposed_start_time, proposed_end_time, reason, status
     ) VALUES (
-        p_student_id, p_session_id, p_proposed_date, p_proposed_start, p_proposed_end, p_reason, 'pending'
+        v_request_id, p_student_id, p_session_id, p_proposed_date, p_proposed_start, p_proposed_end, p_reason, 'pending'
     );
 
-    SELECT LAST_INSERT_ID() AS request_id;
+    SELECT v_request_id AS request_id;
 END//
 
 DELIMITER ;

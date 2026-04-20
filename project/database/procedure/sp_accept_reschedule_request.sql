@@ -2,7 +2,7 @@
 -- Description: Accept a reschedule request, update session time, and notify participants.
 -- Author: Ha Thanh Trung
 -- Created on: 2026-04-15
--- Parameters: p_request_id BIGINT UNSIGNED
+-- Parameters: p_request_id CHAR(36)
 -- Returns: ResultSet with status message.
 USE dbms_project;
 
@@ -10,7 +10,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_accept_reschedule_request//
 CREATE PROCEDURE sp_accept_reschedule_request(
-    IN p_request_id BIGINT UNSIGNED
+    IN p_request_id CHAR(36)
 )
 proc_main: BEGIN
     DECLARE v_session_id CHAR(36);
@@ -20,7 +20,7 @@ proc_main: BEGIN
     DECLARE v_end TIME;
     DECLARE v_status VARCHAR(20);
     DECLARE v_tutor_id CHAR(36);
-    DECLARE v_subject VARCHAR(150);
+    DECLARE v_subject_name VARCHAR(100);
     DECLARE v_overlap INT DEFAULT 0;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -43,10 +43,11 @@ proc_main: BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Request is not pending';
     END IF;
 
-    SELECT tutor_id, subject, status
-    INTO v_tutor_id, v_subject, v_status
-    FROM sessions
-    WHERE session_id = v_session_id COLLATE utf8mb4_unicode_ci
+    SELECT s.tutor_id, subj.name, s.status
+    INTO v_tutor_id, v_subject_name, v_status
+    FROM sessions s
+    JOIN subjects subj ON subj.id = s.subject_id
+    WHERE s.session_id = v_session_id COLLATE utf8mb4_unicode_ci
     LIMIT 1;
 
     IF v_status = 'cancelled' THEN
@@ -79,7 +80,7 @@ proc_main: BEGIN
         v_session_id,
         sp.student_id,
         CONCAT(
-            'Lich hoc mon ', v_subject, ' (', v_session_id, ') da chuyen sang ',
+            'Lich hoc mon ', v_subject_name, ' (', v_session_id, ') da chuyen sang ',,
             DATE_FORMAT(v_date, '%Y-%m-%d'),
             ' tu ',
             DATE_FORMAT(v_start, '%H:%i'),

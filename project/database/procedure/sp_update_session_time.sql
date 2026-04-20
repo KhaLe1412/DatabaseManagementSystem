@@ -26,10 +26,11 @@ BEGIN
     WHERE session_id = p_session_id;
 
     -- Tự động gửi thông báo cho tất cả sinh viên đang tham gia buổi học này
-    INSERT INTO notifications (receiver_id, content, type)
-    SELECT student_id, 
-           CONCAT('Buổi học của bạn đã được dời sang ngày ', p_new_date, ' lúc ', p_new_start_time), 
-           'reschedule-notification'
+    INSERT INTO notifications (session_id, receiver_user_id, content, type)
+    SELECT p_session_id,
+           student_id,
+           CONCAT('Buổi học của bạn đã được dời sang ngày ', p_new_date, ' lúc ', p_new_start_time),
+           'reschedule'
     FROM session_participants
     WHERE session_id = p_session_id;
 END //

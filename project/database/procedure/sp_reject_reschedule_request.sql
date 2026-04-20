@@ -2,7 +2,7 @@
 -- Description: Reject a pending reschedule request without changing session time.
 -- Author: Ha Thanh Trung
 -- Created on: 2026-04-15
--- Parameters: p_request_id BIGINT UNSIGNED
+-- Parameters: p_request_id CHAR(36)
 -- Returns: ResultSet with status message.
 USE dbms_project;
 
@@ -10,7 +10,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_reject_reschedule_request//
 CREATE PROCEDURE sp_reject_reschedule_request(
-    IN p_request_id BIGINT UNSIGNED
+    IN p_request_id CHAR(36)
 )
 BEGIN
     UPDATE session_requests

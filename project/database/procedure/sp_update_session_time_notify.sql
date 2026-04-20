@@ -17,7 +17,7 @@ CREATE PROCEDURE sp_update_session_time_notify(
 )
 proc_main: BEGIN
     DECLARE v_tutor_id CHAR(36);
-    DECLARE v_subject VARCHAR(150);
+    DECLARE v_subject_name VARCHAR(100);
     DECLARE v_status VARCHAR(20);
     DECLARE v_overlap INT DEFAULT 0;
 
@@ -35,10 +35,11 @@ proc_main: BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid time range';
     END IF;
 
-    SELECT tutor_id, subject, status
-    INTO v_tutor_id, v_subject, v_status
-    FROM sessions
-    WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci
+    SELECT s.tutor_id, subj.name, s.status
+    INTO v_tutor_id, v_subject_name, v_status
+    FROM sessions s
+    JOIN subjects subj ON subj.id = s.subject_id
+    WHERE s.session_id = p_session_id COLLATE utf8mb4_unicode_ci
     LIMIT 1;
 
     IF v_status IS NULL THEN
@@ -75,7 +76,7 @@ proc_main: BEGIN
         p_session_id,
         sp.student_id,
         CONCAT(
-            'Lich hoc mon ', v_subject, ' (', p_session_id, ') da chuyen sang ',
+            'Lich hoc mon ', v_subject_name, ' (', p_session_id, ') da chuyen sang ',
             DATE_FORMAT(p_new_date, '%Y-%m-%d'),
             ' tu ',
             DATE_FORMAT(p_new_start, '%H:%i'),

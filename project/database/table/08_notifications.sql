@@ -9,12 +9,13 @@ USE dbms_project;
 DROP TABLE IF EXISTS notifications;
 
 CREATE TABLE notifications (
-    notification_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    notification_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Mã thông báo (UUID)',
     session_id CHAR(36) NOT NULL,
     receiver_user_id CHAR(36) NOT NULL COMMENT 'Target user id (student participating in the session)',
     sent_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     content TEXT NOT NULL,
     type ENUM('reschedule', 'cancel') NOT NULL,
+    PRIMARY KEY (notification_id),
     CONSTRAINT fk_notifications_session
         FOREIGN KEY (session_id) REFERENCES sessions (session_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_notifications_receiver

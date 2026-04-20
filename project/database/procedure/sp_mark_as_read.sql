@@ -2,7 +2,7 @@
 -- Mô tả: Đánh dấu tin nhắn từ một người gửi tới một người nhận là đã đọc
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
--- Parameters: p_sender_id BIGINT, p_receiver_id BIGINT
+-- Parameters: p_sender_id CHAR(36), p_receiver_id CHAR(36)
 -- Returns: Số bản ghi được cập nhật
 
 USE dbms_project;
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_mark_as_read//
 
 CREATE PROCEDURE sp_mark_as_read(
-    IN p_sender_id BIGINT,
-    IN p_receiver_id BIGINT
+    IN p_sender_id CHAR(36),
+    IN p_receiver_id CHAR(36)
 )
 BEGIN
     DECLARE v_updated_rows INT DEFAULT 0;
@@ -24,7 +24,7 @@ BEGIN
         RESIGNAL;
     END;
 
-    IF p_sender_id IS NULL OR p_sender_id <= 0 OR p_receiver_id IS NULL OR p_receiver_id <= 0 THEN
+    IF p_sender_id IS NULL OR p_receiver_id IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid sender_id or receiver_id';
     END IF;
 

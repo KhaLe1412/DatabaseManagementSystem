@@ -14,7 +14,7 @@ DROP PROCEDURE IF EXISTS sp_create_session//
 CREATE PROCEDURE sp_create_session(
     -- 1. Ép Collation cho các tham số chuỗi để chống lỗi 1267
     IN p_tutor_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_subject VARCHAR(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_subject_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_date DATE,
     IN p_start_time TIME,
     IN p_end_time TIME,
@@ -40,8 +40,8 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid tutor_id';
     END IF;
 
-    IF p_subject IS NULL OR TRIM(p_subject) = '' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid subject';
+    IF p_subject_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid subject_id';
     END IF;
 
     IF p_date IS NULL OR p_start_time IS NULL OR p_end_time IS NULL OR p_start_time >= p_end_time THEN
@@ -54,6 +54,10 @@ BEGIN
 
     IF p_max_students IS NULL OR p_max_students <= 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid max_students';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM subjects WHERE id = p_subject_id) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Subject not found';
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM tutors WHERE tutor_id = p_tutor_id) THEN
@@ -78,10 +82,10 @@ BEGIN
     SET v_session_id = UUID();
 
     INSERT INTO sessions (
-        session_id, tutor_id, subject, date, start_time, end_time, 
+        session_id, tutor_id, subject_id, date, start_time, end_time, 
         type, location, meeting_link, max_students, status, notes
     ) VALUES (
-        v_session_id, p_tutor_id, p_subject, p_date, p_start_time, p_end_time, 
+        v_session_id, p_tutor_id, p_subject_id, p_date, p_start_time, p_end_time, 
         p_type, p_location, p_meeting_link, p_max_students, 'open', p_notes
     );
 

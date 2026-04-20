@@ -9,7 +9,7 @@ USE dbms_project;
 DROP TABLE IF EXISTS session_requests;
 
 CREATE TABLE session_requests (
-    request_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    request_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Mã yêu cầu (UUID)',
     student_id CHAR(36) NOT NULL COMMENT 'Student who sends the request (users.id / students.student_id)',
     session_id CHAR(36) NOT NULL,
     proposed_date DATE NOT NULL,
@@ -19,6 +19,7 @@ CREATE TABLE session_requests (
     status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     handled_at TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (request_id),
     CONSTRAINT chk_request_time_range CHECK (proposed_start_time < proposed_end_time),
     CONSTRAINT fk_session_requests_student
         FOREIGN KEY (student_id) REFERENCES students (student_id) ON DELETE CASCADE ON UPDATE CASCADE,

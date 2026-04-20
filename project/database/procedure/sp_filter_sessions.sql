@@ -14,7 +14,7 @@ DROP PROCEDURE IF EXISTS sp_filter_sessions//
 CREATE PROCEDURE sp_filter_sessions(
     IN p_tutor_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_student_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    IN p_subject VARCHAR(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_subject_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_session_date DATE,
     IN p_status VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     IN p_type VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
@@ -29,7 +29,8 @@ BEGIN
         SELECT
                 s.session_id,
                 s.tutor_id,
-                s.subject,
+                subj.name AS subject,
+                s.subject_id,
                 s.date,
                 s.start_time,
                 s.end_time,
@@ -40,9 +41,10 @@ BEGIN
                 s.meeting_link,
                 COUNT(sp.student_id) AS current_students
         FROM sessions s
+        LEFT JOIN subjects subj ON subj.id = s.subject_id
         LEFT JOIN session_participants sp ON sp.session_id = s.session_id
         WHERE (p_tutor_id IS NULL OR s.tutor_id = p_tutor_id)
-            AND (p_subject IS NULL OR s.subject = p_subject)
+            AND (p_subject_id IS NULL OR s.subject_id = p_subject_id)
             AND (p_session_date IS NULL OR s.date = p_session_date)
             AND (p_status IS NULL OR s.status = p_status)
             AND (p_type IS NULL OR s.type = p_type)
@@ -58,7 +60,8 @@ BEGIN
         GROUP BY
                 s.session_id,
                 s.tutor_id,
-                s.subject,
+                subj.name,
+                s.subject_id,
                 s.date,
                 s.start_time,
                 s.end_time,

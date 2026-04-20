@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS resource;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE resource (
-    resource_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Mã tài nguyên',
+    resource_id CHAR(36) NOT NULL DEFAULT (UUID()) COMMENT 'Mã tài nguyên (UUID)',
     title VARCHAR(255) NOT NULL COMMENT 'Tiêu đề tài liệu',
     author VARCHAR(255) NOT NULL COMMENT 'Tác giả hoặc người biên soạn',
     `type` VARCHAR(100) NOT NULL COMMENT 'Loại tài nguyên',
@@ -19,6 +19,7 @@ CREATE TABLE resource (
     subject VARCHAR(100) NULL COMMENT 'Chủ đề liên quan',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (resource_id),
     CONSTRAINT uq_resource_url UNIQUE (url)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

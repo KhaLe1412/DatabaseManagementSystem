@@ -12,23 +12,22 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_comment_by_session//
 
 CREATE PROCEDURE sp_comment_by_session(
-    IN p_session_id BIGINT
+    IN p_session_id CHAR(36)
 )
 BEGIN
-    IF p_session_id IS NULL OR p_session_id <= 0 THEN
+    IF p_session_id IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid session_id';
     END IF;
 
     SELECT
         c.session_id,
         c.student_id,
-        a.full_name AS student_name,
+        u.name AS student_name,
         c.`comment`,
         c.rating,
         c.updated_at
     FROM `comment` c
-    JOIN students s ON s.student_id = c.student_id
-    JOIN accounts a ON a.user_id = s.user_id
+    JOIN users u ON u.id = c.student_id
     WHERE c.session_id = p_session_id
     ORDER BY c.updated_at DESC, c.student_id ASC;
 END//

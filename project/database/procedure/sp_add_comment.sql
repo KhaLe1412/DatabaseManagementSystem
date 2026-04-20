@@ -2,7 +2,7 @@
 -- Mô tả: Thêm mới hoặc cập nhật nhận xét cho một phiên học
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
--- Parameters: p_student_id BIGINT, p_session_id BIGINT, p_comment TEXT, p_rating INT
+-- Parameters: p_student_id CHAR(36), p_session_id CHAR(36), p_comment TEXT, p_rating INT
 -- Returns: Bản ghi nhận xét sau khi upsert
 
 USE dbms_project;
@@ -12,8 +12,8 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_add_comment//
 
 CREATE PROCEDURE sp_add_comment(
-    IN p_student_id BIGINT,
-    IN p_session_id BIGINT,
+    IN p_student_id CHAR(36),
+    IN p_session_id CHAR(36),
     IN p_comment TEXT,
     IN p_rating INT
 )
@@ -24,11 +24,11 @@ BEGIN
         RESIGNAL;
     END;
 
-    IF p_student_id IS NULL OR p_student_id <= 0 THEN
+    IF p_student_id IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid student_id';
     END IF;
 
-    IF p_session_id IS NULL OR p_session_id <= 0 THEN
+    IF p_session_id IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid session_id';
     END IF;
 

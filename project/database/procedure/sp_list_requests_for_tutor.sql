@@ -24,12 +24,13 @@ BEGIN
         r.status,
         r.created_at,
         r.handled_at,
-        s.subject,
+        subj.name AS subject,
         s.date AS current_session_date,
         s.start_time AS current_start,
         s.end_time AS current_end
     FROM session_requests r
     INNER JOIN sessions s ON s.session_id = r.session_id
+    INNER JOIN subjects subj ON subj.id = s.subject_id
     WHERE s.tutor_id = p_tutor_id COLLATE utf8mb4_unicode_ci
     ORDER BY r.created_at DESC;
 END//

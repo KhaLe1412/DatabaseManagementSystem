@@ -13,7 +13,7 @@ CREATE PROCEDURE sp_cancel_session_notify(
     IN p_session_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 proc_main: BEGIN
-    DECLARE v_subject VARCHAR(150);
+    DECLARE v_subject_name VARCHAR(100);
     DECLARE v_status VARCHAR(20);
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -26,9 +26,10 @@ proc_main: BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid session_id';
     END IF;
 
-    SELECT subject, status INTO v_subject, v_status
-    FROM sessions
-    WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci
+    SELECT subj.name, s.status INTO v_subject_name, v_status
+    FROM sessions s
+    JOIN subjects subj ON subj.id = s.subject_id
+    WHERE s.session_id = p_session_id COLLATE utf8mb4_unicode_ci
     LIMIT 1;
 
     IF v_status IS NULL THEN
@@ -51,7 +52,7 @@ proc_main: BEGIN
     SELECT
         p_session_id,
         sp.student_id,
-        CONCAT('Lich hoc mon ', v_subject, ' (', p_session_id, ') da bi huy.'),
+        CONCAT('Lich hoc mon ', v_subject_name, ' (', p_session_id, ') da bi huy.'),
         'cancel'
     FROM session_participants sp
     WHERE sp.session_id = p_session_id COLLATE utf8mb4_unicode_ci;
