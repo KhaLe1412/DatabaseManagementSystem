@@ -107,3 +107,28 @@ class Database:
                 cursor.close()
             if conn:
                 conn.close()
+
+    def execute_dml(self, query: str, params: tuple = ()) -> int:
+        """
+        Thuc thi cau lenh DML (INSERT/UPDATE/DELETE) va tra ve so hang bi anh huong.
+
+        Returns:
+            int — so hang bi anh huong (rowcount).
+        """
+        conn = cursor = None
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            rowcount = cursor.rowcount
+            conn.commit()
+            return rowcount
+        except Error:
+            if conn:
+                conn.rollback()
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
