@@ -1,7 +1,7 @@
 -- File: 05_comment.sql
--- Mô tả: Tạo bảng đánh giá và nhận xét sau phiên học
--- Tác giả: Nguyễn Hữu Thời
--- Ngày tạo: 2026-04-04
+-- Mo ta: Tao bang danh gia va nhan xet sau phien hoc
+-- Tac gia: Nguyen Huu Thoi
+-- Ngay tao: 2026-04-04
 
 USE dbms_project;
 
@@ -10,10 +10,10 @@ DROP TABLE IF EXISTS `comment`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE `comment` (
-    student_id BIGINT NOT NULL COMMENT 'Mã sinh viên',
-    session_id BIGINT NOT NULL COMMENT 'Mã phiên học',
-    `comment` TEXT NOT NULL COMMENT 'Nội dung nhận xét',
-    rating TINYINT UNSIGNED NOT NULL COMMENT 'Điểm đánh giá từ 1 đến 5',
+    student_id CHAR(36) NOT NULL COMMENT 'ID sinh vien',
+    session_id CHAR(36) NOT NULL COMMENT 'ID phien hoc',
+    `comment` TEXT NOT NULL COMMENT 'Noi dung nhan xet',
+    rating TINYINT UNSIGNED NOT NULL COMMENT 'Diem danh gia tu 1 den 5',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (student_id, session_id),
@@ -28,4 +28,4 @@ CREATE TABLE `comment` (
 
 CREATE INDEX idx_comment_session_rating ON `comment`(session_id, rating);
 
-ALTER TABLE `comment` COMMENT = 'Bảng đánh giá của sinh viên cho từng phiên học';
+ALTER TABLE `comment` COMMENT = 'Bang luu danh gia cua sinh vien cho tung phien hoc';
