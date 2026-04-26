@@ -34,7 +34,6 @@ def login():
         return jsonify({
             'userId': user['userID'],
             'role':   user['role'],
-            'name':   user['name'],
         }), 200
     except mysql.connector.Error as err:
         return _sql_err(err)

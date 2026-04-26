@@ -21,7 +21,7 @@ def _sql_err(err):
 # Output (200): { 'sessions': [...] }
 # Stored procedure: sp_filter_sessions(tutor_id, student_id, subject_id, date, status, type)
 # ----------------------------------------------------------------
-@sessions_bp.route('/', methods=['GET'])
+@sessions_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_sessions():
     tutor_id   = request.args.get('tutorId')
     student_id = request.args.get('studentId')
@@ -45,6 +45,37 @@ def get_sessions():
                 r['end_time'] = f"{total // 3600:02d}:{(total % 3600) // 60:02d}"
             if r.get('date'):
                 r['date'] = str(r['date'])
+
+        # Batch-fetch enrolled students and tutor names
+        if rows:
+            session_ids = [r['session_id'] for r in rows]
+            tutor_ids   = list({r['tutor_id'] for r in rows if r.get('tutor_id')})
+
+            # enrolled students
+            placeholders = ','.join(['%s'] * len(session_ids))
+            participants = db.execute_query(
+                f'SELECT session_id, student_id FROM session_participants WHERE session_id IN ({placeholders})',
+                tuple(session_ids),
+            )
+            enrolled_map: dict = {}
+            for p in participants:
+                sid = p['session_id']
+                enrolled_map.setdefault(sid, []).append(p['student_id'])
+
+            # tutor names
+            tutor_name_map: dict = {}
+            if tutor_ids:
+                t_ph = ','.join(['%s'] * len(tutor_ids))
+                tutor_rows = db.execute_query(
+                    f'SELECT id, name FROM users WHERE id IN ({t_ph})',
+                    tuple(tutor_ids),
+                )
+                tutor_name_map = {t['id']: t['name'] for t in tutor_rows}
+
+            for r in rows:
+                r['enrolledStudents'] = enrolled_map.get(r['session_id'], [])
+                r['tutorName']        = tutor_name_map.get(r['tutor_id'])
+
         return jsonify({'sessions': rows}), 200
     except mysql.connector.Error as err:
         return _sql_err(err)
@@ -114,7 +145,7 @@ def get_session(session_id):
 # Output (409): overlapping session
 # Stored procedure: sp_create_session(...)
 # ----------------------------------------------------------------
-@sessions_bp.route('/', methods=['POST'])
+@sessions_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_session():
     data = request.get_json() or {}
     for field in ('tutorId', 'subjectId', 'date', 'startTime', 'endTime', 'type', 'maxStudents'):
@@ -218,7 +249,22 @@ def join_session(session_id):
     except mysql.connector.Error as err:
         return _sql_err(err)
 
-
+# ----------------------------------------------------------------
+# POST /api/sessions/:id/complete
+# Input  (path): id (UUID string, session_id)
+# Output (200): { 'message': 'Session marked as completed' }
+# Stored procedure: sp_complete_session(session_id)
+# ----------------------------------------------------------------
+@sessions_bp.route('/<session_id>/complete', methods=['POST'])
+def complete_session(session_id):
+    try:
+        db = Database.get_instance()
+        db.call_procedure('sp_complete_session', (session_id,))
+        return jsonify({'message': 'Session marked as completed'}), 200
+    except mysql.connector.Error as err:
+        return _sql_err(err)
+    
+    
 # ----------------------------------------------------------------
 # POST /api/sessions/:id/leave
 # Input  (JSON body): { 'studentId': str }

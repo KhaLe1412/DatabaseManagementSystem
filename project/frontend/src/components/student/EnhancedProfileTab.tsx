@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { Student, Session, Tutor } from "../../types";
 import { toast } from "sonner";
-import { apiGet, apiPatch } from "../../lib/api";
+import { apiGet, apiPatch, apiPost, apiDelete, apiPut } from "../../lib/api";
 
 interface EnhancedProfileTabProps {
   student: Student;
@@ -53,29 +53,10 @@ interface SessionReview {
   comment?: string;
 }
 
-// Danh sách các môn học có sẵn
-const AVAILABLE_SUBJECTS = [
-  "Data Structures",
-  "Algorithms",
-  "Database Systems",
-  "Operating Systems",
-  "Computer Networks",
-  "Software Engineering",
-  "Web Development",
-  "Machine Learning",
-  "Circuit Analysis",
-  "Digital Electronics",
-  "Signal Processing",
-  "Control Systems",
-  "Calculus",
-  "Linear Algebra",
-  "Differential Equations",
-  "Probability and Statistics",
-  "Physics",
-  "Chemistry",
-  "Programming Fundamentals",
-  "Object-Oriented Programming",
-];
+interface SubjectOption {
+  subject_id: string;
+  subject_name: string;
+}
 
 export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -85,6 +66,10 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
   const [showAddSubjectDialog, setShowAddSubjectDialog] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  // subject_name -> subject_id map for current user subjects
+  const [subjectIdMap, setSubjectIdMap] = useState<Record<string, string>>({});
+  // all available subjects from DB
+  const [allSubjects, setAllSubjects] = useState<SubjectOption[]>([]);
 
   // Dialog states
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] =
@@ -121,26 +106,86 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
   // Fetch data on component mount
   useEffect(() => {
     handleOverview();
+    fetchSubjects();
   }, [student.id]);
 
-  // Fetch completed sessions and tutors from API (backend returns mock data)
+  // Fetch current user subjects and all available subjects
+  const fetchSubjects = async () => {
+    try {
+      const [userSubsResp, allSubsResp] = await Promise.all([
+        apiGet<{ subjects: SubjectOption[] }>(`/users/${student.id}/subjects`),
+        apiGet<{ subjects: SubjectOption[] }>("/subjects"),
+      ]);
+      const userSubs = userSubsResp.subjects ?? [];
+      const map: Record<string, string> = {};
+      userSubs.forEach((s) => {
+        map[s.subject_name] = s.subject_id;
+      });
+      setSubjectIdMap(map);
+      setSupportNeeds(userSubs.map((s) => s.subject_name));
+      setAllSubjects(allSubsResp.subjects ?? []);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  };
+
+  // Fetch completed sessions and tutors from API
   const handleOverview = async () => {
     try {
       setIsLoading(true);
-      const data = await apiGet<any[]>(
+      const resp = await apiGet<{ sessions: any[] }>(
         `/sessions?studentId=${student.id}&status=completed`,
       );
-      // Response format: [{session: Session, students: Student[], tutor: Tutor}]
+      // Response format: { sessions: [...flat session objects...] }
+      const data = resp.sessions ?? [];
 
-      // Extract sessions
-      const sessions = data.map((item: any) => item.session);
+      // Map snake_case backend fields to camelCase Session type
+      const sessions: Session[] = data.map((item: any) => ({
+        id: item.session_id ?? item.id,
+        tutorId: item.tutor_id ?? item.tutorId,
+        subject: item.subject,
+        date: item.date,
+        startTime: item.start_time ?? item.startTime,
+        endTime: item.end_time ?? item.endTime,
+        type: item.type,
+        status: item.status,
+        location: item.location,
+        meetingLink: item.meeting_link ?? item.meetingLink,
+        notes: item.notes,
+        summary: item.summary,
+        recordingUrl: item.recording_url ?? item.recordingUrl,
+        maxStudents: item.max_students ?? item.maxStudents ?? 0,
+        enrolledStudents: item.enrolledStudents ?? [],
+      }));
       setCompletedSessions(sessions);
 
-      // Extract unique tutors from all sessions
+      // Batch-fetch reviews for each completed session
+      const reviewsResults = await Promise.allSettled(
+        sessions.map((s) =>
+          apiGet<{ reviews: any[] }>(`/sessions/${s.id}/reviews`),
+        ),
+      );
+      const sessionsWithReviews = sessions.map((s, i) => {
+        const result = reviewsResults[i];
+        if (result.status === "fulfilled") {
+          const raw = result.value.reviews ?? [];
+          s.reviews = raw.map((r: any) => ({
+            studentId: r.student_id ?? r.studentId ?? "",
+            rating: r.rating,
+            comment: r.comment ?? "",
+            submittedAt: r.updated_at ?? r.submittedAt ?? "",
+          }));
+        }
+        return s;
+      });
+      setCompletedSessions(sessionsWithReviews);
+
+      // Extract unique tutors from tutorName / tutor_id fields
       const allTutors = new Map<string, Tutor>();
       data.forEach((item: any) => {
-        if (item.tutor && !allTutors.has(item.tutor.id)) {
-          allTutors.set(item.tutor.id, item.tutor);
+        const tid = item.tutor_id;
+        if (tid && !allTutors.has(tid)) {
+          allTutors.set(tid, { id: tid, name: item.tutorName ?? tid } as Tutor);
         }
       });
 
@@ -167,24 +212,12 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
   const handleSaveProfile = async () => {
     try {
       setIsLoading(true);
-      const updatedStudent = await apiPatch<Student>(
-        `/students/${student.id}`,
-        {
-          userId: student.id,
-          name,
-          email,
-          supportNeeds,
-        },
-      );
-
-      // Update local state với data từ server
-      setName(updatedStudent.name);
-      setEmail(updatedStudent.email);
-      setSupportNeeds(updatedStudent.supportNeeds);
-
+      await apiPut(`/users/${student.id}`, {
+        name,
+        department: student.department,
+      });
       // Trigger event để App.tsx refresh data
       window.dispatchEvent(new Event("profileUpdated"));
-
       toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch (error) {
@@ -195,18 +228,49 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
     }
   };
 
-  const handleAddSubject = () => {
-    if (selectedSubject && !supportNeeds.includes(selectedSubject)) {
-      setSupportNeeds([...supportNeeds, selectedSubject]);
-      toast.success(`Added ${selectedSubject} to your support needs`);
+  const handleAddSubject = async () => {
+    const subjectObj = allSubjects.find(
+      (s) => s.subject_id === selectedSubject,
+    );
+    if (!subjectObj) return;
+    if (supportNeeds.includes(subjectObj.subject_name)) {
+      toast.error("Subject already added");
+      return;
+    }
+    try {
+      await apiPost(`/users/${student.id}/subjects`, {
+        subject_id: subjectObj.subject_id,
+      });
+      setSubjectIdMap((prev) => ({
+        ...prev,
+        [subjectObj.subject_name]: subjectObj.subject_id,
+      }));
+      setSupportNeeds((prev) => [...prev, subjectObj.subject_name]);
+      toast.success(`Added ${subjectObj.subject_name} to your support needs`);
       setShowAddSubjectDialog(false);
       setSelectedSubject("");
+    } catch (error) {
+      console.error("Error adding subject:", error);
+      toast.error("Failed to add subject");
     }
   };
 
-  const handleRemoveNeed = (need: string) => {
-    setSupportNeeds(supportNeeds.filter((n) => n !== need));
-    toast.success(`Removed ${need} from your support needs`);
+  const handleRemoveNeed = async (need: string) => {
+    const subjectId = subjectIdMap[need];
+    if (!subjectId) return;
+    try {
+      await apiDelete(`/users/${student.id}/subjects/${subjectId}`);
+      setSupportNeeds((prev) => prev.filter((n) => n !== need));
+      setSubjectIdMap((prev) => {
+        const m = { ...prev };
+        delete m[need];
+        return m;
+      });
+      toast.success(`Removed ${need} from your support needs`);
+    } catch (error) {
+      console.error("Error removing subject:", error);
+      toast.error("Failed to remove subject");
+    }
   };
 
   // --- HÀM XỬ LÝ ĐỔI MẬT KHẨU (GỌI API) ---
@@ -285,9 +349,11 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
     }
 
     try {
-      // Vì không có database, chỉ update local state và mock data
-      // Trong tương lai có thể gọi API: POST /api/sessions/:id/review
-      // const response = await fetch(`${API_BASE_URL}/sessions/${currentReviewSessionId}/review`, {...});
+      await apiPost(`/sessions/${currentReviewSessionId}/review`, {
+        studentId: student.id,
+        rating: reviewData.rating,
+        comment: reviewData.comment,
+      });
 
       // Update local state
       setSessionReviews((prev) => ({
@@ -299,19 +365,6 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
         },
       }));
 
-      // Update session review via API (backend will update mock data)
-      // In the future, can call: POST /api/sessions/:id/review
-      // const response = await fetch(`${API_BASE_URL}/sessions/${currentReviewSessionId}/review`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     studentId: student.id,
-      //     rating: reviewData.rating,
-      //     comment: reviewData.comment
-      //   })
-      // });
-
-      // Refresh sessions from API
       await handleOverview();
 
       toast.success("Session review saved successfully!");
@@ -323,8 +376,8 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
     }
   };
 
-  const availableToAdd = AVAILABLE_SUBJECTS.filter(
-    (subject) => !supportNeeds.includes(subject),
+  const availableToAdd = allSubjects.filter(
+    (s) => !supportNeeds.includes(s.subject_name),
   );
 
   return (
@@ -444,9 +497,9 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
                           <SelectValue placeholder="Select a subject" />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableToAdd.map((subject) => (
-                            <SelectItem key={subject} value={subject}>
-                              {subject}
+                          {availableToAdd.map((s) => (
+                            <SelectItem key={s.subject_id} value={s.subject_id}>
+                              {s.subject_name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -569,6 +622,29 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
                       )}
                     </div>
 
+                    {(session.summary || session.recordingUrl) && (
+                      <div className="bg-indigo-50 border border-indigo-200 rounded p-3 mb-3">
+                        <p className="text-xs font-medium text-indigo-700 mb-2">
+                          Session Summary & Recording
+                        </p>
+                        {session.summary && (
+                          <p className="text-sm mb-2">{session.summary}</p>
+                        )}
+                        {session.recordingUrl && (
+                          <Button size="sm" variant="outline" asChild>
+                            <a
+                              href={session.recordingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Download className="h-3 w-3 mr-1" />
+                              Watch Recording
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
                     {review && (
                       <div className="bg-green-50 border border-green-200 rounded p-3 mb-3">
                         <div className="flex items-center gap-2 mb-2">
@@ -596,29 +672,6 @@ export function EnhancedProfileTab({ student }: EnhancedProfileTabProps) {
                         <p className="text-sm">
                           {session.feedback.tutorProgress}
                         </p>
-                      </div>
-                    )}
-
-                    {(session.summary || session.recordingUrl) && (
-                      <div className="bg-gray-50 rounded p-3 mb-3">
-                        <p className="text-xs text-gray-600 mb-2">
-                          Session Materials:
-                        </p>
-                        {session.summary && (
-                          <p className="text-sm mb-2">{session.summary}</p>
-                        )}
-                        {session.recordingUrl && (
-                          <Button size="sm" variant="outline" asChild>
-                            <a
-                              href={session.recordingUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Download className="h-3 w-3 mr-1" />
-                              Recording
-                            </a>
-                          </Button>
-                        )}
                       </div>
                     )}
 

@@ -70,7 +70,7 @@ BEGIN
         SELECT COUNT(*) INTO v_overlap_count
         FROM sessions s
         WHERE s.tutor_id = p_tutor_id
-            AND s.status IN ('open', 'scheduled', 'full')
+            AND s.status IN ('open')
             AND s.date = p_date
             AND NOT (s.end_time <= p_start_time OR s.start_time >= p_end_time);
 

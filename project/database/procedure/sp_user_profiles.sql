@@ -76,7 +76,19 @@ END//
 DROP PROCEDURE IF EXISTS sp_get_all_tutors//
 CREATE PROCEDURE sp_get_all_tutors()
 BEGIN
-    SELECT u.id, u.name, u.email, t.tutor_code, t.department, t.rating, t.total_sessions
+    SELECT
+        u.id, u.name, u.email, t.tutor_code, t.department,
+        COALESCE(
+            (SELECT AVG(c.rating)
+             FROM comment c
+             JOIN sessions s ON c.session_id = s.session_id
+             WHERE s.tutor_id = t.tutor_id),
+            0.0
+        ) AS rating,
+        (SELECT COUNT(*)
+         FROM sessions
+         WHERE tutor_id = t.tutor_id AND status = 'completed'
+        ) AS total_sessions
     FROM users u
     JOIN tutors t ON u.id = t.tutor_id;
 END//

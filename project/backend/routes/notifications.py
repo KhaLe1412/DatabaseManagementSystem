@@ -21,7 +21,7 @@ def _sql_err(err):
 # }
 # Stored procedure: sp_list_notifications_for_user(p_user_id)
 # ----------------------------------------------------------------
-@notifications_bp.route('/', methods=['GET'])
+@notifications_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_notifications():
     user_id    = request.args.get('userId')
     session_id = request.args.get('sessionId')

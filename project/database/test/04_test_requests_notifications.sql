@@ -15,7 +15,7 @@ SET @session_with_participants := (
     SELECT s.session_id
     FROM sessions s
     JOIN session_participants sp ON sp.session_id = s.session_id
-    WHERE s.status IN ('open', 'scheduled', 'full')
+    WHERE s.status IN ('open')
     GROUP BY s.session_id
     HAVING COUNT(*) >= 2
     ORDER BY s.created_at, s.session_id

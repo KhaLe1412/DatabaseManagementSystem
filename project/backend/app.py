@@ -11,10 +11,12 @@ from routes.reschedule_requests import reschedule_bp
 from routes.match_requests import match_bp
 from routes.evaluations import evaluations_bp
 from routes.notifications import notifications_bp
+from routes.subjects import subjects_bp
 
 
 def create_app():
     app = Flask(__name__)
+    app.json.ensure_ascii = False
     CORS(app)
 
     app.register_blueprint(auth_bp,          url_prefix='/api/auth')
@@ -26,6 +28,7 @@ def create_app():
     app.register_blueprint(match_bp,         url_prefix='/api/match-requests')
     app.register_blueprint(evaluations_bp,   url_prefix='/api/evaluations')
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
+    app.register_blueprint(subjects_bp,      url_prefix='/api/subjects')
 
     @app.errorhandler(404)
     def not_found(e):

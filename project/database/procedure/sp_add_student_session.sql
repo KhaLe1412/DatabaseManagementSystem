@@ -42,16 +42,6 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Session not found';
     END IF;
 
-    -- Kiểm tra sinh viên đã đăng ký môn học của buổi học
-    IF NOT EXISTS (
-        SELECT 1 FROM user_subjects us
-        INNER JOIN sessions s ON s.subject_id = us.subject_id
-        WHERE s.session_id = p_session_id COLLATE utf8mb4_unicode_ci
-          AND us.user_id = p_student_id COLLATE utf8mb4_unicode_ci
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Student is not enrolled in the subject of this session';
-    END IF;
-
     START TRANSACTION;
 
     SELECT status, max_students
@@ -80,28 +70,11 @@ BEGIN
     FOR UPDATE;
 
     IF v_current_students >= v_max_students THEN
-        UPDATE sessions
-        SET status = 'full',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Session is full';
     END IF;
 
     INSERT INTO session_participants (session_id, student_id)
     VALUES (p_session_id, p_student_id);
-
-    SELECT COUNT(*)
-    INTO v_current_students
-    FROM session_participants
-    WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-
-    IF v_current_students >= v_max_students THEN
-        UPDATE sessions
-        SET status = 'full',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-    END IF;
 
     COMMIT;
 

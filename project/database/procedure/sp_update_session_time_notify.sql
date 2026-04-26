@@ -54,7 +54,7 @@ proc_main: BEGIN
     FROM sessions s
     WHERE s.tutor_id = v_tutor_id COLLATE utf8mb4_unicode_ci
       AND s.session_id <> p_session_id COLLATE utf8mb4_unicode_ci
-      AND s.status IN ('open', 'scheduled', 'full')
+      AND s.status IN ('open')
       AND s.date = p_new_date
       AND NOT (s.end_time <= p_new_start OR s.start_time >= p_new_end);
 

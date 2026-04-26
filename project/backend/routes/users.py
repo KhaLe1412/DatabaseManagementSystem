@@ -22,7 +22,7 @@ def _sql_err(err):
 # }
 # Stored procedures: sp_get_all_students(), sp_get_all_tutors()
 # ----------------------------------------------------------------
-@users_bp.route('/', methods=['GET'])
+@users_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_all_users():
     role   = request.args.get('role')
     search = (request.args.get('search') or '').lower()
@@ -57,9 +57,8 @@ def get_all_users():
 
 # ----------------------------------------------------------------
 # GET /api/users/:id
-# Output (200 — Student/Tutor): profile info
+# Output (200 — Student/Tutor): full profile info
 # Output (404): { 'error': 'User not found' }
-# Stored procedure: sp_get_user_info(p_user_id)
 # ----------------------------------------------------------------
 @users_bp.route('/<string:user_id>', methods=['GET'])
 def get_user(user_id):
@@ -68,7 +67,59 @@ def get_user(user_id):
         rows = db.call_procedure('sp_get_user_info', (user_id,))
         if not rows:
             return jsonify({'error': 'User not found'}), 404
-        return jsonify(rows[0]), 200
+        user = dict(rows[0])
+        user['id'] = user_id
+
+        role = user.get('role')
+        if role == 'student':
+            extra = db.execute_query(
+                'SELECT mssv, department, year, gpa FROM students WHERE student_id = %s',
+                (user_id,),
+            )
+            subject_rows = db.execute_query(
+                '''SELECT s.name FROM user_subjects us
+                   JOIN subjects s ON s.id = us.subject_id
+                   WHERE us.user_id = %s''',
+                (user_id,),
+            )
+            if extra:
+                e = extra[0]
+                user['studentId']    = e.get('mssv') or ''
+                user['department']   = e.get('department') or ''
+                user['year']         = int(e.get('year') or 1)
+                user['gpa']          = float(e.get('gpa') or 0)
+            user['supportNeeds'] = [r['name'] for r in subject_rows]
+        elif role == 'tutor':
+            extra = db.execute_query(
+                'SELECT tutor_code, department FROM tutors WHERE tutor_id = %s',
+                (user_id,),
+            )
+            expertise_rows = db.execute_query(
+                '''SELECT s.name FROM user_subjects us
+                   JOIN subjects s ON s.id = us.subject_id
+                   WHERE us.user_id = %s''',
+                (user_id,),
+            )
+            rating_rows = db.execute_query(
+                '''SELECT COALESCE(AVG(c.rating), 0.0) AS rating
+                   FROM comment c
+                   JOIN sessions s ON c.session_id = s.session_id
+                   WHERE s.tutor_id = %s''',
+                (user_id,),
+            )
+            session_rows = db.execute_query(
+                "SELECT COUNT(*) AS total FROM sessions WHERE tutor_id = %s AND status = 'completed'",
+                (user_id,),
+            )
+            if extra:
+                e = extra[0]
+                user['tutorId']       = e.get('tutor_code') or ''
+                user['department']    = e.get('department') or ''
+            user['rating']        = float((rating_rows[0].get('rating') or 0) if rating_rows else 0)
+            user['totalSessions'] = int((session_rows[0].get('total') or 0) if session_rows else 0)
+            user['expertise'] = [r['name'] for r in expertise_rows]
+
+        return jsonify(user), 200
     except mysql.connector.Error as err:
         return _sql_err(err)
 
@@ -87,7 +138,7 @@ def get_user(user_id):
 # Output (409): username or email already exists
 # Stored procedure: sp_register_user(...)
 # ----------------------------------------------------------------
-@users_bp.route('/', methods=['POST'])
+@users_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_user():
     data = request.get_json() or {}
     for field in ('name', 'email', 'username', 'password', 'role'):
@@ -105,16 +156,16 @@ def create_user():
         ))
         if role == 'student':
             db.execute_query(
-                'INSERT INTO students (student_id, mssv, department, year, gpa, support_needs) '
-                'VALUES (%s, %s, %s, %s, %s, %s)',
+                'INSERT INTO students (student_id, mssv, department, year, gpa) '
+                'VALUES (%s, %s, %s, %s, %s)',
                 (new_id, data.get('studentId'), data.get('department'),
-                 data.get('year'), data.get('gpa'), data.get('supportNeeds')),
+                 data.get('year'), data.get('gpa')),
             )
         elif role == 'tutor':
             db.execute_query(
-                'INSERT INTO tutors (tutor_id, tutor_code, department, expertise) '
-                'VALUES (%s, %s, %s, %s)',
-                (new_id, data.get('tutorId'), data.get('department'), data.get('expertise')),
+                'INSERT INTO tutors (tutor_id, tutor_code, department) '
+                'VALUES (%s, %s, %s)',
+                (new_id, data.get('tutorId'), data.get('department')),
             )
         return jsonify({'id': new_id, 'message': 'User created successfully'}), 201
     except mysql.connector.Error as err:

@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { mockSessions, mockTutors } from "../../lib/mock-data";
 import { Student, Tutor, Session } from "../../types";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { apiGet, apiPost } from "../../lib/api";
 
 interface EnhancedMySessionsTabProps {
@@ -54,16 +54,35 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
   });
 
   const [studentSessions, setStudentSessions] = useState<Session[]>([]);
-  const [tutors, setTutors] = useState([]);
+  const [tutors, setTutors] = useState<Tutor[]>([]);
+
+  const mapSession = (r: any): Session => ({
+    id: r.session_id ?? r.id,
+    tutorId: r.tutor_id ?? r.tutorId,
+    tutorName: r.tutorName,
+    subject: r.subject,
+    date: r.date,
+    startTime: r.start_time ?? r.startTime,
+    endTime: r.end_time ?? r.endTime,
+    type: r.type,
+    status: r.status,
+    location: r.location,
+    meetingLink: r.meeting_link ?? r.meetingLink,
+    notes: r.notes,
+    summary: r.summary,
+    recordingUrl: r.recording_url ?? r.recordingUrl,
+    maxStudents: r.max_students ?? r.maxStudents ?? 0,
+    enrolledStudents: r.enrolledStudents ?? [],
+  });
 
   const handleFetchData = async () => {
     try {
-      const [sessionData, tutorData] = await Promise.all([
-        apiGet<Session[]>(`/sessions?studentId=${student.id}`),
-        apiGet<any[]>("/tutors"),
+      const [sessionResp, tutorResp] = await Promise.all([
+        apiGet<{ sessions: any[] }>(`/sessions?studentId=${student.id}`),
+        apiGet<{ users: any[] }>("/users?role=tutor"),
       ]);
-      setStudentSessions(sessionData);
-      setTutors(tutorData);
+      setStudentSessions((sessionResp.sessions ?? []).map(mapSession));
+      setTutors(tutorResp.users ?? []);
     } catch (err) {
       console.error("Failed to fetch data:", err);
       toast.error("Cannot load session data, please try again.");
@@ -73,9 +92,11 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
   useEffect(() => {
     handleFetchData();
   }, []);
-  const selectedSession = studentSessions.find(
-    (s) => s.id === selectedSessionId,
-  );
+
+  // Only show open (upcoming) sessions in the calendar
+  const openSessions = studentSessions.filter((s) => s.status === "open");
+
+  const selectedSession = openSessions.find((s) => s.id === selectedSessionId);
 
   // Calendar functions
   const getDaysInMonth = (date: Date) => {
@@ -101,7 +122,7 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
 
     const dateString = `${year}-${month}-${day}`;
 
-    return studentSessions.filter((s) => s.date === dateString);
+    return openSessions.filter((s) => s.date === dateString);
   };
 
   const goToPreviousMonth = () => {
@@ -168,19 +189,15 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
 
     try {
       const payload = {
+        studentId: student.id,
         sessionId: selectedSession.id,
-        requesterId: student.id,
-        requesterRole: "student",
-        newDate: rescheduleData.newDate,
-        newStartTime: rescheduleData.newStartTime,
-        newEndTime: rescheduleData.newEndTime,
+        proposedDate: rescheduleData.newDate,
+        proposedStartTime: rescheduleData.newStartTime,
+        proposedEndTime: rescheduleData.newEndTime,
         reason: rescheduleData.reason,
       };
 
-      await apiPost(
-        `/sessions/${selectedSession.id}/reschedule-request`,
-        payload,
-      );
+      await apiPost(`/reschedule-requests`, payload);
 
       toast.success("Reschedule request sent to the tutor.");
 
@@ -195,13 +212,15 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
 
   const handleCancelSession = async (sessionId: string) => {
     try {
-      const data = await apiPost<{ message?: string }>(
-        `/sessions/${sessionId}/leave`,
-      );
-      alert("Bạn đã rời session thành công!");
+      await apiPost(`/sessions/${sessionId}/leave`, { studentId: student.id });
+      toast.success("Left session successfully!");
+      setSelectedSessionId(null);
+      handleFetchData();
     } catch (error: any) {
       console.error(error);
-      alert(`Rời session thất bại: ${error?.message ?? String(error)}`);
+      toast.error(
+        `Failed to leave session: ${error?.message ?? String(error)}`,
+      );
     }
   };
 
@@ -298,7 +317,7 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
       {/* Session Detail Dialog */}
       <Dialog
         open={!!selectedSessionId}
-        onOpenChange={(open) => !open && setSelectedSessionId(null)}
+        onOpenChange={(open: boolean) => !open && setSelectedSessionId(null)}
       >
         <DialogContent>
           <DialogHeader>
@@ -323,13 +342,19 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
                       }
                     />
                     <AvatarFallback>
-                      {tutors
-                        .find((t) => t.id === selectedSession.tutorId)
-                        ?.name.charAt(0)}
+                      {(
+                        selectedSession.tutorName ??
+                        tutors.find((t) => t.id === selectedSession.tutorId)
+                          ?.name ??
+                        "?"
+                      ).charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <span>
-                    {tutors.find((t) => t.id === selectedSession.tutorId)?.name}
+                    {selectedSession.tutorName ??
+                      tutors.find((t) => t.id === selectedSession.tutorId)
+                        ?.name ??
+                      selectedSession.tutorId}
                   </span>
                 </div>
               </div>
@@ -404,24 +429,26 @@ export function EnhancedMySessionsTab({ student }: EnhancedMySessionsTabProps) {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={handleOpenReschedule}
-                  className="flex-1"
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Request Reschedule
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelSession}
-                  className="flex-1"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              </div>
+              {selectedSession.status === "open" && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={handleOpenReschedule}
+                    className="flex-1"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Request Reschedule
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCancelSession(selectedSession.id)}
+                    className="flex-1"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Leave Session
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

@@ -23,7 +23,7 @@ CREATE TABLE sessions (
     meeting_link VARCHAR(512) DEFAULT NULL COMMENT 'Link học (nếu online)',
     
     max_students INT NOT NULL DEFAULT 30,
-    status ENUM('scheduled', 'completed', 'cancelled', 'open', 'full') NOT NULL DEFAULT 'open',
+    status ENUM('open', 'completed', 'cancelled') NOT NULL DEFAULT 'open',
     
     notes TEXT DEFAULT NULL COMMENT 'Ghi chú trước buổi',
     summary TEXT DEFAULT NULL COMMENT 'Tóm tắt sau buổi',

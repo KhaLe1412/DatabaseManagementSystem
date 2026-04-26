@@ -21,7 +21,7 @@ def _sql_err(err):
 # Output (200): { 'rescheduleRequests': [...] }
 # Stored procedure: sp_list_requests_for_tutor(p_tutor_id)
 # ----------------------------------------------------------------
-@reschedule_bp.route('/', methods=['GET'])
+@reschedule_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_reschedule_requests():
     user_id    = request.args.get('userId')
     session_id = request.args.get('sessionId')
@@ -63,7 +63,7 @@ def get_reschedule_requests():
 #     p_proposed_start, p_proposed_end, p_reason
 # )
 # ----------------------------------------------------------------
-@reschedule_bp.route('/', methods=['POST'])
+@reschedule_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_reschedule_request():
     data = request.get_json() or {}
     for field in ('studentId', 'sessionId', 'proposedDate', 'proposedStartTime', 'proposedEndTime', 'reason'):

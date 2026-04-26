@@ -29,24 +29,21 @@ SELECT @sid1 AS session_id, (SELECT status FROM sessions WHERE session_id=@sid1)
     CASE WHEN (SELECT status FROM sessions WHERE session_id=@sid1)='completed' THEN 'PASSED' ELSE 'FAILED' END AS result;
 DELETE FROM sessions WHERE session_id = @sid1;
 
--- ===== TEST CASE 2: complete a scheduled session =====
+-- ===== TEST CASE 2: complete an open session (was scheduled) =====
 SELECT '=== TEST CASE 2 ===' AS test_name;
 CALL sp_create_session(@tutor_id, @subject, '2026-04-26', '10:00:00', '11:30:00', 'online', NULL, NULL, 2, 'TEST_COMPLETE_2');
 SET @sid2 = (SELECT session_id FROM sessions WHERE notes = 'TEST_COMPLETE_2' LIMIT 1);
--- Mark scheduled by updating status (simulate pre-existing scheduled state)
-UPDATE sessions SET status='scheduled' WHERE session_id=@sid2;
 CALL sp_complete_session(@sid2);
 SELECT @sid2 AS session_id, (SELECT status FROM sessions WHERE session_id=@sid2) AS status,
     CASE WHEN (SELECT status FROM sessions WHERE session_id=@sid2)='completed' THEN 'PASSED' ELSE 'FAILED' END AS result;
 DELETE FROM sessions WHERE session_id = @sid2;
 
--- ===== TEST CASE 3: complete a full session =====
+-- ===== TEST CASE 3: complete a full (open, at capacity) session =====
 SELECT '=== TEST CASE 3 ===' AS test_name;
 CALL sp_create_session(@tutor_id, @subject, '2026-04-27', '14:00:00', '15:00:00', 'online', NULL, NULL, 1, 'TEST_COMPLETE_3');
 SET @sid3 = (SELECT session_id FROM sessions WHERE notes = 'TEST_COMPLETE_3' LIMIT 1);
--- make it full by inserting one participant
+-- make it at capacity by inserting one participant (no 'full' status anymore)
 INSERT IGNORE INTO session_participants (session_id, student_id) VALUES (@sid3, @student1);
-UPDATE sessions SET status='full' WHERE session_id=@sid3;
 CALL sp_complete_session(@sid3);
 SELECT @sid3 AS session_id, (SELECT status FROM sessions WHERE session_id=@sid3) AS status,
     CASE WHEN (SELECT status FROM sessions WHERE session_id=@sid3)='completed' THEN 'PASSED' ELSE 'FAILED' END AS result;

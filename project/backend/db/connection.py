@@ -28,6 +28,8 @@ class Database:
             user=Config.DB_USER,
             password=Config.DB_PASSWORD,
             charset='utf8mb4',
+            collation='utf8mb4_unicode_ci',
+            use_unicode=True,
             autocommit=False,
         )
 

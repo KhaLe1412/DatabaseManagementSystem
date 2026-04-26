@@ -1,4 +1,9 @@
-export type UserRole = 'student' | 'tutor' | 'academic-affairs' | 'student-affairs' | 'admin';
+export type UserRole =
+  | "student"
+  | "tutor"
+  | "academic-affairs"
+  | "student-affairs"
+  | "admin";
 
 export interface User {
   id: string;
@@ -9,7 +14,7 @@ export interface User {
 }
 
 export interface Student extends User {
-  role: 'student';
+  role: "student";
   studentId: string;
   department: string;
   year: number;
@@ -18,7 +23,7 @@ export interface Student extends User {
 }
 
 export interface Tutor extends User {
-  role: 'tutor';
+  role: "tutor";
   tutorId: string;
   department: string;
   expertise: string[];
@@ -27,11 +32,10 @@ export interface Tutor extends User {
 }
 
 export interface Admin extends User {
-  role: 'admin';
+  role: "admin";
   adminId: string;
   department: string;
 }
-
 
 export interface StudentReview {
   studentId: string;
@@ -47,14 +51,15 @@ export interface Session {
   date: string;
   startTime: string;
   endTime: string;
-  type: 'in-person' | 'online';
-  status: 'scheduled' | 'completed' | 'cancelled' | 'open' | 'full';
+  type: "in-person" | "online";
+  status: "open" | "completed" | "cancelled";
   location?: string;
   meetingLink?: string;
   notes?: string;
   feedback?: SessionFeedback;
   summary?: string;
   recordingUrl?: string;
+  tutorName?: string;
   maxStudents: number; // For open sessions
   enrolledStudents: string[]; // For open sessions
   reviews?: StudentReview[]; // Student reviews for completed sessions
@@ -73,7 +78,7 @@ export interface SessionFeedback {
 export interface LibraryResource {
   id: string;
   title: string;
-  type: 'textbook' | 'document' | 'video' | 'article';
+  type: "textbook" | "document" | "video" | "article";
   subject: string;
   author: string;
   url: string;
@@ -84,9 +89,9 @@ export interface MatchRequest {
   id: string;
   studentId: string;
   subjects: string[];
-  preferredType: 'in-person' | 'online' | 'both';
+  preferredType: "in-person" | "online" | "both";
   preferredTimes: string[];
-  status: 'pending' | 'matched' | 'rejected';
+  status: "pending" | "matched" | "rejected";
   matchedTutorId?: string;
 }
 
@@ -97,7 +102,7 @@ export interface Message {
   content: string;
   timestamp: string;
   read: boolean;
-  type?: 'regular' | 'reschedule-notification' | 'material-request';
+  type?: "regular" | "reschedule-notification" | "material-request";
   relatedSessionId?: string;
 }
 
@@ -105,15 +110,22 @@ export interface RescheduleRequest {
   id: string;
   sessionId: string;
   requesterId: string;
-  requesterRole: 'student' | 'tutor';
+  requesterRole: "student" | "tutor";
   newDate: string;
   newStartTime: string;
   newEndTime: string;
   reason: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   createdAt: string;
 }
 
+export interface Notification {
+  id: string;
+  sessionId: string;
+  sentTime: string;
+  content: string;
+  type: string;
+}
 
 export interface StudentEvaluation {
   id: string;

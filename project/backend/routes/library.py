@@ -18,7 +18,7 @@ def _sql_err(err):
 # Stored procedure (no filter): sp_get_all_documents()
 # Stored procedure (with filter): sp_get_documents_by_filter(p_title, p_type)
 # ----------------------------------------------------------------
-@library_bp.route('/', methods=['GET'])
+@library_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_documents():
     search   = request.args.get('search')
     doc_type = request.args.get('type')
@@ -53,7 +53,7 @@ def get_documents():
 # Output (409): URL already exists
 # Stored procedure: sp_add_document(p_title, p_author, p_type, p_url)
 # ----------------------------------------------------------------
-@library_bp.route('/', methods=['POST'])
+@library_bp.route('/', methods=['POST'], strict_slashes=False)
 def add_document():
     data = request.get_json() or {}
     for field in ('title', 'author', 'type', 'url'):

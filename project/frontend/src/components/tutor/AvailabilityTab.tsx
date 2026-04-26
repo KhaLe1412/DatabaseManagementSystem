@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -41,18 +41,18 @@ import {
   ChevronRight,
   Users,
 } from "lucide-react";
-import { Tutor, Session, Student } from "../../types";
+import { Tutor, Session } from "../../types";
 //import { mockSessions, mockStudents } from '../../lib/mock-data';
-import { toast } from "sonner@2.0.3";
-import { apiGet, apiPost, apiPatch, apiDelete } from "../../lib/api";
+import { toast } from "sonner";
+import {
+  apiGet,
+  apiPost,
+  apiPatch,
+  apiDelete,
+  mapSession,
+} from "../../lib/api";
 
 interface AvailabilityTabProps {
-  tutor: Tutor;
-}
-
-interface SessionDetailProps {
-  session: Session;
-  students: Student[];
   tutor: Tutor;
 }
 
@@ -89,37 +89,41 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
 
   // const selectedSession = tutorSessions.find(s => s.id === selectedSessionId);
 
-  // Get all sessions created by this tutor with full info
-  const [sessionInfo, setSessionInfo] = useState<SessionDetailProps[]>([]);
+  const [tutorSessions, setTutorSessions] = useState<Session[]>([]);
+  const [subjectIdMap, setSubjectIdMap] = useState<Record<string, string>>({});
 
   const fetchSessions = async () => {
     try {
-      const data = await apiGet<SessionDetailProps[]>(
+      const data = await apiGet<{ sessions: Record<string, unknown>[] }>(
         `/sessions?tutorId=${tutor.id}&status=open`,
       );
-      setSessionInfo(data);
+      setTutorSessions(data.sessions.map(mapSession));
     } catch (error) {
       console.error("Error fetching sessions:", error);
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     if (tutor?.id) {
       fetchSessions();
+      // Fetch all subjects to get subject ID from name
+      apiGet<{ subjects: { subject_id: string; subject_name: string }[] }>(
+        "/subjects",
+      )
+        .then((data) => {
+          const map: Record<string, string> = {};
+          (data.subjects ?? []).forEach((s) => {
+            map[s.subject_name] = s.subject_id;
+          });
+          setSubjectIdMap(map);
+        })
+        .catch(console.error);
     }
   }, [tutor?.id]);
 
-  const tutorSessions = sessionInfo.map((info) => info.session);
   const selectedSession = tutorSessions.find((s) => s.id === selectedSessionId);
-  // Full session info (students, tutor) for the selected session
-  const selectedSessionInfo =
-    sessionInfo.find((info) => info.session.id === selectedSessionId) || null;
-  const selectedStudentNames =
-    selectedSessionInfo?.students?.map((s) => s.name) || [];
-  const studentNamesDisplay =
-    selectedStudentNames.length <= 3
-      ? selectedStudentNames.join(", ")
-      : `${selectedStudentNames.slice(0, 3).join(", ")}, ...`;
+  const enrolledCount = selectedSession?.enrolledStudents?.length ?? 0;
+  const studentNamesDisplay = `${enrolledCount} enrolled student(s)`;
   // Calendar functions
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -198,10 +202,32 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
       return;
     }
 
-    const sessionData =
-      sessionType === "open"
-        ? `Open session for ${newSession.maxStudents} students`
-        : `Individual session with student ID: ${newSession.studentId}`;
+    const subjectId = subjectIdMap[newSession.subject];
+    if (!subjectId) {
+      toast.error("Cannot find subject ID. Please try again.");
+      return;
+    }
+
+    // Tạo session qua API
+    try {
+      await apiPost("/sessions", {
+        tutorId: tutor.id,
+        subjectId,
+        date: newSession.date,
+        startTime: newSession.startTime,
+        endTime: newSession.endTime,
+        type: newSession.type,
+        location: newSession.location || null,
+        meetingLink: newSession.meetingLink || null,
+        notes: newSession.notes || null,
+        maxStudents: Number(newSession.maxStudents),
+      });
+    } catch (err: any) {
+      toast.error(
+        `Failed to create session: ${err.message || "Unknown error"}`,
+      );
+      return;
+    }
 
     setCreateDialogOpen(false);
     setNewSession({
@@ -217,29 +243,8 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
       studentId: "",
     });
 
-    // Tạo session qua API
-    try {
-      await apiPost('/sessions', {
-        sessionData: {
-          subject: newSession.subject,
-          date: newSession.date,
-          startTime: newSession.startTime,
-          endTime: newSession.endTime,
-          type: newSession.type,
-          location: newSession.location,
-          meetLink: newSession.meetingLink,
-          notes: newSession.notes,
-          maxStudents: Number(newSession.maxStudents),
-        },
-        tutorId: tutor.id,
-      });
-    } catch (err: any) {
-      toast.error(`Failed to create session: ${err.message || 'Unknown error'}`);
-      return;
-    }
-
     toast.success(
-      `Session created successfully: ${sessionData}. Students can now join from the Join tab.`,
+      `Session created successfully. Students can now join from the Join tab.`,
     );
     fetchSessions();
   };
@@ -248,7 +253,9 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
     try {
       await apiPost(`/sessions/${selectedSessionId}/complete`);
     } catch (err: any) {
-      toast.error(`Failed to complete session: ${err.message || 'Unknown error'}`);
+      toast.error(
+        `Failed to complete session: ${err.message || "Unknown error"}`,
+      );
       return;
     }
 
@@ -263,7 +270,9 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
     try {
       await apiDelete(`/sessions/${selectedSessionId}`);
     } catch (err: any) {
-      toast.error(`Failed to cancel session: ${err.message || 'Unknown error'}`);
+      toast.error(
+        `Failed to cancel session: ${err.message || "Unknown error"}`,
+      );
       return;
     }
     toast.success("Session cancelled");
@@ -292,7 +301,6 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
       return;
     }
 
-    // Update session via API
     try {
       await apiPatch(`/sessions/${selectedSessionId}`, {
         updateData: {
@@ -300,24 +308,22 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
           startTime: rescheduleData.startTime,
           endTime: rescheduleData.endTime,
         },
-        reason: 'Rescheduled by tutor',
+        reason: "Rescheduled by tutor",
       });
-    } catch (err: any) {
-      toast.error(`Failed to reschedule session: ${err.message || 'Unknown error'}`);
-      return;
-    }
+
+      const enrolledCount = selectedSession?.enrolledStudents?.length ?? 0;
+      toast.success(
+        `Session rescheduled to ${rescheduleData.date} at ${rescheduleData.startTime}. Notification sent to ${enrolledCount} enrolled student(s) via Messages.`,
       );
-      return;
+
+      fetchSessions();
+      setRescheduleDialogOpen(false);
+      setSelectedSessionId(null);
+    } catch (err: any) {
+      toast.error(
+        `Failed to reschedule session: ${err.message || "Unknown error"}`,
+      );
     }
-
-    const enrolledCount = selectedSession.enrolledStudents.length;
-    toast.success(
-      `Session rescheduled to ${rescheduleData.date} at ${rescheduleData.startTime}. Notification sent to ${enrolledCount} enrolled student(s) via Messages.`,
-    );
-
-    fetchSessions();
-    setRescheduleDialogOpen(false);
-    setSelectedSessionId(null);
   };
 
   // Get session color based on type
@@ -394,7 +400,7 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
                     <Label>Subject (from your expertise) *</Label>
                     <Select
                       value={newSession.subject}
-                      onValueChange={(v) =>
+                      onValueChange={(v: string) =>
                         setNewSession({ ...newSession, subject: v })
                       }
                     >
@@ -647,7 +653,7 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
       {/* Session Detail Dialog */}
       <Dialog
         open={!!selectedSessionId}
-        onOpenChange={(open) => !open && setSelectedSessionId(null)}
+        onOpenChange={(open: boolean) => !open && setSelectedSessionId(null)}
       >
         <DialogContent>
           <DialogHeader>
@@ -665,11 +671,7 @@ export function AvailabilityTab({ tutor }: AvailabilityTabProps) {
                 <div>
                   <p className="text-sm text-gray-600">Students</p>
                   <div className="mt-1 text-sm text-gray-800">
-                    {selectedStudentNames.length > 0 ? (
-                      <span>{studentNamesDisplay}</span>
-                    ) : (
-                      <span>{selectedSession.enrolledStudents.join(", ")}</span>
-                    )}
+                    <span>{studentNamesDisplay}</span>
                   </div>
                 </div>
               )}

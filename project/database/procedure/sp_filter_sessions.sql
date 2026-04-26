@@ -39,6 +39,9 @@ BEGIN
                 s.max_students,
                 s.location,
                 s.meeting_link,
+                s.notes,
+                s.summary,
+                s.recording_url,
                 COUNT(sp.student_id) AS current_students
         FROM sessions s
         LEFT JOIN subjects subj ON subj.id = s.subject_id
@@ -69,7 +72,10 @@ BEGIN
                 s.status,
                 s.max_students,
                 s.location,
-                s.meeting_link
+                s.meeting_link,
+                s.notes,
+                s.summary,
+                s.recording_url
         ORDER BY s.date, s.start_time ASC;
 END//
 
