@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  30 MAR 2026 08:59
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  26 APR 2026 10:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -2248,7 +2248,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [64]) (chapter/app.tex
 Chương 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 23--30
+Underfull \hbox (badness 10000) in paragraph at lines 26--27
 
  []
 
@@ -2289,7 +2289,412 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[67])
+[67]
+Underfull \hbox (badness 8075) in paragraph at lines 115--115
+[]|\TU/TimesNewRoman(0)/m/n/10.95 Lấy thông tin cá nhân chi tiết của một
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--115
+\TU/TimesNewRoman(0)/m/n/10.95 người dùng; dùng \TU/CourierNew(0)/m/n/10.95 LEF
+T JOIN \TU/TimesNewRoman(0)/m/n/10.95 với bảng
+ []
+
+
+Overfull \hbox (16.5261pt too wide) in paragraph at lines 118--118
+[]|\TU/CourierNew(0)/m/n/10.95 sp_update_user_profile| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (f) Join, (g)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+\TU/TimesNewRoman(0)/m/n/10.95 Subquery, (h)
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[68]
+Overfull \hbox (3.38396pt too wide) in paragraph at lines 146--146
+[]|\TU/CourierNew(0)/m/n/10.95 sp_get_user_subjects| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 148--149
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (f) Join, (d)
+ []
+
+
+Overfull \hbox (16.5261pt too wide) in paragraph at lines 154--154
+[]|\TU/CourierNew(0)/m/n/10.95 sp_remove_user_subject| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--157
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (b) Delete,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--157
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 176--177
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (e)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 176--177
+\TU/TimesNewRoman(0)/m/n/10.95 Composite
+ []
+
+
+Underfull \hbox (badness 1259) in paragraph at lines 180--181
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (d)
+ []
+
+
+Underfull \hbox (badness 1661) in paragraph at lines 184--185
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (a)
+ []
+
+
+Overfull \hbox (29.66823pt too wide) in paragraph at lines 186--186
+[]|\TU/CourierNew(0)/m/n/10.95 sp_cancel_session_notify| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 187--187
+[]|\TU/TimesNewRoman(0)/m/n/10.95 Phiên bản nâng cấp của
+ []
+
+
+Underfull \hbox (badness 1661) in paragraph at lines 188--189
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (a)
+ []
+
+
+Underfull \hbox (badness 1077) in paragraph at lines 188--189
+\TU/TimesNewRoman(0)/m/n/10.95 Insert, (f) Join,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 188--189
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Overfull \hbox (16.5261pt too wide) in paragraph at lines 190--190
+[]|\TU/CourierNew(0)/m/n/10.95 sp_update_session_time| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 192--193
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 192--193
+\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (d)
+ []
+
+
+Overfull \hbox (62.52356pt too wide) in paragraph at lines 194--194
+[]|\TU/CourierNew(0)/m/n/10.95 sp_update_session_time_notify| 
+ []
+
+
+Underfull \hbox (badness 1661) in paragraph at lines 196--197
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (a)
+ []
+
+
+Underfull \hbox (badness 1077) in paragraph at lines 196--197
+\TU/TimesNewRoman(0)/m/n/10.95 Insert, (f) Join,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--197
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Overfull \hbox (36.23929pt too wide) in paragraph at lines 198--198
+[]|\TU/CourierNew(0)/m/n/10.95 sp_update_session_summary| 
+ []
+
+
+Underfull \hbox (badness 1259) in paragraph at lines 200--201
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (d)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 204--205
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Underfull \hbox (badness 1642) in paragraph at lines 204--205
+\TU/TimesNewRoman(0)/m/n/10.95 cond., (f) Join,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 204--205
+\TU/TimesNewRoman(0)/m/n/10.95 (g) Subquery,
+ []
+
+
+Overfull \hbox (16.5261pt too wide) in paragraph at lines 206--206
+[]|\TU/CourierNew(0)/m/n/10.95 sp_add_student_session| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 208--209
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (e)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 208--209
+\TU/TimesNewRoman(0)/m/n/10.95 Composite
+ []
+
+
+Overfull \hbox (36.23929pt too wide) in paragraph at lines 210--210
+[]|\TU/CourierNew(0)/m/n/10.95 sp_remove_student_session| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 211--211
+[]|\TU/TimesNewRoman(0)/m/n/10.95 Hủy ghi danh sinh viên khỏi buổi học
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 211--211
+\TU/TimesNewRoman(0)/m/n/10.95 sau khi kiểm tra sinh viên có trong
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 212--213
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (b) Delete,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 212--213
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[69]
+Overfull \hbox (55.95248pt too wide) in paragraph at lines 230--230
+[]|\TU/CourierNew(0)/m/n/10.95 sp_create_reschedule_request| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--231
+[]|\TU/TimesNewRoman(0)/m/n/10.95 Tạo yêu cầu đổi lịch cho sinh viên đã
+ []
+
+
+Underfull \hbox (badness 3138) in paragraph at lines 231--231
+\TU/TimesNewRoman(0)/m/n/10.95 ghi danh; kiểm tra sinh viên tồn tại trong
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--231
+\TU/CourierNew(0)/m/n/10.95 session_participants \TU/TimesNewRoman(0)/m/n/10.95
+ bằng subquery
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 232--233
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (g)
+ []
+
+
+Overfull \hbox (55.95248pt too wide) in paragraph at lines 234--234
+[]|\TU/CourierNew(0)/m/n/10.95 sp_accept_reschedule_request| 
+ []
+
+
+Underfull \hbox (badness 1661) in paragraph at lines 236--237
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update, (a)
+ []
+
+
+Underfull \hbox (badness 1077) in paragraph at lines 236--237
+\TU/TimesNewRoman(0)/m/n/10.95 Insert, (f) Join,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 236--237
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Overfull \hbox (55.95248pt too wide) in paragraph at lines 238--238
+[]|\TU/CourierNew(0)/m/n/10.95 sp_reject_reschedule_request| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 240--241
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 240--241
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Overfull \hbox (42.81035pt too wide) in paragraph at lines 242--242
+[]|\TU/CourierNew(0)/m/n/10.95 sp_list_requests_for_tutor| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 244--245
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (f) Join, (d)
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[70]
+Underfull \hbox (badness 2057) in paragraph at lines 263--263
+\TU/TimesNewRoman(0)/m/n/10.95 thành; dùng \TU/CourierNew(0)/m/n/10.95 INSERT .
+.. ON DUPLICATE
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 264--265
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (c)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 264--265
+\TU/TimesNewRoman(0)/m/n/10.95 Update, (d)
+ []
+
+
+Overfull \hbox (9.95502pt too wide) in paragraph at lines 266--266
+[]|\TU/CourierNew(0)/m/n/10.95 sp_comment_by_session| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 268--269
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (f) Join, (d)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 288--289
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (a) Insert, (e)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 288--289
+\TU/TimesNewRoman(0)/m/n/10.95 Composite
+ []
+
+
+Overfull \hbox (23.09715pt too wide) in paragraph at lines 290--290
+[]|\TU/CourierNew(0)/m/n/10.95 sp_get_messages_between| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--293
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 296--297
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (c) Update,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 296--297
+\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Overfull \hbox (69.09462pt too wide) in paragraph at lines 298--298
+[]|\TU/CourierNew(0)/m/n/10.95 sp_list_notifications_for_user| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 307--307
+[]|\TU/TimesNewRoman(0)/m/n/10.95 Xóa một tài liệu khỏi thư viện theo
+ []
+
+
+Underfull \hbox (badness 7504) in paragraph at lines 307--307
+\TU/CourierNew(0)/m/n/10.95 resource_id\TU/TimesNewRoman(0)/m/n/10.95 ; kiểm tr
+a tồn tại sau khi
+ []
+
+
+Underfull \hbox (badness 3323) in paragraph at lines 308--309
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (b) Delete, (d)
+ []
+
+
+Overfull \hbox (3.38396pt too wide) in paragraph at lines 310--310
+[]|\TU/CourierNew(0)/m/n/10.95 sp_get_all_documents| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 312--313
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (f) Join, (h)
+ []
+
+
+Overfull \hbox (42.81035pt too wide) in paragraph at lines 314--314
+[]|\TU/CourierNew(0)/m/n/10.95 sp_get_documents_by_filter| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 316--317
+[]|\TU/TimesNewRoman(0)/m/n/10.95 (e) Composite
+ []
+
+
+Underfull \hbox (badness 1642) in paragraph at lines 316--317
+\TU/TimesNewRoman(0)/m/n/10.95 cond., (f) Join,
+ []
+
+File: bk_name_en.png Graphic file (type bmp)
+<bk_name_en.png>
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 32.34152pt, for example:
+(fancyhdr)                \setlength{\headheight}{32.34152pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
+
+[71])
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
 
@@ -2300,7 +2705,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[68]
+[72]
 Overfull \hbox (24.45653pt too wide) in paragraph at lines 153--154
 []\TU/TimesNewRoman(0)/m/n/12 Reference Link to Github: []$[][][][][] [] [] [] 
 [][][][][][] [] [][][] [] [][][][][][][][][] [] [][][][][][][][][][][][][][][][
@@ -2329,7 +2734,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-20.34152pt}.
 
-[69] 
+[73] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (c:/Users\khela\Downloads\DBMS\report\out\main.aux)
  ***********
@@ -2340,17 +2745,23 @@ L3 programming layer <2026-01-19>
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: C632718A18B351013CF715B6E4885BDD;8283.
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: A1367AFE0C5D68AE0FEF3A95AB86F5D4;8426
+(rerunfilecheck)             After:  1F8ED708C45A01BFF5F83ADEA790EF56;10098.
  ) 
 Here is how much of TeX's memory you used:
- 33701 strings out of 402983
- 709819 string characters out of 5454071
+ 33707 strings out of 402983
+ 709914 string characters out of 5454071
  1640340 words of memory out of 5000000
- 61771 multiletter control sequences out of 15000+600000
+ 61777 multiletter control sequences out of 15000+600000
  633191 words of font info for 107 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 86i,13n,99p,789b,2046s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 86i,13n,99p,758b,2046s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (69 pages).
+Output written on c:/Users\khela\Downloads\DBMS\report\out\main.pdf (73 pages).
 

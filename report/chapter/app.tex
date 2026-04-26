@@ -20,13 +20,31 @@ báo tự động và nhắc lịch qua giao diện hệ thống, giúp đảm b
 tiện cho cả hai bên.
 
 \section{Mô tả hệ thống}
-Người dùng đăng nhập vào qua các Tài khoản (Tên đăng nhập, mật khẩu, vai trò (Student, Tutor, Staff, Admin), userID). Sinh viên và gia sư gắn với một tài khoản. Sinh viên cần lưu trữ MSSV, tên, email, department còn Gia sư thì cần Mã gia sư, tên, email, department.\\
+Người dùng đăng nhập vào qua các Tài khoản (Tên đăng nhập, mật khẩu, vai trò (Student, Tutor, Staff, Admin), userID). Sinh viên và gia sư gắn với một tài khoản. Sinh viên cần lưu trữ MSSV, tên, email, department còn Gia sư thì cần Mã gia sư, tên, email, department.
+
+
 Các sinh viên có các môn học (Subject) muốn học, còn gia sư có các môn học muốn dạy.\\
-Gia sư có thể tạo các buổi học (Session) để các sinh viên tham gia, một buổi học chỉ có 1 gia sư dạy. Mỗi buổi học chỉ dạy 1 môn học, cần lưu trữ ngày bắt đầu buổi học, thời gian bắt đầu / kết thúc, kiểu buổi học (online, offline), trạng thái buổi học (Đang mở, hoàn thành), số học sinh tối đa. Nếu buổi học là online thì cần lưu trữ link meet để tham gia, còn nếu offline thì cần lưu số phòng tham gia. Trước buổi học, gia sư có thể note vào buổi học để mô tả những gì cần chuẩn bị; sau khi buổi học hoàn thành thì có thể ghi tóm tắt buổi học và link record. Gia sư có thể hoàn thành hoặc hủy buổi học để chuyển nó về trạng thái tương ứng. Gia sư có thể đổi lịch học bằng cách đổi ngày hoặc giờ bắt đầu / kết thúc.\\
-Sinh viên có thể tham gia vào các buổi học nếu nó nằm trong danh sách các môn muốn học của cậu ấy và buổi học đang mở chưa đầy. Sau khi buổi học hoàn thành, sinh viên có thể đánh giá buổi học (1-5) và comment về buổi học. Sinh viên có thể gửi yêu cầu đổi lịch học (Request) đến gia sư nếu muốn đổi lịch học. Yêu cầu phải gắn với một buổi học, có ngày, giờ bắt đầu / kết thúc và lý do muốn đổi. Nếu gia sư đồng ý đổi thì buổi học sẽ đổi thành ngày giờ mới, nếu không thì không có gì xảy ra. \\
-Hệ thống còn kết nối với thư viện, người dùng có thể xem các tài liệu ở đây. Các tài liệu có title, type(textbook, document, video,article), author, url. Mỗi tài liệu liên quan đến 1 hoặc nhiều môn học.\\
-Hệ thống còn kết nối với một hệ thống nhắn tin để chat với nhau. Một tin nhắn có người gửi, người nhận, nội dung, thời gian, trạng thái (đã đọc / chưa đọc).\\
-Hệ thống còn kết nối với một hệ thống thông báo để báo những thông tin cần thiết cho sinh viên. Một thông báo có thời gian, nội dung, loại thông báo.\\
+
+
+Gia sư có thể tạo các buổi học (Session) để các sinh viên tham gia, một buổi học chỉ có 1 gia sư dạy. Mỗi buổi học chỉ dạy 1 môn học, cần lưu trữ ngày bắt đầu buổi học, thời gian bắt đầu / kết thúc, kiểu buổi học (online, offline), trạng thái buổi học (Đang mở, hoàn thành), số học sinh tối đa. Nếu buổi học là online thì cần lưu trữ link meet để tham gia, còn nếu offline thì cần lưu số phòng tham gia. 
+
+
+Trước buổi học, gia sư có thể note vào buổi học để mô tả những gì cần chuẩn bị; sau khi buổi học hoàn thành thì có thể ghi tóm tắt buổi học và link record. Gia sư có thể hoàn thành hoặc hủy buổi học để chuyển nó về trạng thái tương ứng. Gia sư có thể đổi lịch học bằng cách đổi ngày hoặc giờ bắt đầu / kết thúc.
+
+
+Sinh viên có thể tham gia vào các buổi học mà gia sư tạo ra nếu buổi học đang mở chưa đầy. Sau khi buổi học hoàn thành, sinh viên có thể đánh giá buổi học (1-5) và comment về buổi học. 
+
+
+Sinh viên có thể gửi yêu cầu đổi lịch học (Request) đến gia sư nếu muốn đổi lịch học. Yêu cầu phải gắn với một buổi học, có ngày, giờ bắt đầu / kết thúc và lý do muốn đổi. Nếu gia sư đồng ý đổi thì buổi học sẽ đổi thành ngày giờ mới, nếu không thì không có gì xảy ra. 
+
+
+Hệ thống còn kết nối với thư viện, người dùng có thể xem các tài liệu ở đây. Các tài liệu có title, type(textbook, document, video,article), author, url. Mỗi tài liệu liên quan đến 1 hoặc nhiều môn học.
+
+
+Hệ thống còn kết nối với một hệ thống nhắn tin để chat với nhau. Một tin nhắn có người gửi, người nhận, nội dung, thời gian, trạng thái (đã đọc / chưa đọc).
+
+
+Hệ thống còn kết nối với một hệ thống thông báo để báo những thông tin cần thiết cho sinh viên. Một thông báo có thời gian, nội dung, loại thông báo.
 
 \section{Lựa chọn DBMS}
 
@@ -65,4 +83,238 @@ Hệ thống còn kết nối với một hệ thống thông báo để báo nh
     \includegraphics[width=0.8\textwidth]{figures/Kha/mapping.drawio.png}
     \caption{Mapping của hệ thống HCMUT\_Tutor}
 \end{figure}
+
+\section{Stored Procedures}
+
+Hệ thống sử dụng Stored Procedures để đóng gói toàn bộ logic nghiệp vụ tại tầng cơ sở dữ liệu,
+giúp đảm bảo tính nhất quán, toàn vẹn dữ liệu và đơn giản hóa tầng backend.
+Các stored procedure được chia thành 6 nhóm chức năng chính.
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Xác thực và Hồ sơ người dùng}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý xác thực và hồ sơ người dùng}
+\label{tab:sp_auth}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_register\_user} &
+  Tạo tài khoản người dùng mới trong bảng \texttt{users} với đầy đủ thông tin đăng nhập và vai trò. &
+  (a) Insert \\
+\hline
+\texttt{sp\_login} &
+  Xác thực người dùng bằng username/password, trả về \texttt{userID} và \texttt{role} nếu khớp. &
+  (d) Single cond. \\
+\hline
+\texttt{sp\_get\_user\_info} &
+  Lấy thông tin cá nhân chi tiết của một người dùng; dùng \texttt{LEFT JOIN} với bảng \texttt{students}/\texttt{tutors} và \texttt{COALESCE} để xử lý cả hai vai trò. &
+  (f) Join \\
+\hline
+\texttt{sp\_update\_user\_profile} &
+  Cập nhật tên và khoa của người dùng; rẽ nhánh theo role để cập nhật đúng bảng con (\texttt{students} hoặc \texttt{tutors}). &
+  (c) Update \\
+\hline
+\texttt{sp\_get\_all\_students} &
+  Lấy danh sách tất cả sinh viên bằng cách join \texttt{users} với \texttt{students}. &
+  (f) Join \\
+\hline
+\texttt{sp\_get\_all\_tutors} &
+  Lấy danh sách tất cả gia sư kèm rating trung bình và tổng số buổi hoàn thành, dùng subquery \texttt{COALESCE(AVG(...))} và \texttt{COUNT(*)}. &
+  (f) Join, (g) Subquery, (h) Aggregate \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Quản lý môn học người dùng}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý môn học của người dùng}
+\label{tab:sp_subjects}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_get\_user\_subjects} &
+  Lấy danh sách môn học của một người dùng thông qua bảng trung gian \texttt{user\_subjects}. &
+  (f) Join, (d) Single cond. \\
+\hline
+\texttt{sp\_add\_user\_subject} &
+  Thêm một môn học vào danh sách của người dùng; dùng \texttt{INSERT IGNORE} để tránh trùng lặp. &
+  (a) Insert \\
+\hline
+\texttt{sp\_remove\_user\_subject} &
+  Xóa một môn học khỏi danh sách của người dùng theo điều kiện kép \texttt{user\_id} và \texttt{subject\_id}. &
+  (b) Delete, (e) Composite cond. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Quản lý Buổi học (Session)}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý buổi học}
+\label{tab:sp_sessions}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_create\_session} &
+  Tạo buổi học mới; kiểm tra trùng lịch gia sư bằng điều kiện chồng thời gian, sinh UUID và insert vào \texttt{sessions} trong transaction. &
+  (a) Insert, (e) Composite cond. \\
+\hline
+\texttt{sp\_complete\_session} &
+  Chuyển trạng thái buổi học sang \texttt{completed}; idempotent (không lỗi nếu đã completed). &
+  (c) Update, (d) Single cond. \\
+\hline
+\texttt{sp\_cancel\_session} &
+  Hủy buổi học và tự động gửi thông báo đến tất cả sinh viên đang tham gia thông qua \texttt{INSERT ... SELECT}. &
+  (c) Update, (a) Insert, (f) Join-select \\
+\hline
+\texttt{sp\_cancel\_session\_notify} &
+  Phiên bản nâng cấp của \texttt{sp\_cancel\_session}: join với \texttt{subjects} để lấy tên môn và đưa vào nội dung thông báo; có kiểm tra idempotent. &
+  (c) Update, (a) Insert, (f) Join, (e) Composite cond. \\
+\hline
+\texttt{sp\_update\_session\_time} &
+  Cập nhật ngày giờ buổi học và gửi thông báo \texttt{reschedule} tới sinh viên bằng \texttt{INSERT ... SELECT} với \texttt{CONCAT}. &
+  (c) Update, (a) Insert, (d) Single cond. \\
+\hline
+\texttt{sp\_update\_session\_time\_notify} &
+  Phiên bản nâng cấp: kiểm tra trùng lịch trước khi đổi giờ, join \texttt{subjects} lấy tên môn cho thông báo, bảo vệ bằng transaction. &
+  (c) Update, (a) Insert, (f) Join, (e) Composite cond. \\
+\hline
+\texttt{sp\_update\_session\_summary} &
+  Cập nhật tóm tắt và link recording sau khi buổi học hoàn thành; chỉ cho phép khi \texttt{status = 'completed'}. &
+  (c) Update, (d) Single cond. \\
+\hline
+\texttt{sp\_filter\_sessions} &
+  Lọc buổi học theo nhiều tiêu chí (gia sư, sinh viên, môn học, ngày, trạng thái, loại hình); dùng \texttt{LEFT JOIN}, subquery kiểm tra sinh viên tham gia, và \texttt{GROUP BY} với \texttt{COUNT} để đếm số sinh viên hiện tại. &
+  (e) Composite cond., (f) Join, (g) Subquery, (h) Aggregate \\
+\hline
+\texttt{sp\_add\_student\_session} &
+  Ghi danh sinh viên vào buổi học; kiểm tra trạng thái mở, chưa tham gia, và chưa đầy chỗ với \texttt{FOR UPDATE} để tránh race condition. &
+  (a) Insert, (e) Composite cond. \\
+\hline
+\texttt{sp\_remove\_student\_session} &
+  Hủy ghi danh sinh viên khỏi buổi học sau khi kiểm tra sinh viên có trong \texttt{session\_participants}. &
+  (b) Delete, (e) Composite cond. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Yêu cầu đổi lịch (Reschedule Request)}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý yêu cầu đổi lịch}
+\label{tab:sp_reschedule}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_create\_reschedule\_request} &
+  Tạo yêu cầu đổi lịch cho sinh viên đã ghi danh; kiểm tra sinh viên tồn tại trong \texttt{session\_participants} bằng subquery trước khi insert. &
+  (a) Insert, (g) Subquery \\
+\hline
+\texttt{sp\_accept\_reschedule\_request} &
+  Chấp nhận yêu cầu: kiểm tra trùng lịch, cập nhật thời gian buổi học, gửi thông báo cho toàn bộ sinh viên, và đánh dấu yêu cầu là \texttt{accepted} trong một transaction. &
+  (c) Update, (a) Insert, (f) Join, (e) Composite cond. \\
+\hline
+\texttt{sp\_reject\_reschedule\_request} &
+  Từ chối yêu cầu đổi lịch đang pending; chỉ cập nhật trạng thái \texttt{session\_requests}, không thay đổi buổi học. &
+  (c) Update, (e) Composite cond. \\
+\hline
+\texttt{sp\_list\_requests\_for\_tutor} &
+  Liệt kê tất cả yêu cầu đổi lịch gửi đến một gia sư, kèm thông tin buổi học hiện tại và tên môn học. &
+  (f) Join, (d) Single cond. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Đánh giá và Bình luận (Comment)}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý đánh giá buổi học}
+\label{tab:sp_comment}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_add\_comment} &
+  Thêm mới hoặc cập nhật đánh giá (rating 1--5 và nhận xét) của sinh viên cho một buổi học đã hoàn thành; dùng \texttt{INSERT ... ON DUPLICATE KEY UPDATE}. &
+  (a) Insert, (c) Update, (d) Single cond. \\
+\hline
+\texttt{sp\_comment\_by\_session} &
+  Lấy toàn bộ đánh giá của một buổi học kèm tên sinh viên; join qua \texttt{comment} $\rightarrow$ \texttt{students} $\rightarrow$ \texttt{users}. &
+  (f) Join, (d) Single cond. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Nhóm Tin nhắn, Thông báo và Thư viện}
+% ------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Stored procedures quản lý tin nhắn, thông báo và tài liệu}
+\label{tab:sp_misc}
+\small
+\begin{tabular}{|p{4.5cm}|p{7.5cm}|p{2.5cm}|}
+\hline
+\textbf{Procedure} & \textbf{Chức năng} & \textbf{Query types} \\
+\hline
+\texttt{sp\_send\_message} &
+  Gửi một tin nhắn mới giữa hai người dùng khác nhau; sinh UUID và insert vào bảng \texttt{message}. &
+  (a) Insert, (e) Composite cond. \\
+\hline
+\texttt{sp\_get\_messages\_between} &
+  Lấy lịch sử hội thoại hai chiều giữa hai người dùng, sắp xếp theo thời gian. &
+  (e) Composite cond. \\
+\hline
+\texttt{sp\_mark\_as\_read} &
+  Đánh dấu tất cả tin nhắn từ một người gửi tới người nhận là đã đọc (\texttt{status = 'READ'}). &
+  (c) Update, (e) Composite cond. \\
+\hline
+\texttt{sp\_list\_notifications\_for\_user} &
+  Lấy tất cả thông báo của một người dùng, sắp xếp theo thời gian gửi giảm dần. &
+  (d) Single cond. \\
+\hline
+\texttt{sp\_add\_document} &
+  Thêm tài liệu mới vào thư viện với đầy đủ tiêu đề, tác giả, loại và URL. &
+  (a) Insert \\
+\hline
+\texttt{sp\_delete\_document} &
+  Xóa một tài liệu khỏi thư viện theo \texttt{resource\_id}; kiểm tra tồn tại sau khi xóa. &
+  (b) Delete, (d) Single cond. \\
+\hline
+\texttt{sp\_get\_all\_documents} &
+  Lấy toàn bộ tài liệu kèm danh sách môn học liên quan; dùng \texttt{LEFT JOIN} và \texttt{GROUP\_CONCAT} để gộp tên môn. &
+  (f) Join, (h) Aggregate \\
+\hline
+\texttt{sp\_get\_documents\_by\_filter} &
+  Lọc tài liệu theo tiêu đề (LIKE) và/hoặc loại tài liệu; dùng \texttt{LEFT JOIN}, \texttt{GROUP\_CONCAT} và điều kiện kép tùy chọn. &
+  (e) Composite cond., (f) Join, (h) Aggregate \\
+\hline
+\end{tabular}
+\end{table}
 
