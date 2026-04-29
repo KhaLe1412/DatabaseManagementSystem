@@ -50,7 +50,7 @@ Hệ thống còn kết nối với một hệ thống thông báo để báo nh
 
 Để xây dựng hệ thống HCMUT\_Tutor, việc lựa chọn một hệ quản trị cơ sở dữ liệu (DBMS) phù hợp là rất quan trọng. DBMS sẽ đóng vai trò trung tâm trong việc lưu trữ, quản lý và truy xuất dữ liệu của hệ thống. Sau khi phân tích các yêu cầu nghiệp vụ, nhóm đã cân nhắc giữa hai lựa chọn phổ biến là \textbf{MySQL} và \textbf{Redis}. Dưới đây là so sánh và lý do lựa chọn:
 
-\subsection*{So sánh MySQL và Redis cho hệ thống Student-Tutor}
+\subsection{So sánh MySQL và Redis cho hệ thống Student-Tutor}
 \begin{itemize}
     \item \textbf{MySQL} là hệ quản trị cơ sở dữ liệu quan hệ (RDBMS), hỗ trợ lưu trữ dữ liệu có cấu trúc, quan hệ phức tạp, đảm bảo tính toàn vẹn và hỗ trợ các truy vấn phức tạp (JOIN, aggregate, transaction).
     \item \textbf{Redis} là hệ quản trị cơ sở dữ liệu NoSQL dạng key-value, phù hợp cho cache, lưu trữ tạm thời, hoặc các tác vụ real-time messaging, nhưng không hỗ trợ tốt các quan hệ phức tạp, không có transaction mạnh như MySQL.
@@ -58,7 +58,7 @@ Hệ thống còn kết nối với một hệ thống thông báo để báo nh
     \item Redis có thể dùng bổ sung cho các chức năng như cache, queue thông báo, hoặc chat real-time, nhưng không phù hợp làm DBMS chính cho hệ thống nghiệp vụ phức tạp.
 \end{itemize}
 
-\subsection*{Lý do chọn MySQL làm DBMS chính}
+\subsection{Lý do chọn MySQL làm DBMS chính}
 \begin{itemize}
     \item \textbf{Dữ liệu quan hệ phức tạp:} Hệ thống có nhiều bảng liên kết (nhiều-nhiều, một-nhiều), cần JOIN và ràng buộc toàn vẹn dữ liệu.
     \item \textbf{Hỗ trợ transaction mạnh:} Đảm bảo các thao tác như đăng ký buổi học, đổi lịch, đánh giá đều nhất quán, tránh double-booking hoặc mất dữ liệu.
@@ -318,3 +318,72 @@ Các stored procedure được chia thành 6 nhóm chức năng chính.
 \end{tabular}
 \end{table}
 
+\section{Demo App}
+\subsection{Giao diện của Student}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/student_home.png}
+    \caption{Trang chủ của sinh viên}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/student_session.png}
+    \caption{Trang đăng ký môn học của sinh viên}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/student_session_list.png}
+    \caption{Trang biểu diễn danh sách buổi học của sinh viên dưới dạng lịch}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/student_profile.png}
+    \caption{Trang chi tiết hồ sơ của sinh viên}
+\end{figure}
+
+\subsection{Giao diện của Tutor}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/tutor_home.png}
+    \caption{Trang chủ của gia sư}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/tutor_session.png}
+    \caption{Trang quản lý buổi học của gia sư}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/tutor_reschedule.png}
+    \caption{Trang danh sách đổi lịch học của gia sư}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/tutor_profile.png}
+    \caption{Trang chi tiết hồ sơ của gia sư}
+\end{figure}
+
+\subsection{Các chức năng khác}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/library.png}
+    \caption{Trang thư viện tài liệu}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/notification.png}
+    \caption{Trang thông báo của người dùng}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Kha/message.png}
+    \caption{Trang tin nhắn giữa hai người dùng}
+\end{figure}

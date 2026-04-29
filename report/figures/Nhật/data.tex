@@ -1,4 +1,4 @@
-\section{Data Storage and Management}
+﻿\section{Data Storage and Management}
 
 \subsection{Mục tiêu}
 Mục tiêu của phần này là phân tích sự khác biệt cốt lõi trong kiến trúc lưu trữ vật lý, cách quản lý không gian và cơ chế độ bền dữ liệu giữa \textbf{MySQL} (Relational DBMS) và \textbf{Redis} (In-memory NoSQL). Báo cáo sẽ đi từ cấu trúc lưu trữ cơ bản đến các kỹ thuật tối ưu hóa chuyên sâu (như Eviction, Internal Encodings, Fragmentation), đồng thời thực hiện Benchmark để so sánh mức tiêu thụ tài nguyên lưu trữ (Storage Footprint) thông qua tập dữ liệu \textit{BikeStores} và \textit{Sales Transactions}.
@@ -133,7 +133,7 @@ Nhóm sử dụng lệnh \texttt{DBSIZE} để đếm tổng số lượng Key h
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_memo2.png}
     \caption{Dung lượng RAM tiêu thụ của tập dữ liệu trong Redis (tiếp)}
-    \label{fig:placeholder}
+    \label{fig:data-1}
 \end{figure}
 
 \textbf{Dung lượng lưu trữ thực tế:} Tiêu hao khoảng \textbf{2.00 MB} bộ nhớ RAM để quản lý tổng cộng \textbf{12,165 Keys}.
