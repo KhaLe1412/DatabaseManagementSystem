@@ -1,7 +1,5 @@
-import time
 import mysql.connector
 import redis
-from pathlib import Path
 
 # Cấu hình kết nối
 MYSQL_CONFIG = {
@@ -13,11 +11,15 @@ MYSQL_CONFIG = {
 }
 
 REDIS_CONFIG = {
-    'host': 'localhost',
+    'host': '127.0.0.1',
     'port': 6379,
     'password': None,
-    'decode_responses': True, 
+    'decode_responses': True,
 }
+
+
+def _cmd_usec(stats: dict, cmd: str) -> int:
+    return int(stats.get(f"cmdstat_{cmd}", {}).get("usec", 0))
 
 def test_composite_query_engine_time(store_id=1, status=4, start_date='2017-01-01', end_date='2017-12-31', iterations=1000):
     print("\n" + "="*70)
@@ -119,10 +121,20 @@ def test_composite_query_engine_time(store_id=1, status=4, start_date='2017-01-0
     
     store_key = f"sales:orders:store:{store_id}"
     print(f"\n--- Redis (Dùng Set Store + Lọc thủ công bằng Lua) ---")
-    
-    start_redis = time.time()
+
+    redis_client.ping()
+    query_script(keys=[store_key], args=[status, start_date, end_date, 1])
+
+    redis_client.execute_command("CONFIG RESETSTAT")
     query_script(keys=[store_key], args=[status, start_date, end_date, iterations])
-    redis_total_time = time.time() - start_redis
+    redis_stats = redis_client.info("commandstats")
+    redis_usecs = (
+        _cmd_usec(redis_stats, "eval") +
+        _cmd_usec(redis_stats, "evalsha") +
+        _cmd_usec(redis_stats, "smembers") +
+        _cmd_usec(redis_stats, "hget")
+    )
+    redis_total_time = redis_usecs / 1000000.0
     
     print(f"Total time for {iterations} iters: {redis_total_time:.4f}s")
 

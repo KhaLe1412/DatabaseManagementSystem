@@ -1,9 +1,5 @@
-import time
-import subprocess
-from pathlib import Path
 import mysql.connector
 import redis
-import shlex
 
 MYSQL_CONFIG = {
     'host': '127.0.0.1',
@@ -14,143 +10,123 @@ MYSQL_CONFIG = {
 }
 
 REDIS_CONFIG = {
-    'host': 'localhost',
+    'host': '127.0.0.1',
     'port': 6379,
     'password': None,
-    'decode_responses': True, 
+    'decode_responses': True,
 }
 
-def insert_data_mysql(count=10000):
-    # Thư mục chứa file SQL
-    project_root = Path(__file__).resolve().parents[2]
-    load_sql = project_root / "test_src" / "indexing" / "large_insert_data.sql"
 
-    def _run_sql_file_timed(file_path: Path):
-        # Kết nối nhanh để dọn dẹp bảng trước khi nạp
-        tmp_conn = mysql.connector.connect(**MYSQL_CONFIG) # Dùng config của bạn
-        tmp_cursor = tmp_conn.cursor()
-        
-        # 1. Xóa dữ liệu cũ để đo tốc độ ghi mới hoàn toàn
-        tmp_cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
-        tmp_cursor.execute("TRUNCATE TABLE production.products;")
-        
-        # 2. Đảm bảo chỉ có 1 index cho brand_id để công bằng với Redis
-        try:
-            tmp_cursor.execute("ALTER TABLE production.products DROP INDEX IF EXISTS idx_products_brand;")
-            tmp_cursor.execute("CREATE INDEX idx_products_brand ON production.products(brand_id);")
-        except: pass
-        
-        tmp_conn.commit()
-        tmp_cursor.close()
-        tmp_conn.close()
+def _cmd_usec(stats: dict, cmd: str) -> int:
+    return int(stats.get(f"cmdstat_{cmd}", {}).get("usec", 0))
 
-        # 3. Bắt đầu đo thời gian nạp từ file SQL
-        print(f"🔄 Đang nạp 10,000 dòng từ file: {file_path.name}...")
-        
-        sql_script = file_path.read_text(encoding="utf-8-sig")
-        # Bọc script bằng lệnh tắt check khóa ngoại để tăng tốc độ ghi (như Redis)
-        full_script = "SET FOREIGN_KEY_CHECKS = 0;\n" + sql_script + "\nSET FOREIGN_KEY_CHECKS = 1;"
 
-        command = [
-            "docker", "exec", "-i", "mysql_benchmark", 
-            "mysql", "-uroot", "-p123456"
-        ]
+def insert_data_mysql_engine_only(count: int = 10000):
+    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    cursor = conn.cursor()
 
-        start_time = time.time() # BẮT ĐẦU ĐO
-        try:
-            result = subprocess.run(
-                command, 
-                input=full_script, 
-                text=True, 
-                encoding="utf-8",
-                capture_output=True
-            )
-            elapsed_time = time.time() - start_time # KẾT THÚC ĐO
-            
-            if result.returncode == 0:
-                print(f"✅ Đã nạp thành công trong: {elapsed_time:.4f}s")
-                return elapsed_time
-            else:
-                print(f"❌ Lỗi từ MySQL: {result.stderr}")
-                return None
-                
-        except Exception as e:
-            print(f"❌ Lỗi hệ thống: {e}")
-            return None
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS production.products_insert_benchmark (
+            product_id INT AUTO_INCREMENT PRIMARY KEY,
+            product_name VARCHAR(255) NOT NULL,
+            brand_id INT NOT NULL,
+            list_price DECIMAL(10,2) NOT NULL,
+            INDEX idx_products_insert_brand (brand_id)
+        ) ENGINE=InnoDB;
+        """
+    )
+    conn.commit()
 
-    # Thực hiện nạp và lấy thời gian
-    mysql_time = _run_sql_file_timed(load_sql)
+    sp_sql = """
+    CREATE PROCEDURE measure_mysql_insert(IN p_count INT, OUT p_time_sec DECIMAL(10,4))
+    BEGIN
+        DECLARE v_start TIMESTAMP(6);
+        DECLARE v_end TIMESTAMP(6);
+        DECLARE i INT DEFAULT 0;
 
-    if mysql_time:
-        print(f"\n--- Kết quả MySQL ---")
-        print(f"Total time to insert {count} rows: {mysql_time:.4f}s")
+        TRUNCATE TABLE production.products_insert_benchmark;
 
-def insert_data_redis(count=10000):
+        SET v_start = SYSDATE(6);
+        WHILE i < p_count DO
+            INSERT INTO production.products_insert_benchmark(product_name, brand_id, list_price)
+            VALUES (CONCAT('bench_mysql_', i), 1 + (i MOD 10), 1000 + (i MOD 100));
+            SET i = i + 1;
+        END WHILE;
+        SET v_end = SYSDATE(6);
+
+        SET p_time_sec = TIMESTAMPDIFF(MICROSECOND, v_start, v_end) / 1000000.0;
+    END
+    """
+
+    cursor.execute("DROP PROCEDURE IF EXISTS measure_mysql_insert;")
+    cursor.execute(sp_sql)
+
+    cursor.execute("CALL measure_mysql_insert(%s, @p_time_sec)", (count,))
+    while cursor.nextset():
+        pass
+    cursor.execute("SELECT @p_time_sec")
+    mysql_time = float(cursor.fetchone()[0])
+
+    print("--- MySQL (Engine-side INSERT + Index Update) --- \tTime: {:.4f}s".format(mysql_time))
+
+    cursor.close()
+    conn.close()
+
+
+def insert_data_redis_engine_only(count: int = 10000):
     client = redis.Redis(**REDIS_CONFIG)
-    try:
-        project_root = Path(__file__).resolve().parents[2]
-        # Sử dụng file minimal đã lọc (chỉ chứa HSET và 1 SADD brand) để công bằng
-        commands_file = project_root / "test_src" / "indexing" / "large_insert_data.txt"
 
-        if not commands_file.exists():
-            print(f"⚠️ Không tìm thấy file: {commands_file}")
-            return
+    REDIS_LUA_INSERT = """
+    local n = tonumber(ARGV[1])
+    local run_id = ARGV[2]
+    local brand_key = 'benchmark:run:' .. run_id .. ':products:brand:1'
 
-        print(f"🚀 Đang chuẩn bị nạp {count} bản ghi vào Redis bằng Pipeline...")
-        
-        # 1. Khởi tạo Pipeline
-        pipe = client.pipeline(transaction=False)
-        
-        # Bắt đầu đo thời gian
-        start_time = time.time()
-        
-        command_count = 0
-        with commands_file.open(encoding="utf-8") as f:
-            for raw in f:
-                line = raw.strip()
-                if not line or line.startswith('#'):
-                    continue
-                
-                try:
-                    parts = shlex.split(line)
-                    if not parts:
-                        continue
-                    
-                    # 2. Đưa lệnh vào hàng chờ pipeline
-                    pipe.execute_command(*parts)
-                    command_count += 1
-                    
-                    # Thực thi mỗi batch 500 lệnh để tối ưu bộ nhớ
-                    if command_count % 500 == 0:
-                        pipe.execute()
-                        
-                except Exception as e:
-                    print(f"❌ Lỗi lệnh: '{line}' -> {e}")
+    for i = 1, n do
+        local pid = tostring(i)
+        local key = 'benchmark:run:' .. run_id .. ':product:' .. pid
+        redis.call('HSET', key,
+            'product_name', 'bench_redis_' .. pid,
+            'brand_id', '1',
+            'list_price', tostring(1000 + (i % 100))
+        )
+        redis.call('SADD', brand_key, pid)
+    end
+    return 'DONE'
+    """
 
-        # Thực thi nốt các lệnh còn lại
-        pipe.execute()
-        
-        # 3. Kết thúc đo thời gian
-        end_time = time.time()
-        total_time = end_time - start_time
+    query_script = client.register_script(REDIS_LUA_INSERT)
 
-        print("="*60)
-        print(f"✅ Redis nạp dữ liệu hoàn tất!")
-        print(f"--- Tổng thời gian: {total_time:.4f} giây")
-        print("="*60)
-        
-        return total_time
+    # Warm-up để loại bỏ chi phí kết nối/script-load lần đầu
+    client.ping()
+    query_script(args=[1, "warmup"])
 
-    except Exception as e:
-        print(f"❌ Lỗi hệ thống khi nạp Redis: {e}")
-        return None
+    run_id = str(client.incr("benchmark:run_id"))
+
+    client.execute_command("CONFIG RESETSTAT")
+    query_script(args=[count, run_id])
+    stats = client.info("commandstats")
+
+    redis_usecs = (
+        _cmd_usec(stats, "eval") +
+        _cmd_usec(stats, "evalsha") +
+        _cmd_usec(stats, "hset") +
+        _cmd_usec(stats, "sadd")
+    )
+    redis_time = redis_usecs / 1000000.0
+
+    print("--- Redis (Engine-side HSET + SADD) --- \tTime: {:.4f}s".format(redis_time))
+
+
+def test_insert_engine_time(count: int = 10000):
+    print("\n" + "=" * 70)
+    print(f"TEST 5: INSERT PERFORMANCE (DBMS-only, {count} rows)")
+    print("MySQL: INSERT + 1 B-Tree Index | Redis: HSET + SADD")
+    print("=" * 70)
+
+    insert_data_mysql_engine_only(count)
+    insert_data_redis_engine_only(count)
 
 
 if __name__ == "__main__":
-    print("\n" + "="*70)
-    print(f"🚀 TEST 5: INSERT PERFORMANCE (10,000 ROWS + 1 INDEX)")
-    print("MySQL: 1 INSERT | Redis: 1 HSET + 1 SADD (Pipeline)")
-    print("="*70)
-
-    insert_data_mysql()
-    insert_data_redis()
+    test_insert_engine_time(count=10000)

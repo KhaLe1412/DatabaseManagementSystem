@@ -1,4 +1,3 @@
-import time
 import mysql.connector
 import redis
 
@@ -7,7 +6,7 @@ MYSQL_CONFIG = {
     'host': '127.0.0.1', 'port': 3306, 'user': 'root', 'password': '123456', 'database': 'sales_benchmark'
 }
 REDIS_CONFIG = {
-    'host': 'localhost', 'port': 6379, 'password': None, 'decode_responses': True
+    'host': '127.0.0.1', 'port': 6379, 'password': None, 'decode_responses': True
 }
 
 def test_pure_engine_time(brand_id: int = 9, iterations: int = 1000):
@@ -77,10 +76,26 @@ def test_pure_engine_time(brand_id: int = 9, iterations: int = 1000):
     """
     query_script = redis_client.register_script(REDIS_LUA_FETCH)
     brand_key = f"production:products:brand:{brand_id}"
-    
-    start_redis = time.time()
+
+    # Warm-up để loại bỏ chi phí kết nối/script-load ở lần gọi đầu tiên
+    redis_client.ping()
+    query_script(keys=[brand_key], args=[1])
+
+    # Engine-side time cho Redis: lấy CPU usec tích lũy theo commandstats
+    redis_client.execute_command("CONFIG RESETSTAT")
     query_script(keys=[brand_key], args=[iterations])
-    redis_time = time.time() - start_redis
+    stats = redis_client.info("commandstats")
+
+    def get_usec(cmd: str) -> int:
+        return int(stats.get(f"cmdstat_{cmd}", {}).get("usec", 0))
+
+    redis_usecs = (
+        get_usec("eval") +
+        get_usec("evalsha") +
+        get_usec("smembers") +
+        get_usec("hgetall")
+    )
+    redis_time = redis_usecs / 1000000.0
     
     print(f"--- Redis (Set Index + Hash Fetch) --- \tTime: {redis_time:.4f}s")
 
