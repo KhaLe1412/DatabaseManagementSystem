@@ -993,22 +993,52 @@ return redis.call('DECRBY', KEYS[1], tonumber(ARGV[1]))
 
 STOCK_KEY_LUA = "atomicity_test:stock"
 
-def test_lua_atomicity():
-    print("\n" + "=" * 70)
-    print("TEST 11: Redis Lua Script Atomicity")
-    print("=" * 70)
 
-    NUM_THREADS    = 10
-    OPS_PER_THREAD = 15
-    INITIAL        = 100   # only 100 in stock; total requests = 150 → 50 should be denied
-
+def _run_non_atomic(num_threads: int, ops_per_thread: int, initial: int) -> dict:
+    """
+    Phần A: GET → kiểm tra → DECRBY (KHÔNG atomic).
+    Giữa GET và DECRBY có sleep nhỏ để cố tình tạo race window.
+    """
     r = get_redis()
-    r.set(STOCK_KEY_LUA, INITIAL)
+    r.set(STOCK_KEY_LUA, initial)
 
-    print(f"""
-Scenario: {NUM_THREADS} threads × {OPS_PER_THREAD} ops, initial stock = {INITIAL}
-  (Total requests = {NUM_THREADS * OPS_PER_THREAD}, should = {INITIAL})
-""")
+    success_counts = []
+    denied_counts  = []
+    lock           = threading.Lock()
+
+    def non_atomic_worker():
+        rc  = get_redis()
+        suc = den = 0
+        for _ in range(ops_per_thread):
+            qty = int(rc.get(STOCK_KEY_LUA) or 0)   # STEP 1: GET
+            time.sleep(0.0005)                        # race window — context switch có thể xảy ra
+            if qty <= 0:
+                den += 1
+            else:
+                rc.decrby(STOCK_KEY_LUA, 1)           # STEP 2: DECRBY (tách rời → không atomic)
+                suc += 1
+        with lock:
+            success_counts.append(suc)
+            denied_counts.append(den)
+
+    threads = [threading.Thread(target=non_atomic_worker) for _ in range(num_threads)]
+    for t in threads: t.start()
+    for t in threads: t.join()
+
+    return {
+        'final'  : int(r.get(STOCK_KEY_LUA) or 0),
+        'success': sum(success_counts),
+        'denied' : sum(denied_counts),
+    }
+
+
+def _run_lua_atomic(num_threads: int, ops_per_thread: int, initial: int) -> dict:
+    """
+    Phần B: Lua script thực thi GET+DECRBY trong một atomic operation.
+    Server Redis nhận 1 lệnh duy nhất, không có window để race.
+    """
+    r = get_redis()
+    r.set(STOCK_KEY_LUA, initial)
 
     success_counts = []
     denied_counts  = []
@@ -1018,7 +1048,7 @@ Scenario: {NUM_THREADS} threads × {OPS_PER_THREAD} ops, initial stock = {INITIA
         rc  = get_redis()
         sc  = rc.register_script(DEDUCT_IF_POSITIVE)
         suc = den = 0
-        for _ in range(OPS_PER_THREAD):
+        for _ in range(ops_per_thread):
             result = sc(keys=[STOCK_KEY_LUA], args=[1])
             if result == -1:
                 den += 1
@@ -1028,26 +1058,99 @@ Scenario: {NUM_THREADS} threads × {OPS_PER_THREAD} ops, initial stock = {INITIA
             success_counts.append(suc)
             denied_counts.append(den)
 
-    threads = [threading.Thread(target=lua_worker) for _ in range(NUM_THREADS)]
+    threads = [threading.Thread(target=lua_worker) for _ in range(num_threads)]
     for t in threads: t.start()
     for t in threads: t.join()
 
-    final_stock   = int(r.get(STOCK_KEY_LUA) or 0)
-    total_success = sum(success_counts)
-    total_denied  = sum(denied_counts)
-    total_ops     = NUM_THREADS * OPS_PER_THREAD
+    return {
+        'final'  : int(r.get(STOCK_KEY_LUA) or 0),
+        'success': sum(success_counts),
+        'denied' : sum(denied_counts),
+    }
 
-    print(f"   Initial stock   : {INITIAL}")
-    print(f"   Total ops       : {total_ops:,}")
-    print(f"   Succeeded       : {total_success:,}  (should = {INITIAL})")
-    print(f"   Denied (qty≤0)  : {total_denied:,}  (should = {total_ops - INITIAL})")
-    print(f"   Final stock     : {final_stock}  (should = 0)")
-    oversell = final_stock < 0
-    print(f"   Oversell        : {'✗ YES — race condition!' if oversell else '✓ NO — Lua atomic'}")
-    correct = (final_stock == 0 and total_success == INITIAL
-               and total_denied == total_ops - INITIAL)
-    print(f"   All counts OK   : {'✓ YES' if correct else '✗ NO'}")
-    print(f"\n   No race conditions — Lua script executed atomically")
+
+def test_lua_atomicity():
+    print("\n" + "=" * 70)
+    print("TEST 11: Redis Atomicity — Non-Atomic vs Lua Script")
+    print("=" * 70)
+    print("""
+Mục tiêu: Chứng minh tại sao Redis CẦN Lua để đảm bảo atomicity.
+
+Lua script chạy hoàn toàn trên server Redis và KHÔNG THỂ bị ngắt giữa chừng
+(Redis single-threaded event loop). Đây tương đương với transaction ACID
+của MySQL cho thao tác Read-Modify-Write.
+
+Cả hai phần dùng cùng logic: "nếu stock > 0 thì giảm 1, ngược lại từ chối"
+""")
+
+    NUM_THREADS    = 10
+    OPS_PER_THREAD = 15
+    INITIAL        = 100
+    TOTAL_OPS      = NUM_THREADS * OPS_PER_THREAD  # 150 requests, chỉ 100 được phép
+
+    # ── Phần A: Non-Atomic ──────────────────────────────────────
+    print(f"{'─' * 60}")
+    print(f"Phần A: GET + DECRBY (2 lệnh tách rời — KHÔNG atomic)")
+    print(f"{'─' * 60}")
+    print(f"  Logic:  qty = GET key          ← bước 1")
+    print(f"          if qty > 0: DECRBY 1   ← bước 2  (có race window!)")
+    print(f"  Setup:  {NUM_THREADS} threads × {OPS_PER_THREAD} ops, stock ban đầu = {INITIAL}")
+    print()
+
+    na = _run_non_atomic(NUM_THREADS, OPS_PER_THREAD, INITIAL)
+    na_oversell = na['final'] < 0
+
+    print(f"  Stock ban đầu  : {INITIAL}")
+    print(f"  Stock cuối     : {na['final']}  {'← ÂM = OVERSELL!' if na_oversell else ''}")
+    print(f"  Tổng requests  : {TOTAL_OPS}")
+    print(f"  Thành công     : {na['success']}  (lẽ ra tối đa {INITIAL})")
+    print(f"  Từ chối        : {na['denied']}")
+    print(f"  Race condition : {'✗ CÓ — stock bị âm do nhiều thread cùng thấy qty>0 rồi cùng DECRBY' if na_oversell else '△ Không xảy ra lần này (ngẫu nhiên), nhưng KHÔNG đảm bảo'}")
+
+    # ── Phần B: Lua Atomic ──────────────────────────────────────
+    print()
+    print(f"{'─' * 60}")
+    print(f"Phần B: Lua Script (GET + DECRBY trong 1 lệnh atomic)")
+    print(f"{'─' * 60}")
+    print(f"  Logic (Lua, chạy trên server):")
+    print(f"    local qty = GET key           ← ")
+    print(f"    if qty <= 0: return -1         ←  atomic: không thread nào")
+    print(f"    return DECRBY key 1            ← /  có thể chen vào giữa")
+    print(f"  Setup:  {NUM_THREADS} threads × {OPS_PER_THREAD} ops, stock ban đầu = {INITIAL}")
+    print()
+
+    la = _run_lua_atomic(NUM_THREADS, OPS_PER_THREAD, INITIAL)
+    la_correct = (la['final'] == 0 and la['success'] == INITIAL
+                  and la['denied'] == TOTAL_OPS - INITIAL)
+
+    print(f"  Stock ban đầu  : {INITIAL}")
+    print(f"  Stock cuối     : {la['final']}  (should = 0)")
+    print(f"  Tổng requests  : {TOTAL_OPS}")
+    print(f"  Thành công     : {la['success']}  (should = {INITIAL})")
+    print(f"  Từ chối        : {la['denied']}  (should = {TOTAL_OPS - INITIAL})")
+    print(f"  Oversell       : {'✗ CÓ' if la['final'] < 0 else '✓ KHÔNG'}")
+    print(f"  Kết quả đúng   : {'✓ YES — Lua đảm bảo atomicity hoàn toàn' if la_correct else '✗ NO'}")
+
+    # ── Tổng kết ────────────────────────────────────────────────
+    print(f"""
+{'─' * 60}
+So sánh kết quả:
+{'─' * 60}
+                     Non-Atomic (A)    Lua Atomic (B)
+  Stock cuối:        {na['final']:<17}   {la['final']}
+  Thành công:        {na['success']:<17}   {la['success']}   (max = {INITIAL})
+  Race condition:    {'CÓ ✗' if na_oversell else 'May not occur △':<17}   KHÔNG ✓
+
+Giải thích kỹ thuật:
+  Non-Atomic: T1 GET=5, T2 GET=5, T1 DECRBY→4, T2 DECRBY→3
+              Cả 2 thread đều "thấy" qty=5 trước khi giảm → oversell
+  Lua Atomic: T1 script chạy xong (GET→check→DECRBY) TRƯỚC KHI T2 bắt đầu
+              Redis event loop đảm bảo script không bị ngắt giữa chừng
+
+Tương đương với MySQL:
+  Non-Atomic Redis  ≈  MySQL SELECT + UPDATE (không có FOR UPDATE)
+  Lua Atomic Redis  ≈  MySQL SELECT ... FOR UPDATE + UPDATE (serialized)
+""")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1077,7 +1180,13 @@ if __name__ == "__main__":
         r = get_redis()
         r.ping()
         redis_count = r.get("transactions:count")
-        print(f"  Redis: connected (transactions:count = {redis_count})")
+        sample_data = r.hgetall("transaction:1")   # hgetall trả về {} nếu key không tồn tại
+        if redis_count is not None:
+            print(f"  Redis: connected, {int(redis_count):,} transactions loaded")
+        elif sample_data:
+            print(f"  Redis: connected (transaction data present, 'transactions:count' key not set)")
+        else:
+            print(f"  Redis: connected (WARNING: 'transaction:1' not found — Tests 1–3 sẽ trả về kết quả rỗng)")
     except Exception as e:
         print(f"  Redis Error: {e}")
         exit(1)
