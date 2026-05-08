@@ -311,7 +311,7 @@ Việc Redis chấp nhận "hi sinh" hơn 300 nghìn bản ghi cũ để giữ c
 \item \textbf{Cơ chế dọn dẹp chủ động:} Thay vì đợi hệ điều hành can thiệp, Redis tự quản lý vòng đời dữ liệu dựa trên tần suất sử dụng, giúp tối ưu hóa hiệu quả sử dụng RAM.
 \end{itemize}
 
-\item \textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới hơn 300 nghìn, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu
+\textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới hơn 300 nghìn, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu
 
 \vspace{0.5em}
 
@@ -396,11 +396,12 @@ Dù là hệ thống chạy trên RAM, Redis vẫn đảm bảo khả năng khô
 
 \noindent\textbf{Kết luận Test Case 4}
 
-Cả hai hệ thống đều cho thấy khả năng phục hồi ấn tượng (đều xấp xỉ \textbf{1 giây}):
-\begin{enumerate}
-\item \textbf{MySQL:} Có lợi thế về tính sẵn sàng tức thì trên đĩa, phù hợp cho việc bảo toàn dữ liệu vĩnh viễn.
-\item \textbf{Redis:} Dù mất 1 giây để nạp lại RAM, nhưng ngay sau đó hệ thống sẽ đạt tốc độ truy xuất cực đại mà không cần qua giai đoạn "làm nóng" (\textit{Warm-up}) như MySQL.
-\end{enumerate}
+Cả hai hệ thống đều cho thấy khả năng phục hồi ấn tượng:
+
+\begin{itemize}
+    \item \textbf{MySQL:} Sẵn sàng sau \textbf{1.16 giây}. Tuy nhiên, MySQL cần giai đoạn làm nóng (\textit{Warm-up}) để nạp dần dữ liệu từ đĩa lên Buffer Pool trước khi đạt tốc độ tối ưu.
+    \item \textbf{Redis:} Ghi nhận trạng thái \texttt{loading: 0} ngay lập tức (\textbf{chưa đầy 1 giây}). Nhờ định dạng RDB nhị phân nén, Redis khôi phục toàn bộ trạng thái RAM và đạt tốc độ truy xuất cực đại ngay tại thời điểm khởi động xong mà không cần giai đoạn làm nóng.
+\end{itemize}
 
 \subsection{Kết luận}
 
