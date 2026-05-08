@@ -60,7 +60,7 @@ WHERE store_id = 1 AND product_id = 1;
 
 COMMIT;
 ```
-
+ 
 ### Kết quả mong đợi
 
 - Có bản ghi mới trong `sales.orders`.
@@ -68,7 +68,7 @@ COMMIT;
 - `production.stocks.quantity` của `store_id = 1`, `product_id = 1` giảm đúng `2`.
 - Không có trạng thái trung gian.
 
-### Bằng chứng trong report
+### Bằng chứng trong repor 
 
 - `order-before-transaction.png`
 - `item-before-transaction.png`
