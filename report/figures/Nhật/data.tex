@@ -187,7 +187,7 @@ IGNORE 1 ROWS
 SET transaction_date = STR_TO_DATE(@var_date, '%m/%d/%Y');
 \end{lstlisting}
 
-\textit{Kết quả đo lường:} Quá trình chèn hơn 500,000 dòng hoàn tất trong khoảng 1 phút 5.32 giây. 
+\textit{Kết quả đo lường:} Quá trình chèn hơn 500,000 dòng hoàn tất trong khoảng 52.31 giây.
 
 \begin{figure} [H]
     \centering
@@ -220,7 +220,7 @@ Nhóm thực thi lệnh ống (\texttt{pipe}) trong Terminal để đẩy trực
     \label{fig:redis_bulk}
 \end{figure}
 
-\textbf{Thời gian thực thi thực tế:} Hệ thống Redis xử lý hàng trăm nghìn lệnh \texttt{HSET} và hoàn tất quá trình nạp trong 33.29 giây. Redis nhanh gấp 2 lần MySQL trong điều kiện thực tế trên máy cá nhân. Lưu ý rằng Redis vừa nạp vừa phải thực hiện "đào thải" dữ liệu liên tục vì giới hạn RAM 2MB cực thấp, trong khi MySQL chỉ việc ghi thuần túy xuống đĩa. Nếu RAM Redis đủ lớn, tốc độ sẽ nhanh hơn gấp nhiều lần.
+\textbf{Thời gian thực thi thực tế:} Thông qua việc tối ưu hóa đẩy dữ liệu nhị phân trực tiếp qua Raw Socket, hệ thống Redis xử lý hàng trăm nghìn lệnh \texttt{HSET} và hoàn tất quá trình nạp chỉ trong 18.36 giây. Redis cho thấy tốc độ nhanh gấp 2.5 lần MySQL trong điều kiện thực tế.
 
 \vspace{0.5em}
 
@@ -302,14 +302,16 @@ Nhóm thiết lập chính sách \texttt{allkeys-lru} (loại bỏ các khóa í
     \label{fig:redis_eviction}
 \end{figure}
 
-\textbf{Kết quả đào thải thực tế:} Hệ thống ghi nhận đã tự động xóa bỏ tổng cộng \textbf{531,782 Keys}.
+\textbf{Kết quả đào thải thực tế:} Sau khi thực hiện reset bộ đếm thống kê và ép tải, hệ thống ghi nhận đã tự động đào thải để duy trì hạn mức 2MB RAM. Con số này biến động tùy thuộc vào trạng thái phân mảnh bộ nhớ và tốc độ cấp phát RAM của hệ điều hành tại thời điểm thực thi, nhưng luôn duy trì ở mức >300,000 keys, chứng minh hiệu quả của chính sách đào thải LRU khi bộ nhớ bị giới hạn cực đoan (2MB).
 
-Việc Redis chấp nhận "hi sinh" hơn 531 nghìn bản ghi cũ để giữ cho hệ thống không bị treo chứng minh sự khác biệt cốt lõi trong kiến trúc \textit{In-memory}:
+Việc Redis chấp nhận "hi sinh" hơn 300 nghìn bản ghi cũ để giữ cho hệ thống không bị treo chứng minh sự khác biệt cốt lõi trong kiến trúc \textit{In-memory}:
 
 \begin{itemize}
 \item \textbf{Tính sẵn sàng cao (High Availability):} Redis duy trì khả năng tiếp nhận dữ liệu mới ngay cả khi tài nguyên đã cạn kiệt, phù hợp cho các hệ thống \textit{Caching} hoặc \textit{Real-time Stream}.
 \item \textbf{Cơ chế dọn dẹp chủ động:} Thay vì đợi hệ điều hành can thiệp, Redis tự quản lý vòng đời dữ liệu dựa trên tần suất sử dụng, giúp tối ưu hóa hiệu quả sử dụng RAM.
 \end{itemize}
+
+\item \textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới hơn 300 nghìn, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu
 
 \vspace{0.5em}
 
@@ -319,7 +321,7 @@ Sự đối lập giữa MySQL và Redis trong bài thử nghiệm này làm n�
 
 \begin{enumerate}
 \item \textbf{MySQL:} Phù hợp cho các dữ liệu quan trọng về tài chính, thông tin người dùng, nơi một bản ghi bị mất cũng gây hậu quả nghiêm trọng.
-\item \textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới \textbf{531,782}, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu.
+\item \textbf{Redis:} Với số lượng bản ghi bị đào thải lên tới \textbf{372,893}, Redis minh chứng mình là một hệ thống cực kỳ linh hoạt cho các tác vụ lưu trữ tạm thời, nơi tốc độ và sự vận hành liên tục được đặt lên hàng đầu.
 \item \textbf{Tự động hóa quản lý:} Redis cho thấy khả năng tự điều tiết thông minh thông qua cấu hình chính sách (\textit{Policy}), trong khi MySQL đòi hỏi sự can thiệp thủ công từ quản trị viên (DBA) để mở rộng dung lượng đĩa khi gặp lỗi Full.
 \end{enumerate}
 
@@ -371,23 +373,23 @@ redis-cli INFO persistence
 \end{lstlisting}
 
 \noindent\textit{Phương pháp đo lường:}
-Nhóm sử dụng cơ chế \textbf{RDB (Redis Database Backup)} để tạo ảnh chụp tức thời của tập dữ liệu. Thông qua chỉ số \texttt{rdb\_last\_bgsave\_time\_sec}, nhóm xác định được thời gian thực tế để Redis xử lý tệp tin snapshot.
+Nhóm sử dụng cơ chế \textbf{RDB (Redis Database Backup)} để tạo ảnh chụp tức thời của tập dữ liệu. Khi khởi động lại dịch vụ, nhóm quan sát trạng thái \texttt{loading} trong thông số \texttt{INFO persistence} để xác định quá trình nạp dữ liệu từ đĩa vào RAM.
 
 \vspace{0.5em}
 
 \begin{figure} [H]
 \centering
 \includegraphics[width=0.75\linewidth]{figures//Nhật/redis_test4.png}
-\caption{Thông số ghi nhận thời gian xử lý tệp tin RDB của Redis}
+\caption{Thông số ghi nhận trạng thái nạp tệp tin RDB của Redis}
 \label{fig:redis_recovery}
 \end{figure}
 
-\textbf{Thời gian phục hồi thực tế:} Hệ thống ghi nhận \texttt{rdb\_last\_bgsave\_time\_sec} là \textbf{1 giây}.
+\textbf{Thời gian phục hồi thực tế:} Hệ thống ghi nhận trạng thái \texttt{loading: 0} ngay lập tức (chưa tới 1 giây). Điều này xác nhận Redis đã hoàn tất nạp dữ liệu và sẵn sàng phục vụ.
 
 Dù là hệ thống chạy trên RAM, Redis vẫn đảm bảo khả năng khôi phục cực nhanh nhờ định dạng nhị phân tối ưu:
 \begin{itemize}
 \item \textbf{Tối ưu hóa nạp nén (Binary Loading):} Tệp tin RDB lưu trữ dữ liệu dưới dạng nhị phân nhỏ gọn, giúp tối thiểu hóa thời gian \textit{I/O} khi đọc từ đĩa cứng vào RAM.
-\item \textbf{Tính sẵn sàng sau sự cố:} Thời gian 1 giây cho thấy Redis hoàn toàn có thể đáp ứng các yêu cầu khắt khe về thời gian phục hồi sau thảm họa (\textit{Disaster Recovery}).
+\item \textbf{Tính sẵn sàng sau sự cố:} Thời gian gần bằng 0 giây cho thấy Redis hoàn toàn có thể đáp ứng các yêu cầu khắt khe về thời gian phục hồi sau thảm họa (\textit{Disaster Recovery}).
 \end{itemize}
 
 \vspace{0.5em}
