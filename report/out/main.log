@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  1 MAY 2026 08:28
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.3.20)  8 MAY 2026 12:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1185,9 +1185,13 @@ File: 01_logobachkhoasang.png Graphic file (type bmp)
 [1
 
 ]
+Underfull \hbox (badness 3735) in paragraph at lines 131--131
+[]|\TU/TimesNewRoman(0)/m/n/12 Thực hiện phần so sánh concurrency. Thực hiện
+ []
+
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
- [2
+[2
 
 ] (c:/Users\khela\Downloads\DBMS\report\out\main.toc
 File: bk_name_en.png Graphic file (type bmp)
@@ -2166,10 +2170,10 @@ File: figures/Kha/message.png Graphic file (type bmp)
 File: bk_name_en.png Graphic file (type bmp)
 <bk_name_en.png>
  [77]
-Overfull \hbox (24.45653pt too wide) in paragraph at lines 150--151
+Overfull \hbox (60.46239pt too wide) in paragraph at lines 150--151
 []\TU/TimesNewRoman(0)/m/n/12 Reference Link to Github: []$[][][][][] [] [] [] 
 [][][][][][] [] [][][] [] [][][][][][][][][] [] [][][][][][][][][][][][][][][][
-][][][] []
+][][][][][][][][] []
  []
 
 
