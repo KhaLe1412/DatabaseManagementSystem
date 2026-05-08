@@ -1,0 +1,5 @@
+EXISTS sales:order:1622
+HGETALL production:stock:1:1
+EVAL "local oid = 1622; redis.call('HSET', 'sales:order:' .. oid, 'customer_id', '1', 'order_status', '1', 'order_date', '2026-03-02', 'required_date', '2026-03-10', 'shipped_date', '', 'store_id', '1', 'staff_id', '1'); redis.call('SADD', 'sales:orders:ids', oid); redis.call('HINCRBY', 'production:stock:1:1', 'quantity', -2); return 'OK'" 0
+HGETALL sales:order:1622
+HGETALL production:stock:1:1
