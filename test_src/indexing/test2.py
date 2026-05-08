@@ -1,4 +1,3 @@
-import time
 import mysql.connector
 import redis
 
@@ -7,8 +6,12 @@ MYSQL_CONFIG = {
     'host': '127.0.0.1', 'port': 3306, 'user': 'root', 'password': '123456', 'database': 'sales_benchmark',
 }
 REDIS_CONFIG = {
-    'host': 'localhost', 'port': 6379, 'password': None, 'decode_responses': True, 
+    'host': '127.0.0.1', 'port': 6379, 'password': None, 'decode_responses': True,
 }
+
+
+def _cmd_usec(stats: dict, cmd: str) -> int:
+    return int(stats.get(f"cmdstat_{cmd}", {}).get("usec", 0))
 
 def test_range_query_engine_time(price_min: int = 1000, price_max: int = 2000, iterations: int = 1000):
     print("\n" + "="*70)
@@ -99,18 +102,36 @@ def test_range_query_engine_time(price_min: int = 1000, price_max: int = 2000, i
     return "DONE"
     """
     
-    # Chạy đo đạc Redis Scan
+    # Warm-up để loại bỏ chi phí kết nối/script-load lần đầu
     scan_script = redis_client.register_script(REDIS_LUA_RANGE_SCAN)
-    start_scan = time.time()
+    zset_script = redis_client.register_script(REDIS_LUA_RANGE_ZSET)
+    redis_client.ping()
+    scan_script(args=[price_min, price_max, 1])
+    zset_script(args=[price_min, price_max, 1])
+
+    # Chạy đo đạc Redis Scan (engine-side)
+    redis_client.execute_command("CONFIG RESETSTAT")
     scan_script(args=[price_min, price_max, iterations])
-    time_redis_scan = time.time() - start_scan
+    scan_stats = redis_client.info("commandstats")
+    scan_usecs = (
+        _cmd_usec(scan_stats, "eval") +
+        _cmd_usec(scan_stats, "evalsha") +
+        _cmd_usec(scan_stats, "smembers") +
+        _cmd_usec(scan_stats, "hget")
+    )
+    time_redis_scan = scan_usecs / 1000000.0
     print(f"\n--- Redis (Scan Toàn Bộ - No Index) ---\tTime: {time_redis_scan:.4f}s")
 
-    # Chạy đo đạc Redis ZSET
-    zset_script = redis_client.register_script(REDIS_LUA_RANGE_ZSET)
-    start_zset = time.time()
+    # Chạy đo đạc Redis ZSET (engine-side)
+    redis_client.execute_command("CONFIG RESETSTAT")
     zset_script(args=[price_min, price_max, iterations])
-    time_redis_zset = time.time() - start_zset
+    zset_stats = redis_client.info("commandstats")
+    zset_usecs = (
+        _cmd_usec(zset_stats, "eval") +
+        _cmd_usec(zset_stats, "evalsha") +
+        _cmd_usec(zset_stats, "zrangebyscore")
+    )
+    time_redis_zset = zset_usecs / 1000000.0
     print(f"--- Redis (Sử dụng ZSET Index) --- \tTime: {time_redis_zset:.4f}s")
 
 if __name__ == "__main__":

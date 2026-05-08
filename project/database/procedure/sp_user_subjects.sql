@@ -15,13 +15,13 @@ DELIMITER //
 -- =================================================================
 DROP PROCEDURE IF EXISTS sp_get_user_subjects//
 CREATE PROCEDURE sp_get_user_subjects(
-    IN p_user_id CHAR(36)
+    IN p_user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     SELECT s.id AS subject_id, s.name AS subject_name
     FROM subjects s
     JOIN user_subjects us ON s.id = us.subject_id
-    WHERE us.user_id = p_user_id;
+    WHERE us.user_id = p_user_id COLLATE utf8mb4_unicode_ci;
 END//
 
 -- =================================================================
@@ -34,8 +34,8 @@ END//
 -- 6.1: Thêm môn học
 DROP PROCEDURE IF EXISTS sp_add_user_subject//
 CREATE PROCEDURE sp_add_user_subject(
-    IN p_user_id CHAR(36),
-    IN p_subject_id CHAR(36)
+    IN p_user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_subject_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     -- Dùng INSERT IGNORE để tránh lỗi crash nếu user lỡ add trùng môn đã có
@@ -46,12 +46,13 @@ END//
 -- 6.2: Xóa môn học
 DROP PROCEDURE IF EXISTS sp_remove_user_subject//
 CREATE PROCEDURE sp_remove_user_subject(
-    IN p_user_id CHAR(36),
-    IN p_subject_id CHAR(36)
+    IN p_user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_subject_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     DELETE FROM user_subjects 
-    WHERE user_id = p_user_id AND subject_id = p_subject_id;
+    WHERE user_id = p_user_id COLLATE utf8mb4_unicode_ci
+      AND subject_id = p_subject_id COLLATE utf8mb4_unicode_ci;
 END//
 
 DELIMITER ;

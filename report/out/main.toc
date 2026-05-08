@@ -83,4 +83,17 @@
 \contentsline {section}{\numberline {3.1}Giới thiệu}{65}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Mô tả hệ thống}{65}{section.3.2}%
 \contentsline {section}{\numberline {3.3}Lựa chọn DBMS}{66}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}So sánh MySQL và Redis cho hệ thống Student-Tutor}{66}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Lý do chọn MySQL làm DBMS chính}{66}{subsection.3.3.2}%
 \contentsline {section}{\numberline {3.4}ERD and Mapping}{67}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Stored Procedures}{68}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Nhóm Xác thực và Hồ sơ người dùng}{69}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Nhóm Quản lý môn học người dùng}{69}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Nhóm Quản lý Buổi học (Session)}{70}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Nhóm Yêu cầu đổi lịch (Reschedule Request)}{71}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}Nhóm Đánh giá và Bình luận (Comment)}{71}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}Nhóm Tin nhắn, Thông báo và Thư viện}{72}{subsection.3.5.6}%
+\contentsline {section}{\numberline {3.6}Demo App}{72}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Giao diện của Student}{72}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Giao diện của Tutor}{74}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Các chức năng khác}{76}{subsection.3.6.3}%

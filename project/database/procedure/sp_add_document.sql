@@ -1,4 +1,4 @@
--- File: sp_add_document.sql
+﻿-- File: sp_add_document.sql
 -- Mô tả: Thêm tài liệu mới vào thư viện
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
@@ -12,13 +12,13 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_add_document//
 
 CREATE PROCEDURE sp_add_document(
-    IN p_title VARCHAR(255),
-    IN p_author VARCHAR(255),
-    IN p_type VARCHAR(100),
-    IN p_url TEXT
+    IN p_title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_author VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_type VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    IN p_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
-    DECLARE v_resource_id BIGINT;
+    DECLARE v_resource_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -44,10 +44,10 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO resource (title, author, `type`, url)
-    VALUES (TRIM(p_title), TRIM(p_author), UPPER(TRIM(p_type)), TRIM(p_url));
+    SET v_resource_id = UUID();
 
-    SET v_resource_id = LAST_INSERT_ID();
+    INSERT INTO resource (resource_id, title, author, `type`, url)
+    VALUES (v_resource_id, TRIM(p_title), TRIM(p_author), UPPER(TRIM(p_type)), TRIM(p_url));
 
     COMMIT;
 
@@ -62,3 +62,4 @@ BEGIN
 END//
 
 DELIMITER ;
+

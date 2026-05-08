@@ -1,4 +1,3 @@
-import time
 import mysql.connector
 import redis
 
@@ -7,8 +6,12 @@ MYSQL_CONFIG = {
     'host': '127.0.0.1', 'port': 3306, 'user': 'root', 'password': '123456', 'database': 'sales_benchmark',
 }
 REDIS_CONFIG = {
-    'host': 'localhost', 'port': 6379, 'password': None, 'decode_responses': True, 
+    'host': '127.0.0.1', 'port': 6379, 'password': None, 'decode_responses': True,
 }
+
+
+def _cmd_usec(stats: dict, cmd: str) -> int:
+    return int(stats.get(f"cmdstat_{cmd}", {}).get("usec", 0))
 
 def test_text_search_engine_time(search_query: str = "Trek Domane", iterations: int = 1000):
     print("\n" + "="*70)
@@ -109,11 +112,21 @@ def test_text_search_engine_time(search_query: str = "Trek Domane", iterations: 
     """
     
     query_script = redis_client.register_script(REDIS_LUA_TEXT_SCAN)
-    
+
     print("\n⏳ Đang chạy Redis (Lua Full Scan)...")
-    start_redis = time.time()
+    redis_client.ping()
+    query_script(args=[search_query, 1])
+
+    redis_client.execute_command("CONFIG RESETSTAT")
     query_script(args=[search_query, iterations])
-    redis_pure_time = time.time() - start_redis
+    redis_stats = redis_client.info("commandstats")
+    redis_usecs = (
+        _cmd_usec(redis_stats, "eval") +
+        _cmd_usec(redis_stats, "evalsha") +
+        _cmd_usec(redis_stats, "smembers") +
+        _cmd_usec(redis_stats, "hget")
+    )
+    redis_pure_time = redis_usecs / 1000000.0
     
     print(f"--- Redis (Full Scan + Lua) --- \tTime: {redis_pure_time:.4f}s")
 

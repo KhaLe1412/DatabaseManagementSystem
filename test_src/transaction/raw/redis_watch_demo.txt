@@ -1,0 +1,17 @@
+# Demo follows report/figures/Thoi/transaction.tex
+# Test Case 6: Redis WATCH optimistic locking
+
+# Terminal 1
+HGETALL production:stock:1:1
+WATCH production:stock:1:1
+MULTI
+HINCRBY production:stock:1:1 quantity -1
+
+# Terminal 2, before Terminal 1 runs EXEC
+HGETALL production:stock:1:1
+HSET production:stock:1:1 quantity 100
+HGETALL production:stock:1:1
+
+# Terminal 1
+EXEC
+HGETALL production:stock:1:1

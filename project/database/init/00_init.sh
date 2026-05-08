@@ -3,10 +3,17 @@
 # Database Initialization Script
 # Runs SQL files in order: table -> procedure -> seed
 # =============================================================
-set -e
 
-MYSQL_CMD="mysql -u root -p${MYSQL_ROOT_PASSWORD}"
 ERRORS=0
+
+# Use a function instead of a string variable to avoid shell quoting issues
+run_sql() {
+    local f="$1"
+    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" \
+        --default-character-set=utf8mb4 \
+        --init-command="SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci" \
+        < "$f" 2>&1
+}
 
 run_folder() {
     local LABEL=$1
@@ -21,7 +28,7 @@ run_folder() {
 
     for f in $FILES; do
         echo "  --> $f"
-        if ! $MYSQL_CMD < "$f"; then
+        if ! run_sql "$f"; then
             echo "  [WARN] $f returned an error (continuing)"
             ERRORS=$((ERRORS + 1))
         fi

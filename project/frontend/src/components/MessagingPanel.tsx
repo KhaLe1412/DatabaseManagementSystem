@@ -9,7 +9,7 @@ import {
 } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -29,10 +29,15 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { mockStudents, mockTutors } from "../lib/mock-data";
-import { Message } from "../types";
+import { Message, Notification } from "../types";
 import { toast } from "sonner";
-import { apiGet, apiPost } from "../lib/api";
+import {
+  apiGet,
+  apiPost,
+  apiPatch,
+  mapMessage,
+  mapNotification,
+} from "../lib/api";
 
 interface MessagingPanelProps {
   userId: string;
@@ -49,20 +54,31 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
   const [conversationPartners, setConversationPartners] = useState<string[]>(
     [],
   );
-  const [notifications, setNotifications] = useState<Message[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [allUsers, setAllUsers] = useState<
+    { id: string; name: string; email: string; avatar?: string }[]
+  >([]);
 
   const [activeTab, setActiveTab] = useState("messages");
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Notification read tracking (localStorage)
+  const [seenNotificationIds, setSeenNotificationIds] = useState<Set<string>>(
+    () => new Set(JSON.parse(localStorage.getItem("seenNotifIds") || "[]")),
+  );
+
+  // Message unread counts per partner
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchConversationMessages = async () => {
     try {
-      const data = await apiGet<any[]>(
+      const data = await apiGet<{ conversations: string[] }>(
         `/messages/conversations?userId=${userId}`,
       );
-      setConversationPartners(data.map((d) => d.partnerId));
+      setConversationPartners(data.conversations);
     } catch (err) {
       console.error("Error fetching conversations:", err);
     }
@@ -70,10 +86,10 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
 
   const fetchMessages = async (partnerId: string) => {
     try {
-      const data = await apiGet<Message[]>(
+      const data = await apiGet<{ messages: Record<string, unknown>[] }>(
         `/messages?userId=${userId}&partnerId=${partnerId}`,
       );
-      setMessages(data);
+      setMessages(data.messages.map(mapMessage));
     } catch (err) {
       console.error("Error fetching messages:", err);
     }
@@ -81,12 +97,34 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
 
   const fetchNotifications = async () => {
     try {
-      const data = await apiGet<Message[]>(
-        `/messages/notifications?userId=${userId}`,
+      const data = await apiGet<{ notifications: Record<string, unknown>[] }>(
+        `/notifications?userId=${userId}`,
       );
-      setNotifications(data);
+      setNotifications(data.notifications.map(mapNotification));
     } catch (err) {
       console.error("Error fetching notifications:", err);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      const data = await apiGet<{
+        users: { id: string; name: string; email: string }[];
+      }>(`/users?limit=200`);
+      setAllUsers(data.users);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+  };
+
+  const fetchUnreadCounts = async () => {
+    try {
+      const data = await apiGet<{ unreadCounts: Record<string, number> }>(
+        `/messages/unread-counts?userId=${userId}`,
+      );
+      setUnreadCounts(data.unreadCounts ?? {});
+    } catch (err) {
+      console.error("Error fetching unread counts:", err);
     }
   };
 
@@ -95,11 +133,14 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
 
     fetchConversationMessages();
     fetchNotifications();
+    fetchAllUsers();
+    fetchUnreadCounts();
 
     const interval = setInterval(() => {
       fetchConversationMessages();
       fetchNotifications();
-    }, 3000);
+      fetchUnreadCounts();
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [userId]);
@@ -123,20 +164,16 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
   }, [messages]);
 
   const getPartnerInfo = (partnerId: string) => {
-    const allUsers = [...mockStudents, ...mockTutors];
     return allUsers.find((u) => u.id === partnerId);
   };
 
-  const getAvailableUsers = () => {
-    const potentialUsers = userRole === "student" ? mockTutors : mockStudents;
-    return potentialUsers.filter((user) => user.id !== userId);
-  };
-
-  const filteredAvailableUsers = getAvailableUsers().filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredAvailableUsers = allUsers
+    .filter((user) => user.id !== userId)
+    .filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
   const startNewConversation = (partnerId: string) => {
     setSelectedConversation(partnerId);
@@ -158,8 +195,8 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
     };
 
     try {
-      const saved = await apiPost<Message>("/messages", payload);
-      setMessages((prev) => [...prev, saved]);
+      await apiPost<unknown>("/messages", payload);
+      await fetchMessages(selectedConversation);
       setMessageText("");
     } catch (err) {
       console.error(err);
@@ -173,9 +210,9 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
         <Button variant="outline" className="relative">
           <MessageCircle className="h-4 w-4 mr-2" />
           Messages
-          {notifications.length > 0 && (
+          {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
             <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-              {notifications.length}
+              {Object.values(unreadCounts).reduce((a, b) => a + b, 0)}
             </Badge>
           )}
         </Button>
@@ -191,16 +228,28 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
 
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={(tab) => {
+            setActiveTab(tab);
+            if (tab === "notifications") {
+              const ids = notifications.map((n) => n.id);
+              const next = new Set([...seenNotificationIds, ...ids]);
+              setSeenNotificationIds(next);
+              localStorage.setItem("seenNotifIds", JSON.stringify([...next]));
+            }
+          }}
           className="flex-1 flex flex-col min-h-0 w-full overflow-hidden"
         >
           <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="notifications">
               Notifications
-              {notifications.length > 0 && (
+              {notifications.filter((n) => !seenNotificationIds.has(n.id))
+                .length > 0 && (
                 <Badge className="ml-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500">
-                  {notifications.length}
+                  {
+                    notifications.filter((n) => !seenNotificationIds.has(n.id))
+                      .length
+                  }
                 </Badge>
               )}
             </TabsTrigger>
@@ -250,7 +299,6 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 cursor-pointer"
                               >
                                 <Avatar className="h-8 w-8">
-                                  <AvatarImage src={user.avatar} />
                                   <AvatarFallback>
                                     {user.name.charAt(0)}
                                   </AvatarFallback>
@@ -281,10 +329,34 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                     ) : (
                       conversationPartners.map((partnerId) => {
                         const partner = getPartnerInfo(partnerId);
+                        const unread = unreadCounts[partnerId] ?? 0;
                         return (
                           <div
                             key={partnerId}
-                            onClick={() => setSelectedConversation(partnerId)}
+                            onClick={async () => {
+                              setSelectedConversation(partnerId);
+                              if (unread > 0) {
+                                try {
+                                  await apiPatch(
+                                    "/messages/read-conversation",
+                                    {
+                                      userId,
+                                      partnerId,
+                                    },
+                                  );
+                                  setUnreadCounts((prev) => {
+                                    const next = { ...prev };
+                                    delete next[partnerId];
+                                    return next;
+                                  });
+                                } catch (err) {
+                                  console.error(
+                                    "Error marking conversation read:",
+                                    err,
+                                  );
+                                }
+                              }
+                            }}
                             className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 flex items-center gap-3 ${
                               selectedConversation === partnerId
                                 ? "bg-gray-100 ring-1 ring-gray-200"
@@ -292,7 +364,6 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                             }`}
                           >
                             <Avatar className="h-10 w-10">
-                              <AvatarImage src={partner?.avatar} />
                               <AvatarFallback>
                                 {partner?.name?.charAt(0) || "?"}
                               </AvatarFallback>
@@ -305,6 +376,11 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                                 Click to chat
                               </p>
                             </div>
+                            {unread > 0 && (
+                              <Badge className="h-5 min-w-[20px] flex items-center justify-center p-0 text-xs bg-red-500">
+                                {unread}
+                              </Badge>
+                            )}
                           </div>
                         );
                       })
@@ -320,9 +396,6 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                     {/* Header */}
                     <div className="pb-4 border-b flex items-center gap-3 flex-shrink-0">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={getPartnerInfo(selectedConversation)?.avatar}
-                        />
                         <AvatarFallback>
                           {getPartnerInfo(selectedConversation)?.name?.charAt(
                             0,
@@ -443,7 +516,7 @@ export function MessagingPanel({ userId, userRole }: MessagingPanelProps) {
                             {notif.content}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(notif.timestamp).toLocaleString()}
+                            {new Date(notif.sentTime).toLocaleString()}
                           </p>
                         </div>
                       </div>

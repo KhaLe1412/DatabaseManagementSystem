@@ -18,7 +18,7 @@ evaluations_bp = Blueprint('evaluations', __name__)
 #     }]
 # }
 # ----------------------------------------------------------------
-@evaluations_bp.route('/', methods=['GET'])
+@evaluations_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_evaluations():
     student_id = request.args.get('studentId')
     tutor_id   = request.args.get('tutorId')
@@ -45,7 +45,7 @@ def get_evaluations():
 # }
 # Output (201): { 'id': str, 'message': 'Evaluation created' }
 # ----------------------------------------------------------------
-@evaluations_bp.route('/', methods=['POST'])
+@evaluations_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_evaluation():
     data = request.get_json()
     # TODO: validate all required fields

@@ -1,4 +1,4 @@
-\section{Indexing}
+﻿\section{Indexing}
 
 \subsection{Mục tiêu}
 Mục tiêu của phần này là phân tích sự khác biệt về thiết kế cũng như hiệu quả vận hành giữa hai hệ quản trị cơ sở dữ liệu
@@ -190,7 +190,7 @@ bỏ qua bước truy xuất đĩa và đạt hiệu năng tối ưu.
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/mysql_brand_id.png}
     \caption{Kết quả thực hiện trong 10 lần với mySQL (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-1}
 \end{figure}
 
 
@@ -237,7 +237,7 @@ $O(N)$ (với $N$ là số phần tử trả về), truy vấn gần như không
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/redis_brand_id.png}
     \caption{Kết quả thực hiện trong 10 lần với Redis (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-2}
 \end{figure}
 
 
@@ -270,7 +270,7 @@ Truy vấn được chạy 10 lần và lấy giá trị trung bình.
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/mysql_test2.png}
     \caption{Kết quả thực hiện trong 10 lần với mySQL không index (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-3}
 \end{figure}
 
 \vspace{0.5em}
@@ -292,7 +292,7 @@ Tiếp tục chạy truy vấn 10 lần và tính trung bình.
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/mysql_test2_index.png}
     \caption{Kết quả thực hiện trong 10 lần với mySQL có indexing (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-4}
 \end{figure}
 
 \vspace{0.5em}
@@ -348,7 +348,7 @@ trung bình ghi nhận được là 4{,}02 micro-giây.
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/redis_test2.png}
     \caption{Kết quả thực hiện trong 10 lần với redis (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-5}
 \end{figure}
 
 \vspace{0.5em}
@@ -433,7 +433,7 @@ JOIN production.categories c ON p.category_id = c.category_id;
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/mysql_test3.png}
     \caption{Kết quả thực hiện trong 10 lần với MySQL (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-6}
 \end{figure}
 
 \vspace{0.5em}
@@ -494,7 +494,7 @@ Sau 10 lần thực thi, chỉ số \textit{usec\_per\_call} của
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/redis_test3.png}
     \caption{Kết quả thực hiện trong 10 lần với Redis (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-7}
 \end{figure}
 
 
@@ -558,7 +558,7 @@ trung bình khoảng \textasciitilde 0.96 ms.
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/mysql_test4.png}
     \caption{Kết quả thực hiện trong 10 lần với MySQL (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-8}
 \end{figure}
 
 
@@ -605,7 +605,7 @@ trung bình khoảng 1{,}678.30 micro-giây (\textasciitilde 1.68 ms).
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/redis_test4.png}
     \caption{Kết quả thực hiện trong 10 lần với Redis (đơn vị s)}
-    \label{fig:placeholder}
+    \label{fig:indexing-9}
 \end{figure}
 
 
@@ -692,7 +692,7 @@ ghi nhận thời gian trung bình khoảng 571.40 micro-giây
     \centering
     \includegraphics[width=0.75\linewidth]{figures//Nhân/redis_sorted.png}
     \caption{Kết quả thực hiện trong 10 lần với Redis (đơn vị micro-giây)}
-    \label{fig:placeholder}
+    \label{fig:indexing-10}
 \end{figure}
 
 \vspace{0.5em}

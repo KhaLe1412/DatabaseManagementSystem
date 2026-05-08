@@ -1,4 +1,4 @@
--- File: sp_cancel_session.sql
+﻿-- File: sp_cancel_session.sql
 /* Mô tả: Hủy một buổi học (session) và tự động tạo thông báo (notification) 
         cho tất cả sinh viên tham gia buổi học đó. */
 -- Tác giả: Huỳnh Hữu Nhật
@@ -14,18 +14,22 @@ USE dbms_project;
 DROP PROCEDURE IF EXISTS sp_cancel_session;
 DELIMITER //
 CREATE PROCEDURE sp_cancel_session(
-    IN p_session_id CHAR(36)
+    IN p_session_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
-    -- Gửi thông báo cho sinh viên TRƯỚC KHI xóa/hủy session
-    INSERT INTO notifications (receiver_id, content, type)
-    SELECT student_id, 
-           'Một buổi học của bạn đã bị gia sư hủy.', 
-           'cancel-notification'
-    FROM session_participants
+    -- Cập nhật trạng thái buổi học thành 'cancelled'
+    UPDATE sessions
+    SET status = 'cancelled',
+        updated_at = CURRENT_TIMESTAMP
     WHERE session_id = p_session_id;
 
-    -- Xóa buổi học (Nếu nhóm bạn dùng cột status thay vì xóa cứng thì đổi thành UPDATE)
-    DELETE FROM sessions WHERE session_id = p_session_id;
+    -- Gửi thông báo cho tất cả sinh viên đang tham gia buổi học
+    INSERT INTO notifications (session_id, receiver_user_id, content, type)
+    SELECT p_session_id,
+           student_id,
+           'Một buổi học của bạn đã bị gia sư hủy.',
+           'cancel'
+    FROM session_participants
+    WHERE session_id = p_session_id;
 END //
 DELIMITER ;

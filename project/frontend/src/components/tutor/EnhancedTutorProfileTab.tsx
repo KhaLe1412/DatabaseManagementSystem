@@ -42,40 +42,29 @@ import {
 } from "lucide-react";
 import { Tutor, Session, Student } from "../../types";
 import { toast } from "sonner";
-import { apiGet, apiPatch } from "../../lib/api";
+import {
+  apiGet,
+  apiPatch,
+  apiPost,
+  apiDelete,
+  apiPut,
+  mapSession,
+} from "../../lib/api";
 
 interface EnhancedTutorProfileTabProps {
   tutor: Tutor;
 }
-
-const AVAILABLE_SUBJECTS = [
-  "Data Structures",
-  "Algorithms",
-  "Database Systems",
-  "Operating Systems",
-  "Computer Networks",
-  "Software Engineering",
-  "Web Development",
-  "Machine Learning",
-  "Circuit Analysis",
-  "Digital Electronics",
-  "Signal Processing",
-  "Control Systems",
-  "Calculus",
-  "Linear Algebra",
-  "Differential Equations",
-  "Probability and Statistics",
-  "Physics",
-  "Chemistry",
-  "Programming Fundamentals",
-  "Object-Oriented Programming",
-];
 
 interface SessionReview {
   sessionId: string;
   rating?: number;
   summary?: string;
   recordingUrl?: string;
+}
+
+interface SubjectOption {
+  subject_id: string;
+  subject_name: string;
 }
 
 export function EnhancedTutorProfileTab({
@@ -94,6 +83,10 @@ export function EnhancedTutorProfileTab({
   const [currentReviewSessionId, setCurrentReviewSessionId] = useState<
     string | null
   >(null);
+  // subject_name -> subject_id map for current tutor subjects
+  const [subjectIdMap, setSubjectIdMap] = useState<Record<string, string>>({});
+  // all available subjects from DB
+  const [allSubjects, setAllSubjects] = useState<SubjectOption[]>([]);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -107,7 +100,6 @@ export function EnhancedTutorProfileTab({
   >({});
 
   const [reviewData, setReviewData] = useState({
-    rating: 5,
     summary: "",
     recordingUrl: "",
   });
@@ -119,16 +111,37 @@ export function EnhancedTutorProfileTab({
   // Fetch data on component mount
   useEffect(() => {
     handleProfile();
+    fetchSubjects();
   }, [tutor.id]);
+
+  // Fetch current tutor subjects and all available subjects
+  const fetchSubjects = async () => {
+    try {
+      const [userSubsResp, allSubsResp] = await Promise.all([
+        apiGet<{ subjects: SubjectOption[] }>(`/users/${tutor.id}/subjects`),
+        apiGet<{ subjects: SubjectOption[] }>("/subjects"),
+      ]);
+      const userSubs = userSubsResp.subjects ?? [];
+      const map: Record<string, string> = {};
+      userSubs.forEach((s) => {
+        map[s.subject_name] = s.subject_id;
+      });
+      setSubjectIdMap(map);
+      setExpertise(userSubs.map((s) => s.subject_name));
+      setAllSubjects(allSubsResp.subjects ?? []);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  };
 
   // Fetch completed sessions and students from API (backend returns mock data)
   const handleProfile = async () => {
     try {
-      const data = await apiGet<any[]>(
+      const data = await apiGet<{ sessions: Record<string, unknown>[] }>(
         `/sessions?tutorId=${tutor.id}&status=completed`,
       );
 
-      const sessions = data.map((item: any) => item.session);
+      const sessions = data.sessions.map(mapSession);
       const sortedSessions = sessions.sort((a: Session, b: Session) => {
         const dateCompare =
           new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -138,17 +151,59 @@ export function EnhancedTutorProfileTab({
 
       setCompletedSessions(sortedSessions);
 
-      // Extract unique students from all sessions
-      const allStudents = new Map<string, Student>();
-      data.forEach((item: any) => {
-        item.students.forEach((student: Student) => {
-          if (!allStudents.has(student.id)) {
-            allStudents.set(student.id, student);
+      // Batch-fetch reviews for each completed session
+      const reviewsResults = await Promise.allSettled(
+        sortedSessions.map((s: Session) =>
+          apiGet<{ reviews: any[] }>(`/sessions/${s.id}/reviews`),
+        ),
+      );
+      const sessionsWithReviews = sortedSessions.map(
+        (s: Session, i: number) => {
+          const result = reviewsResults[i];
+          if (result.status === "fulfilled") {
+            const raw = result.value.reviews ?? [];
+            s.reviews = raw.map((r: any) => ({
+              studentId: r.student_id ?? r.studentId ?? "",
+              rating: r.rating,
+              comment: r.comment ?? "",
+              submittedAt: r.updated_at ?? r.submittedAt ?? "",
+            }));
           }
-        });
-      });
+          return s;
+        },
+      );
+      setCompletedSessions(sessionsWithReviews);
 
-      setStudents(Array.from(allStudents.values()));
+      // Fetch enrolled students separately
+      const allStudentIds = new Set<string>();
+      sessions.forEach((s) =>
+        s.enrolledStudents?.forEach((id) => allStudentIds.add(id)),
+      );
+
+      if (allStudentIds.size > 0) {
+        const studentsData = await apiGet<{
+          users: {
+            id: string;
+            name: string;
+            email: string;
+            studentId?: string;
+          }[];
+        }>("/users?role=student&limit=100");
+        setStudents(
+          studentsData.users.map((u) => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: "student" as const,
+            avatar: undefined,
+            studentId: u.studentId ?? "",
+            department: "",
+            year: 1,
+            supportNeeds: [],
+            gpa: 0,
+          })),
+        );
+      }
     } catch (error) {
       console.error("Error fetching profile data:", error);
       toast.error("Failed to load session history");
@@ -174,21 +229,11 @@ export function EnhancedTutorProfileTab({
 
   const handleSaveProfile = async () => {
     try {
-      const updatedTutor = await apiPatch<Tutor>(`/tutors/${tutor.id}`, {
-        userId: tutor.id,
+      await apiPut(`/users/${tutor.id}`, {
         name,
-        email,
-        expertise,
+        department: tutor.department,
       });
-
-      // Update local state với data từ server
-      setName(updatedTutor.name);
-      setEmail(updatedTutor.email);
-      setExpertise(updatedTutor.expertise);
-
-      // Trigger event để App.tsx refresh data
       window.dispatchEvent(new Event("profileUpdated"));
-
       toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch (error) {
@@ -197,18 +242,49 @@ export function EnhancedTutorProfileTab({
     }
   };
 
-  const handleAddExpertise = () => {
-    if (selectedSubject && !expertise.includes(selectedSubject)) {
-      setExpertise([...expertise, selectedSubject]);
-      toast.success(`Added ${selectedSubject} to your expertise`);
+  const handleAddExpertise = async () => {
+    const subjectObj = allSubjects.find(
+      (s) => s.subject_id === selectedSubject,
+    );
+    if (!subjectObj) return;
+    if (expertise.includes(subjectObj.subject_name)) {
+      toast.error("Subject already added");
+      return;
+    }
+    try {
+      await apiPost(`/users/${tutor.id}/subjects`, {
+        subject_id: subjectObj.subject_id,
+      });
+      setSubjectIdMap((prev) => ({
+        ...prev,
+        [subjectObj.subject_name]: subjectObj.subject_id,
+      }));
+      setExpertise((prev) => [...prev, subjectObj.subject_name]);
+      toast.success(`Added ${subjectObj.subject_name} to your expertise`);
       setShowAddExpertiseDialog(false);
       setSelectedSubject("");
+    } catch (error) {
+      console.error("Error adding subject:", error);
+      toast.error("Failed to add subject");
     }
   };
 
-  const handleRemoveExpertise = (exp: string) => {
-    setExpertise(expertise.filter((e) => e !== exp));
-    toast.success(`Removed ${exp} from your expertise`);
+  const handleRemoveExpertise = async (exp: string) => {
+    const subjectId = subjectIdMap[exp];
+    if (!subjectId) return;
+    try {
+      await apiDelete(`/users/${tutor.id}/subjects/${subjectId}`);
+      setExpertise((prev) => prev.filter((e) => e !== exp));
+      setSubjectIdMap((prev) => {
+        const m = { ...prev };
+        delete m[exp];
+        return m;
+      });
+      toast.success(`Removed ${exp} from your expertise`);
+    } catch (error) {
+      console.error("Error removing subject:", error);
+      toast.error("Failed to remove subject");
+    }
   };
 
   const handleChangePassword = async () => {
@@ -255,27 +331,10 @@ export function EnhancedTutorProfileTab({
   const handleOpenReviewDialog = (sessionId: string) => {
     setCurrentReviewSessionId(sessionId);
     const session = completedSessions.find((s) => s.id === sessionId);
-    const existingReview = sessionReviews[sessionId];
-    if (existingReview) {
-      setReviewData({
-        rating: existingReview.rating || 5,
-        summary: existingReview.summary || "",
-        recordingUrl:
-          existingReview.recordingUrl || session?.recordingUrl || "",
-      });
-    } else if (session?.feedback) {
-      setReviewData({
-        rating: 5,
-        summary: session.feedback.tutorProgress || "",
-        recordingUrl: session.recordingUrl || "",
-      });
-    } else {
-      setReviewData({
-        rating: 5,
-        summary: "",
-        recordingUrl: session?.recordingUrl || "",
-      });
-    }
+    setReviewData({
+      summary: session?.summary || "",
+      recordingUrl: session?.recordingUrl || "",
+    });
     setReviewDialogOpen(true);
   };
 
@@ -288,30 +347,13 @@ export function EnhancedTutorProfileTab({
     }
 
     try {
-      // Vì không có database, chỉ update local state và mock data
-      // Trong tương lai có thể gọi API: POST /api/sessions/:id/feedback
-      // const response = await fetch(`${API_BASE_URL}/sessions/${currentReviewSessionId}/feedback`, {...});
-
-      // Update local state
-      setSessionReviews((prev) => ({
-        ...prev,
-        [currentReviewSessionId]: {
-          sessionId: currentReviewSessionId,
-          rating: reviewData.rating,
+      await apiPatch(`/sessions/${currentReviewSessionId}`, {
+        updateData: {
           summary: reviewData.summary,
-          recordingUrl: reviewData.recordingUrl,
+          recordingUrl: reviewData.recordingUrl || undefined,
         },
-      }));
+      });
 
-      // Update session via API (backend will update mock data)
-      // In the future, can call: POST /api/sessions/:id/feedback
-      // const response = await fetch(`${API_BASE_URL}/sessions/${currentReviewSessionId}/feedback`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(reviewData)
-      // });
-
-      // Refresh sessions from API
       await handleProfile();
 
       toast.success("Session feedback saved successfully!");
@@ -324,8 +366,8 @@ export function EnhancedTutorProfileTab({
   };
 
   // Filter available subjects to exclude already added ones
-  const availableToAdd = AVAILABLE_SUBJECTS.filter(
-    (subject) => !expertise.includes(subject),
+  const availableToAdd = allSubjects.filter(
+    (s) => !expertise.includes(s.subject_name),
   );
 
   return (
@@ -428,9 +470,9 @@ export function EnhancedTutorProfileTab({
                           <SelectValue placeholder="Select a subject" />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableToAdd.map((subject) => (
-                            <SelectItem key={subject} value={subject}>
-                              {subject}
+                          {availableToAdd.map((s) => (
+                            <SelectItem key={s.subject_id} value={s.subject_id}>
+                              {s.subject_name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -531,7 +573,6 @@ export function EnhancedTutorProfileTab({
                 const enrolledStudents = students.filter((s) =>
                   session.enrolledStudents.includes(s.id),
                 );
-                const review = sessionReviews[session.id];
 
                 return (
                   <div
@@ -569,32 +610,26 @@ export function EnhancedTutorProfileTab({
                       )}
                     </div>
 
-                    {review && (
-                      <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-sm">
-                            Your Rating: {review.rating}/5
-                          </span>
-                        </div>
-                        {review.summary && (
-                          <div className="mb-2">
-                            <p className="text-xs text-gray-600 mb-1">
-                              Session Summary:
-                            </p>
-                            <p className="text-sm">{review.summary}</p>
-                          </div>
+                    {(session.summary || session.recordingUrl) && (
+                      <div className="bg-indigo-50 border border-indigo-200 rounded p-3 mb-3">
+                        <p className="text-xs font-medium text-indigo-700 mb-2">
+                          Session Summary & Recording
+                        </p>
+                        {session.summary && (
+                          <p className="text-sm mb-2">{session.summary}</p>
                         )}
-                        {review.recordingUrl && (
+                        {session.recordingUrl && (
                           <div>
                             <p className="text-xs text-gray-600 mb-1">
                               Recording URL:
                             </p>
                             <a
-                              href={review.recordingUrl}
+                              href={session.recordingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="text-sm text-blue-600 hover:underline break-all"
                             >
-                              {review.recordingUrl}
+                              {session.recordingUrl}
                             </a>
                           </div>
                         )}
@@ -604,29 +639,37 @@ export function EnhancedTutorProfileTab({
                     {session.reviews && session.reviews.length > 0 && (
                       <div className="pt-3 border-t space-y-3 mb-3">
                         <p className="text-sm">Student Reviews:</p>
-                        {session.reviews.map((studentReview, idx) => {
-                          const student = students.find(
-                            (s) => s.id === studentReview.studentId,
-                          );
-                          return (
-                            <div key={idx} className="bg-gray-50 rounded p-3">
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="text-sm">{student?.name}</p>
-                                <span className="text-sm">
-                                  {studentReview.rating}/5 ⭐
-                                </span>
+                        {session.reviews
+                          .slice(0, 3)
+                          .map((studentReview, idx) => {
+                            const student = students.find(
+                              (s) => s.id === studentReview.studentId,
+                            );
+                            return (
+                              <div key={idx} className="bg-gray-50 rounded p-3">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-sm">{student?.name}</p>
+                                  <span className="text-sm">
+                                    {studentReview.rating}/5 ⭐
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                  {studentReview.comment}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {new Date(
+                                    studentReview.submittedAt,
+                                  ).toLocaleString()}
+                                </p>
                               </div>
-                              <p className="text-sm text-gray-600">
-                                {studentReview.comment}
-                              </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {new Date(
-                                  studentReview.submittedAt,
-                                ).toLocaleString()}
-                              </p>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        {session.reviews.length > 3 && (
+                          <p className="text-xs text-gray-500">
+                            and {session.reviews.length - 3} more review
+                            {session.reviews.length - 3 > 1 ? "s" : ""}
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -637,7 +680,7 @@ export function EnhancedTutorProfileTab({
                         onClick={() => handleOpenReviewDialog(session.id)}
                       >
                         <Edit className="h-4 w-4 mr-2" />
-                        {review
+                        {session.summary || session.recordingUrl
                           ? "Edit Summary & Recording"
                           : "Add Summary & Recording"}
                       </Button>
@@ -670,33 +713,13 @@ export function EnhancedTutorProfileTab({
           <DialogHeader>
             <DialogTitle>Session Summary & Recording</DialogTitle>
             <DialogDescription>
-              Add or edit your summary and recording link for this session
+              {completedSessions.find((s) => s.id === currentReviewSessionId)
+                ?.summary
+                ? "Edit the summary and recording link you have already posted for this session."
+                : "Post a summary and recording link for this session. You can edit it later."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Rating (1-5)</Label>
-              <div className="flex items-center gap-2 mt-2">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <Button
-                    key={rating}
-                    onClick={() => setReviewData({ ...reviewData, rating })}
-                    className="focus:outline-none"
-                  >
-                    <Star
-                      className={`h-6 w-6 ${
-                        rating <= reviewData.rating
-                          ? "text-yellow-500 fill-yellow-500"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  </Button>
-                ))}
-                <span className="ml-2 text-sm text-gray-600">
-                  {reviewData.rating}/5
-                </span>
-              </div>
-            </div>
             <div>
               <Label>Session Summary *</Label>
               <Textarea

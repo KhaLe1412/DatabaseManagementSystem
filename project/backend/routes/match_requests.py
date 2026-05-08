@@ -13,7 +13,7 @@ match_bp = Blueprint('match', __name__)
 #     }]
 # }
 # ----------------------------------------------------------------
-@match_bp.route('/', methods=['GET'])
+@match_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_match_requests():
     student_id = request.args.get('studentId')
     status     = request.args.get('status')
@@ -32,7 +32,7 @@ def get_match_requests():
 # }
 # Output (201): { 'id': str, 'message': 'Match request created' }
 # ----------------------------------------------------------------
-@match_bp.route('/', methods=['POST'])
+@match_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_match_request():
     data = request.get_json()
     # TODO: validate required fields

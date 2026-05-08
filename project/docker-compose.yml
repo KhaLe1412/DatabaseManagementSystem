@@ -31,6 +31,8 @@ services:
       - dbms_network
     command: >
       --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
       --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO
       --default-time-zone='+07:00'
     restart: unless-stopped
@@ -65,6 +67,43 @@ services:
       MEMORY_LIMIT: 512M
     ports:
       - "8081:80"
+    networks:
+      - dbms_network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dbms_backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: dbms_project
+      DB_USER: dbuser
+      DB_PASSWORD: dbpassword
+      FLASK_PORT: 5001
+      FLASK_DEBUG: "False"
+    ports:
+      - "5001:5001"
+    networks:
+      - dbms_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: dbms_frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
     networks:
       - dbms_network
     restart: unless-stopped

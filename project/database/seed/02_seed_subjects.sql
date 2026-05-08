@@ -12,7 +12,9 @@ INSERT IGNORE INTO subjects (id, name) VALUES
 ('SUBJ-0000-0000-0000-000000000001', 'Hệ quản trị cơ sở dữ liệu'),
 ('SUBJ-0000-0000-0000-000000000002', 'Cấu trúc dữ liệu và giải thuật'),
 ('SUBJ-0000-0000-0000-000000000003', 'Mạng máy tính'),
-('SUBJ-0000-0000-0000-000000000004', 'Trí tuệ nhân tạo');
+('SUBJ-0000-0000-0000-000000000004', 'Trí tuệ nhân tạo'),
+('SUBJ-0000-0000-0000-000000000005', 'Lập trình căn bản'),
+('SUBJ-0000-0000-0000-000000000006', 'Giải tích 1');
 
 SET FOREIGN_KEY_CHECKS = 1;
 

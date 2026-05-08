@@ -164,6 +164,7 @@ Hiện có **2 loại thông báo**, được tạo tự động khi gia sư th�
 | 5   | Từ chối Request (không làm gì)                                                     |
 | 6   | Lấy danh sách Request của gia sư                                                   |
 | 7   | Lấy danh sách Notification của người dùng                                          |
+| 8   | Cập nhật summary và recording_url sau khi hoàn thành session                       |
 
 ---
 
@@ -173,16 +174,16 @@ Hiện có **2 loại thông báo**, được tạo tự động khi gia sư th�
 
 **Stored Procedure:**
 
-| #   | Chức năng                               |
-| --- | --------------------------------------- |
-| 1   | Lấy tất cả tài liệu                     |
-| 2   | Lọc tài liệu theo `title` / `type`      |
-| 3   | Thêm / xóa tài liệu                     |
-| 4   | Lấy danh sách tin nhắn giữa 2 tài khoản |
-| 5   | Gửi tin nhắn                            |
-| 6   | Đánh dấu đọc tin nhắn                   |
-| 7   | Sinh viên gửi đánh giá về buổi học      |
-| 8   | Lấy danh sách các đánh giá về 1 buổi học    |
+| #   | Chức năng                                |
+| --- | ---------------------------------------- |
+| 1   | Lấy tất cả tài liệu                      |
+| 2   | Lọc tài liệu theo `title` / `type`       |
+| 3   | Thêm / xóa tài liệu                      |
+| 4   | Lấy danh sách tin nhắn giữa 2 tài khoản  |
+| 5   | Gửi tin nhắn                             |
+| 6   | Đánh dấu đọc tin nhắn                    |
+| 7   | Sinh viên gửi đánh giá về buổi học       |
+| 8   | Lấy danh sách các đánh giá về 1 buổi học |
 
 ---
 

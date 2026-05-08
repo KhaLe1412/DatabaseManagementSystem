@@ -67,15 +67,37 @@ export default function App() {
     setIsLoading(true);
     try {
       if (selectedRole === "student") {
-        const student = await apiGet<Student>(
-          `/students/${selectedUserId}?userId=${selectedUserId}`,
+        const raw = await apiGet<Record<string, unknown>>(
+          `/users/${selectedUserId}`,
         );
-        setCurrentStudent(student);
+        setCurrentStudent({
+          id: selectedUserId,
+          name: (raw.name as string) ?? "",
+          email: (raw.email as string) ?? "",
+          role: "student",
+          avatar: raw.avatar as string | undefined,
+          studentId: (raw.studentId as string) ?? "",
+          department: (raw.department as string) ?? "",
+          year: (raw.year as number) ?? 1,
+          gpa: (raw.gpa as number) ?? 0,
+          supportNeeds: (raw.supportNeeds as string[]) ?? [],
+        });
       } else if (selectedRole === "tutor") {
-        const tutor = await apiGet<Tutor>(
-          `/tutors/${selectedUserId}?userId=${selectedUserId}`,
+        const raw = await apiGet<Record<string, unknown>>(
+          `/users/${selectedUserId}`,
         );
-        setCurrentTutor(tutor);
+        setCurrentTutor({
+          id: selectedUserId,
+          name: (raw.name as string) ?? "",
+          email: (raw.email as string) ?? "",
+          role: "tutor",
+          avatar: raw.avatar as string | undefined,
+          tutorId: (raw.tutorId as string) ?? "",
+          department: (raw.department as string) ?? "",
+          expertise: (raw.expertise as string[]) ?? [],
+          rating: (raw.rating as number) ?? 0,
+          totalSessions: (raw.totalSessions as number) ?? 0,
+        });
       } else if (selectedRole === "admin") {
         // Admin vẫn dùng mock data vì chưa có API endpoint
         const admin = mockAdmins.find((a) => a.id === selectedUserId);

@@ -2,7 +2,7 @@
 -- Mô tả: Xóa tài liệu khỏi thư viện
 -- Tác giả: Nguyễn Hữu Thời
 -- Ngày tạo: 2026-04-04
--- Parameters: p_resource_id BIGINT
+-- Parameters: p_resource_id VARCHAR(36)
 -- Returns: Trạng thái xóa
 
 USE dbms_project;
@@ -12,7 +12,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_delete_document//
 
 CREATE PROCEDURE sp_delete_document(
-    IN p_resource_id BIGINT
+    IN p_resource_id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -21,7 +21,7 @@ BEGIN
         RESIGNAL;
     END;
 
-    IF p_resource_id IS NULL OR p_resource_id <= 0 THEN
+    IF p_resource_id IS NULL OR CHAR_LENGTH(TRIM(p_resource_id)) = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid resource_id';
     END IF;
 

@@ -8,7 +8,7 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import {
   Calendar,
   Clock,
@@ -16,38 +16,54 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import { Tutor } from "../../types";
+import { Tutor, Session, RescheduleRequest } from "../../types";
+import { toast } from "sonner";
 import {
-  mockStudents,
-  mockSessions,
-  mockRescheduleRequests,
-} from "../../lib/mock-data";
-import { toast } from "sonner@2.0.3";
-import { apiGet, apiPost } from "../../lib/api";
+  apiGet,
+  apiPatch,
+  mapSession,
+  mapRescheduleRequest,
+} from "../../lib/api";
 
 interface RequestsTabProps {
   tutor: Tutor;
 }
 
 export function RequestsTab({ tutor }: RequestsTabProps) {
-  const [sessions, setSessions] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [rescheduleRequests, setRescheduleRequests] = useState([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [students, setStudents] = useState<
+    { id: string; name: string; email: string }[]
+  >([]);
+  const [rescheduleRequests, setRescheduleRequests] = useState<
+    RescheduleRequest[]
+  >([]);
 
   const handleFetchData = async () => {
     try {
       const [tutorSessions, allStudents, relatedRequests] = await Promise.all([
-        apiGet<any[]>(`/sessions?tutorId=${tutor.id}`),
-        apiGet<any[]>("/students"),
-        apiGet<any[]>(`/requests/reschedule?userId=${tutor.id}`),
+        apiGet<{ sessions: Record<string, unknown>[] }>(
+          `/sessions?tutorId=${tutor.id}`,
+        ),
+        apiGet<{ users: { id: string; name: string; email: string }[] }>(
+          "/users?role=student&limit=100",
+        ),
+        apiGet<{ rescheduleRequests: Record<string, unknown>[] }>(
+          `/reschedule-requests?userId=${tutor.id}`,
+        ),
       ]);
-      setSessions(tutorSessions);
-      setStudents(allStudents);
-      setRescheduleRequests(relatedRequests);
+      setSessions(tutorSessions.sessions.map(mapSession));
+      setStudents(allStudents.users);
+      setRescheduleRequests(
+        relatedRequests.rescheduleRequests.map(mapRescheduleRequest),
+      );
     } catch (err) {
       console.error("Failed to fetch data", err);
       toast.error("Failed to load requests");
     }
+  };
+
+  const getRawRequest = (requestId: string) => {
+    return rescheduleRequests.find((r) => r.id === requestId);
   };
 
   useEffect(() => {
@@ -56,8 +72,9 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
 
   const handleApproveReschedule = async (requestId: string) => {
     try {
-      await apiPost(`/requests/reschedule/${requestId}/approve`);
-
+      await apiPatch(`/reschedule-requests/${requestId}`, {
+        status: "accepted",
+      });
       toast.success("Reschedule approved!");
       handleFetchData();
     } catch (error) {
@@ -68,8 +85,9 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
 
   const handleRejectReschedule = async (requestId: string) => {
     try {
-      await apiPost(`/requests/reschedule/${requestId}/reject`);
-
+      await apiPatch(`/reschedule-requests/${requestId}`, {
+        status: "rejected",
+      });
       toast.info("Reschedule request rejected");
       handleFetchData();
     } catch (error) {
@@ -94,13 +112,11 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
             </p>
           ) : (
             rescheduleRequests.map((request) => {
-              const session = mockSessions.find(
-                (s) => s.id === request.sessionId,
+              const rawRequest = request as any;
+              const session = sessions.find((s) => s.id === request.sessionId);
+              const student = students.find(
+                (s) => s.id === request.requesterId,
               );
-              const student =
-                request.requesterRole === "student"
-                  ? mockStudents.find((s) => s.id === request.requesterId)
-                  : null;
 
               return (
                 <div
@@ -112,7 +128,6 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
                       {student && (
                         <>
                           <Avatar>
-                            <AvatarImage src={student?.avatar} />
                             <AvatarFallback>
                               {student?.name.charAt(0)}
                             </AvatarFallback>
@@ -120,7 +135,7 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
                           <div>
                             <p>{student?.name}</p>
                             <p className="text-sm text-gray-600">
-                              {session?.subject}
+                              {rawRequest.subject ?? session?.subject}
                             </p>
                           </div>
                         </>
@@ -145,12 +160,15 @@ export function RequestsTab({ tutor }: RequestsTabProps) {
                       <div className="bg-red-50 p-3 rounded border border-red-200">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-red-600" />
-                          <span>{session?.date}</span>
+                          <span>
+                            {rawRequest.current_session_date ?? session?.date}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           <Clock className="h-4 w-4 text-red-600" />
                           <span>
-                            {session?.startTime} - {session?.endTime}
+                            {rawRequest.current_start ?? session?.startTime} -{" "}
+                            {rawRequest.current_end ?? session?.endTime}
                           </span>
                         </div>
                       </div>

@@ -20,18 +20,13 @@ import {
   Search,
   User,
 } from "lucide-react";
-import {
-  mockTutors,
-  mockSessions,
-  mockLibraryResources,
-} from "../lib/mock-data";
 import { EnhancedMySessionsTab } from "./student/EnhancedMySessionsTab";
 import { LibraryTab } from "./student/LibraryTab";
 import { EnhancedProfileTab } from "./student/EnhancedProfileTab";
 import { JoinTab } from "./student/JoinTab";
 import { MessagingPanel } from "./MessagingPanel";
 import { Student, Session } from "../types";
-import { apiGet } from "../lib/api";
+import { apiGet, mapSession } from "../lib/api";
 import schoolLogo from "figma:asset/5d30621cfc38347904bd973d0c562d26588d6b2f.png";
 
 interface StudentDashboardProps {
@@ -45,8 +40,10 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
 
   const fetchSessions = async () => {
     try {
-      const data = await apiGet<any[]>("/sessions");
-      setSessions(data.map((item) => item.session));
+      const data = await apiGet<{ sessions: Record<string, unknown>[] }>(
+        "/sessions",
+      );
+      setSessions(data.sessions.map(mapSession));
     } catch (error) {
       console.error("Error fetching sessions:", error);
     }
@@ -56,11 +53,11 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
     fetchSessions();
   }, [student.id]);
 
-  const upcomingSessions = mockSessions.filter(
+  const upcomingSessions = sessions.filter(
     (s) => s.enrolledStudents.includes(student.id) && s.status === "open",
   );
 
-  const completedSessions = mockSessions.filter(
+  const completedSessions = sessions.filter(
     (s) => s.enrolledStudents.includes(student.id) && s.status === "completed",
   );
 
@@ -148,18 +145,17 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
                   <p className="text-gray-500">No upcoming sessions</p>
                 ) : (
                   upcomingSessions.map((session) => {
-                    const tutor = mockTutors.find(
-                      (t) => t.id === session.tutorId,
-                    );
+                    const tutorName = (session as any).tutorName as
+                      | string
+                      | undefined;
                     return (
                       <div
                         key={session.id}
                         className="flex items-start gap-4 p-4 border rounded-lg"
                       >
                         <Avatar>
-                          <AvatarImage src={tutor?.avatar} />
                           <AvatarFallback>
-                            {tutor?.name.charAt(0)}
+                            {tutorName?.charAt(0) ?? "T"}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -167,7 +163,7 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
                             <div>
                               <p>{session.subject}</p>
                               <p className="text-sm text-gray-600">
-                                with {tutor?.name}
+                                with {tutorName ?? session.tutorId}
                               </p>
                             </div>
                             <Badge>{session.type}</Badge>
@@ -192,7 +188,14 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
                               session.meetingLink && (
                                 <div className="flex items-center gap-1">
                                   <Video className="h-4 w-4" />
-                                  Online Meeting
+                                  <a
+                                    href={session.meetingLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Join Online
+                                  </a>
                                 </div>
                               )}
                           </div>
@@ -201,22 +204,6 @@ export function StudentDashboard({ student }: StudentDashboardProps) {
                     );
                   })
                 )}
-              </CardContent>
-            </Card>
-
-            {/* Support Needs */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Support Needs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {student.supportNeeds.map((need) => (
-                    <Badge key={need} variant="secondary">
-                      {need}
-                    </Badge>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

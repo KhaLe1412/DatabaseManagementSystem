@@ -4,6 +4,7 @@
 -- Ngày tạo: 2026-04-04
 
 USE dbms_project;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- ================================
 -- TEST SETUP
@@ -33,23 +34,24 @@ LEFT JOIN `comment` c
     ON c.student_id = s.student_id
    AND c.session_id = se.session_id
 WHERE c.student_id IS NULL
+  AND se.status = 'completed'
 LIMIT 1;
 
 SELECT
-    a1.user_id,
-    a2.user_id
+    u1.id,
+    u2.id
 INTO @msg_sender_id, @msg_receiver_id
-FROM accounts a1
-JOIN accounts a2
-    ON a1.user_id <> a2.user_id
+FROM users u1
+JOIN users u2
+    ON u1.id <> u2.id
 LEFT JOIN message m1
-    ON m1.sender_id = a1.user_id
-   AND m1.receiver_id = a2.user_id
+    ON m1.sender_id = u1.id
+   AND m1.receiver_id = u2.id
 LEFT JOIN message m2
-    ON m2.sender_id = a2.user_id
-   AND m2.receiver_id = a1.user_id
-WHERE a1.role = 'STUDENT'
-  AND a2.role = 'TUTOR'
+    ON m2.sender_id = u2.id
+   AND m2.receiver_id = u1.id
+WHERE u1.role = 'student'
+  AND u2.role = 'tutor'
   AND m1.message_id IS NULL
   AND m2.message_id IS NULL
 LIMIT 1;

@@ -34,7 +34,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid student_id';
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM students WHERE user_id = p_student_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM students WHERE student_id = p_student_id) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Student not found';
     END IF;
 
@@ -70,28 +70,11 @@ BEGIN
     FOR UPDATE;
 
     IF v_current_students >= v_max_students THEN
-        UPDATE sessions
-        SET status = 'full',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Session is full';
     END IF;
 
     INSERT INTO session_participants (session_id, student_id)
     VALUES (p_session_id, p_student_id);
-
-    SELECT COUNT(*)
-    INTO v_current_students
-    FROM session_participants
-    WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-
-    IF v_current_students >= v_max_students THEN
-        UPDATE sessions
-        SET status = 'full',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci;
-    END IF;
 
     COMMIT;
 

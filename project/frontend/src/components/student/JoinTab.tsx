@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -39,10 +39,9 @@ import {
   X,
   LogOut,
 } from "lucide-react";
-import { mockTutors } from "../../lib/mock-data";
 import { Student, Session } from "../../types";
 import { toast } from "sonner";
-import { apiPatch } from "../../lib/api";
+import { apiPost } from "../../lib/api";
 
 interface JoinTabProps {
   student: Student;
@@ -59,29 +58,29 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
   const [matchedSession, setMatchedSession] = useState<Session | null>(null);
   const [isMatching, setIsMatching] = useState(false);
 
-  // Get all open sessions from real data
-  const openSessions = sessions.filter((s) => s.status === "open");
+  // Get all open sessions
+  const activeSessions = sessions.filter((s) => s.status === "open");
 
   // Get unique subjects
   const uniqueSubjects = Array.from(
-    new Set(openSessions.map((s) => s.subject)),
+    new Set(activeSessions.map((s) => s.subject)),
   );
 
   // Separate enrolled and not enrolled sessions
-  const enrolledSessions = openSessions.filter((session) =>
+  const enrolledSessions = activeSessions.filter((session) =>
     session.enrolledStudents?.includes(student.id),
   );
-  const availableSessions = openSessions.filter(
+  const availableSessions = activeSessions.filter(
     (session) => !session.enrolledStudents?.includes(student.id),
   );
 
   // Filter sessions based on search and filters
   const filterSessions = (sessionsList: Session[]) => {
     return sessionsList.filter((session) => {
-      const tutor = mockTutors.find((t) => t.id === session.tutorId);
+      const tutorName = (session as any).tutorName as string | undefined;
       const matchesSearch =
         session.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tutor?.name.toLowerCase().includes(searchQuery.toLowerCase());
+        (tutorName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
       const matchesSubject =
         filterSubject === "all" || session.subject === filterSubject;
       const matchesType = filterType === "all" || session.type === filterType;
@@ -93,7 +92,7 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
   const filteredEnrolledSessions = filterSessions(enrolledSessions);
   const filteredAvailableSessions = filterSessions(availableSessions);
 
-  useState(() => {
+  useEffect(() => {
     if (student.id) {
       onJoinSuccess();
     }
@@ -101,36 +100,23 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
 
   const handleJoinSession = async (session: Session) => {
     try {
-      const currentEnrolled = session.enrolledStudents || [];
-      const newEnrolledList = [...currentEnrolled, student.id];
-
-      await apiPatch(`/sessions/${session.id}`, {
-        updateData: { enrolledStudents: newEnrolledList },
-      });
-
+      await apiPost(`/sessions/${session.id}/join`, { studentId: student.id });
       toast.success(`Successfully joined session: ${session.subject}`);
-
       onJoinSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Error joining session");
+      toast.error(error?.message ?? "Error joining session");
     }
   };
 
   const handleLeaveSession = async (session: Session) => {
     try {
-      const currentEnrolled = session.enrolledStudents || [];
-      const newEnrolledList = currentEnrolled.filter((id) => id !== student.id);
-
-      await apiPatch(`/sessions/${session.id}`, {
-        updateData: { enrolledStudents: newEnrolledList },
-      });
-
+      await apiPost(`/sessions/${session.id}/leave`, { studentId: student.id });
       toast.success(`Left session: ${session.subject}`);
-      onJoinSuccess(); // Refresh dashboard
-    } catch (error) {
+      onJoinSuccess();
+    } catch (error: any) {
       console.error(error);
-      toast.error("Error leaving session");
+      toast.error(error?.message ?? "Error leaving session");
     }
   };
 
@@ -184,7 +170,7 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
   };
 
   const renderSessionCard = (session: Session, isEnrolled: boolean = false) => {
-    const tutor = mockTutors.find((t) => t.id === session.tutorId);
+    const tutorName = (session as any).tutorName as string | undefined;
     const spotsLeft =
       (session.maxStudents || 0) - (session.enrolledStudents?.length || 0);
 
@@ -194,7 +180,9 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
           <div className="flex items-start justify-between">
             <div>
               <CardTitle>{session.subject}</CardTitle>
-              <CardDescription>by {tutor?.name}</CardDescription>
+              <CardDescription>
+                by {tutorName ?? session.tutorId}
+              </CardDescription>
             </div>
             <Badge
               variant={session.type === "online" ? "default" : "secondary"}
@@ -206,12 +194,10 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={tutor?.avatar} />
-              <AvatarFallback>{tutor?.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{tutorName?.charAt(0) ?? "T"}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm">{tutor?.name}</p>
-              <p className="text-xs text-gray-500">{tutor?.department}</p>
+              <p className="text-sm">{tutorName ?? session.tutorId}</p>
             </div>
           </div>
 
@@ -392,9 +378,10 @@ export function JoinTab({ student, sessions, onJoinSuccess }: JoinTabProps) {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Browse Open Sessions</CardTitle>
+          <CardTitle>Browse Sessions</CardTitle>
           <CardDescription>
-            Search and filter available tutoring sessions
+            Search and filter tutoring sessions — join open sessions or leave
+            ones you're enrolled in
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

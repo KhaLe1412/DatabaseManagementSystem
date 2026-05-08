@@ -52,12 +52,6 @@ BEGIN
     WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci
       AND student_id = p_student_id COLLATE utf8mb4_unicode_ci;
 
-    -- Cập nhật thẳng trạng thái
-    UPDATE sessions
-    SET status = 'open'
-    WHERE session_id = p_session_id COLLATE utf8mb4_unicode_ci
-      AND status = 'full';
-
     COMMIT;
 
     SELECT 'Student removed from session successfully' AS message;
@@ -65,7 +59,3 @@ END//
 
 DELIMITER ;
 
-DELIMITER ;
-
--- Test procedure
--- CALL sp_remove_student_session(2, 3);

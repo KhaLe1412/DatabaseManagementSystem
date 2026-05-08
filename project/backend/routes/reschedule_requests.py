@@ -1,69 +1,111 @@
 ﻿from flask import Blueprint, request, jsonify
+import mysql.connector
+
+from db.connection import Database
 
 reschedule_bp = Blueprint('reschedule', __name__)
 
 
+def _sql_err(err):
+    msg = err.msg if hasattr(err, 'msg') else str(err)
+    if 'not found' in msg.lower():
+        return jsonify({'error': msg}), 404
+    if 'overlap' in msg.lower():
+        return jsonify({'error': msg}), 409
+    return jsonify({'error': msg}), 400
+
+
 # ----------------------------------------------------------------
 # GET /api/reschedule-requests
-# Input  (query): sessionId?, userId?, status?
-# Output (200): {
-#     'rescheduleRequests': [{
-#         id, sessionId, requesterId, requesterRole,
-#         newDate, newStartTime, newEndTime, reason, status, createdAt
-#     }]
-# }
-# Stored procedure: sp_get_tutor_requests(p_tutor_id)
+# Input  (query): userId (tutor_id), sessionId?, status?
+# Output (200): { 'rescheduleRequests': [...] }
+# Stored procedure: sp_list_requests_for_tutor(p_tutor_id)
 # ----------------------------------------------------------------
-@reschedule_bp.route('/', methods=['GET'])
+@reschedule_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_reschedule_requests():
-    session_id = request.args.get('sessionId')
     user_id    = request.args.get('userId')
+    session_id = request.args.get('sessionId')
     status     = request.args.get('status')
-    # TODO: rows = db.call_procedure('sp_get_tutor_requests', (user_id,))
-    # TODO: filter by session_id and/or status in Python
-    return jsonify({'message': 'Not implemented'}), 501
+    if not user_id:
+        return jsonify({'error': 'userId is required'}), 400
+    try:
+        db   = Database.get_instance()
+        rows = db.call_procedure('sp_list_requests_for_tutor', (user_id,))
+
+        if session_id:
+            rows = [r for r in rows if str(r.get('session_id')) == session_id]
+        if status:
+            rows = [r for r in rows if r.get('status') == status]
+
+        for r in rows:
+            for ts_field in ('created_at', 'handled_at', 'current_session_date', 'proposed_date'):
+                if r.get(ts_field):
+                    r[ts_field] = str(r[ts_field])
+            for t_field in ('proposed_start_time', 'proposed_end_time', 'current_start', 'current_end'):
+                val = r.get(t_field)
+                if val and hasattr(val, 'seconds'):
+                    total = val.seconds
+                    r[t_field] = f"{total // 3600:02d}:{(total % 3600) // 60:02d}"
+
+        return jsonify({'rescheduleRequests': rows}), 200
+    except mysql.connector.Error as err:
+        return _sql_err(err)
 
 
 # ----------------------------------------------------------------
 # POST /api/reschedule-requests
 # Input  (JSON body): {
-#     sessionId, requesterId, requesterRole ('student'|'tutor'),
-#     newDate (YYYY-MM-DD), newStartTime (HH:mm), newEndTime (HH:mm), reason
+#     studentId, sessionId, proposedDate, proposedStartTime, proposedEndTime, reason
 # }
 # Output (201): { 'id': str, 'message': 'Reschedule request created' }
 # Stored procedure: sp_create_reschedule_request(
-#     p_session_id, p_requester_id, p_new_date, p_new_start, p_new_end, p_reason
+#     p_student_id, p_session_id, p_proposed_date,
+#     p_proposed_start, p_proposed_end, p_reason
 # )
 # ----------------------------------------------------------------
-@reschedule_bp.route('/', methods=['POST'])
+@reschedule_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_reschedule_request():
-    data = request.get_json()
-    # TODO: validate all required fields
-    # TODO: db.call_procedure('sp_create_reschedule_request', (
-    #           data['sessionId'], data['requesterId'],
-    #           data['newDate'], data['newStartTime'], data['newEndTime'], data['reason']
-    #       ))
-    return jsonify({'message': 'Not implemented'}), 501
+    data = request.get_json() or {}
+    for field in ('studentId', 'sessionId', 'proposedDate', 'proposedStartTime', 'proposedEndTime', 'reason'):
+        if not data.get(field):
+            return jsonify({'error': f'{field} is required'}), 400
+    try:
+        db   = Database.get_instance()
+        rows = db.call_procedure('sp_create_reschedule_request', (
+            data['studentId'], data['sessionId'],
+            data['proposedDate'], data['proposedStartTime'], data['proposedEndTime'],
+            data['reason'],
+        ))
+        request_id = rows[0]['request_id'] if rows else None
+        return jsonify({'id': request_id, 'message': 'Reschedule request created'}), 201
+    except mysql.connector.Error as err:
+        return _sql_err(err)
 
 
 # ----------------------------------------------------------------
 # PATCH /api/reschedule-requests/:id
-# Input  (path): id
-# Input  (JSON body): { 'status': 'approved' | 'rejected' }
-# Output (200): { 'message': 'Reschedule request updated' }
+# Input  (JSON body): { 'status': 'accepted' | 'rejected' }
+# Output (200): { 'message': ... }
 # Roles allowed: tutor (owner of the session)
-# If approved -> sp_accept_reschedule_request(p_request_id)
-#   Side effect: updates session date/time + auto-creates Notification
-#                for all enrolled students (type: schedule-change)
-# If rejected -> sp_reject_reschedule_request(p_request_id)  (no-op on session)
+# accepted -> sp_accept_reschedule_request(request_id)
+# rejected -> sp_reject_reschedule_request(request_id)
 # ----------------------------------------------------------------
 @reschedule_bp.route('/<request_id>', methods=['PATCH'])
 def handle_reschedule_request(request_id):
-    data   = request.get_json()
+    data   = request.get_json() or {}
     status = data.get('status')
-    # TODO: if status == 'approved':
-    #           db.call_procedure('sp_accept_reschedule_request', (request_id,))
-    # TODO: elif status == 'rejected':
-    #           db.call_procedure('sp_reject_reschedule_request', (request_id,))
-    # TODO: else: return 400 invalid status
-    return jsonify({'message': 'Not implemented'}), 501
+    if status not in ('accepted', 'rejected'):
+        return jsonify({'error': "status must be 'accepted' or 'rejected'"}), 400
+    try:
+        db   = Database.get_instance()
+        if status == 'accepted':
+            rows = db.call_procedure('sp_accept_reschedule_request', (request_id,))
+        else:
+            rows = db.call_procedure('sp_reject_reschedule_request', (request_id,))
+        msg = rows[0]['message'] if rows else 'Done'
+        return jsonify({'message': msg}), 200
+    except mysql.connector.Error as err:
+        return _sql_err(err)
+
+
+

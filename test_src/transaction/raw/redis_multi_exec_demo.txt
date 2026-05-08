@@ -1,0 +1,24 @@
+# Demo follows report/figures/Thoi/transaction.tex
+# Test Case 3: Redis transaction thanh cong voi MULTI/EXEC
+
+# BEFORE
+EXISTS sales:order:1621
+HGETALL production:stock:1:1
+
+# RUN
+MULTI
+INCR sales:orders:next_id
+HSET sales:order:1621 customer_id 1 order_status 1 order_date "2026-03-02" required_date "2026-03-10" shipped_date "" store_id 1 staff_id 1
+SADD sales:orders:ids 1621
+SADD sales:orders:customer:1 1621
+SADD sales:orders:store:1 1621
+HSET sales:order_item:1621:1 product_id 1 quantity 2 list_price 379.99 discount 0.10
+SADD sales:order_items:order:1621 1
+HINCRBY production:stock:1:1 quantity -2
+EXEC
+
+# AFTER
+HGETALL sales:order:1621
+HGETALL sales:order_item:1621:1
+HGETALL production:stock:1:1
+
