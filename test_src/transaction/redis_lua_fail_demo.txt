@@ -1,0 +1,13 @@
+# Demo follows report/figures/Thoi/transaction.tex
+# Test Case 5: Redis Lua script that prevents invalid stock update
+
+# BEFORE
+HGETALL production:stock:1:6
+
+# RUN
+EVAL "local stock = tonumber(redis.call('HGET', 'production:stock:1:6', 'quantity')); if stock < 5 then return 'FAILED: Not enough stock (have ' .. stock .. ', need 5)' end; redis.call('HINCRBY', 'production:stock:1:6', 'quantity', -5); return 'OK: Stock reduced to ' .. (stock - 5)" 0
+
+
+# AFTER
+HGETALL production:stock:1:6
+
